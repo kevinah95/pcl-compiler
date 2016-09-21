@@ -1,0 +1,40 @@
+<project name="java-compiler" default="run">
+
+  <taskdef classname="jflex.anttask.JFlexTask" name="jflex" classpath="C:\jflex-1.6.1\lib\jflex-1.6.1.jar"/>
+  <taskdef classname="java_cup.anttask.CUPTask" name="cup" classpath="C:\jflex-1.6.1\lib\java-cup-11a.jar"/>
+
+  <target name="build" depends="realclean,compile" />
+
+  <target name="run" depends="compile">
+    <!--<java classname="JavaParser">
+      <arg line="JavaParser.java"/> 
+      <arg line="PclSymbol.java"/>
+      <arg line="UnicodeEscapes.java"/> 
+      <arg line="parser.java"/> 
+      <arg line="sym.java"/> 
+      <arg line="Scanner.java"/> 
+    </java>-->
+  </target>
+
+  <target name="compile" depends="scanner,unicode">
+
+  </target>
+
+  <target name="scanner"> <jflex file="java.flex"/> </target>
+
+  <target name="unicode"> <jflex file="unicode.flex"/> </target>
+
+  <target name="genclean">
+    <delete file="Scanner.java"/>
+    <delete file="UnicodeEscapes.java"/>
+  </target>
+
+  <target name="clean">
+    <delete>
+      <fileset dir="" includes="**/*~"/>
+      <fileset dir="" includes="**/*.class"/>
+    </delete>
+  </target>
+
+  <target name="realclean" depends="clean,genclean" />
+</project>
