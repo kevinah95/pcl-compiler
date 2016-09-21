@@ -1,4 +1,4 @@
-package com.pcl.lexer.example;
+package example;
 
 public class JavaSymbol extends java_cup.runtime.Symbol {
   private int line;

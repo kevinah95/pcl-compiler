@@ -3,7 +3,7 @@ import java_cup.runtime.*;
 %%
 
 %public
-%class Lexer
+%class Scanner
 %implements sym
 
 %unicode
@@ -12,6 +12,7 @@ import java_cup.runtime.*;
 %column
 
 %cup
+%cupdebug
 
 %{
   StringBuilder string = new StringBuilder();
@@ -37,12 +38,12 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 Comment = {TraditionalComment} | {EndOfLineComment} |
           {DocumentationComment}
 
-TraditionalComment = "(*" [^*] ~"*)" | "(*" "*"+ ")"
+TraditionalComment = "(*" [^*] ~"*)" | "(*" "*"+ ")" | "{" ~"}"
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
-DocumentationComment = "/*" "*"+ [^/*] ~"*/"
+DocumentationComment = "(*" "*"+ [^(*] ~"*)"
 
 /* identifiers */
-Identifier = [:jletter:][:jletterdigit:]*
+Identifier = [:jletter:][:jletterdigit:]{1,126}
 
 /* integer literals */
 DecIntegerLiteral = 0 | [1-9][0-9]*
@@ -76,7 +77,7 @@ SingleCharacter = [^\r\n\'\\]
 <YYINITIAL> {
 
   /* keywords */
-  "abstract"                     { return symbol(ABSTRACT); }
+  "AND"                          { return symbol(AND); }
 
   /* boolean literals */
   "true"                         { return symbol(BOOLEAN_LITERAL, true); }
@@ -89,8 +90,6 @@ SingleCharacter = [^\r\n\'\\]
   /* separators */
   "("                            { return symbol(LPAREN); }
   ")"                            { return symbol(RPAREN); }
-  "{"                            { return symbol(LBRACE); }
-  "}"                            { return symbol(RBRACE); }
   "["                            { return symbol(LBRACK); }
   "]"                            { return symbol(RBRACK); }
   ";"                            { return symbol(SEMICOLON); }

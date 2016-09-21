@@ -38,7 +38,7 @@ UnicodeInputCharacter:
 only an even number of '\' is eligible to start a Unicode escape sequence
 
 */
-package com.pcl.lexer.example;
+package example;
 import java.io.*;
 
 

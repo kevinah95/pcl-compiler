@@ -1,4 +1,5 @@
-package com.pcl.lexer.example;/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+package com.pcl.lexer;
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright (C) 2004-2015  Gerwin Klein <lsf@jflex.de>                    *
  * All rights reserved.                                                    *
  *                                                                         *
@@ -6,8 +7,6 @@ package com.pcl.lexer.example;/* * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import com.pcl.lexer.example.Scanner;
-import com.pcl.lexer.example.UnicodeEscapes;
 import java_cup.runtime.Symbol;
 
 import java.io.FileReader;
@@ -21,20 +20,20 @@ import java.io.FileReader;
 public class TestLexer {
 
   /** some numerals to for lexer testing */
-  int intDec = 37;
+  /*int intDec = 37;
   long longDec = 37l;
   int intHex = 0x0001;
   long longHex = 0xFFFFl;
   int intOct = 0377;
   long longOc = 007l;
-  int smallest = -2147483648;   
+  int smallest = -2147483648;*/
 
   public static void main(String argv[]) {
 
     for (int i = 0; i < argv.length; i++) {
       try {
         System.out.println("Lexing ["+argv[i]+"]");
-        Scanner scanner = new Scanner(new UnicodeEscapes(new FileReader(argv[i])));
+        Scanner scanner = new Scanner(new FileReader(argv[i]));
                 
         Symbol s;
         do {

@@ -6,31 +6,19 @@
   <target name="build" depends="realclean,compile" />
 
   <target name="run" depends="compile">
-    <!--<java classname="JavaParser">
-      <arg line="JavaParser.java"/> 
-      <arg line="PclSymbol.java"/>
-      <arg line="UnicodeEscapes.java"/> 
-      <arg line="parser.java"/> 
-      <arg line="sym.java"/> 
-      <arg line="Scanner.java"/> 
-    </java>-->
-  </target>
+  <!--<java classname="com.pcl.lexer.TestLexer" fork="yes" classpath="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\TestLexer.java">
+    <arg line="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\test\test01.txt"/>
+  </java>-->
+</target>
 
-  <target name="compile" depends="scanner,unicode">
+  <target name="compile" depends="scanner">
 
   </target>
 
   <target name="scanner"> <jflex file="pcl.flex"/> </target>
 
-  <target name="unicode"> <jflex file="unicode.flex"/> </target>
-
-  <!--<target name="cup">
-    <cup srcfile="pcl.cup" interface="yes"/>
-  </target>-->
-
   <target name="genclean">
     <delete file="Scanner.java"/>
-    <delete file="UnicodeEscapes.java"/>
   </target>
 
   <target name="clean">

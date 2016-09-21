@@ -18,7 +18,7 @@
    For a production quality application (e.g. a Java compiler) 
    this could be optimized */
 
-package com.pcl.lexer.example;
+package example;
 import java_cup.runtime.*;
 
 %%
