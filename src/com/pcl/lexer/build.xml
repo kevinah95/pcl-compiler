@@ -20,7 +20,7 @@
 
   </target>
 
-  <target name="scanner"> <jflex file="java.flex"/> </target>
+  <target name="scanner"> <jflex file="pcl.flex"/> </target>
 
   <target name="unicode"> <jflex file="unicode.flex"/> </target>
 

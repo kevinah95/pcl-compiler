@@ -24,6 +24,10 @@
 
   <target name="unicode"> <jflex file="unicode.flex"/> </target>
 
+  <target name="cup">
+    <cup srcfile="java12.cup" interface="yes"/>
+  </target>
+
   <target name="genclean">
     <delete file="Scanner.java"/>
     <delete file="UnicodeEscapes.java"/>
