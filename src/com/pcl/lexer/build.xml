@@ -8,7 +8,7 @@
   <target name="run" depends="compile">
     <!--<java classname="JavaParser">
       <arg line="JavaParser.java"/> 
-      <arg line="JavaSymbol.java"/> 
+      <arg line="PclSymbol.java"/>
       <arg line="UnicodeEscapes.java"/> 
       <arg line="parser.java"/> 
       <arg line="sym.java"/> 
@@ -23,6 +23,10 @@
   <target name="scanner"> <jflex file="java.flex"/> </target>
 
   <target name="unicode"> <jflex file="unicode.flex"/> </target>
+
+  <!--<target name="cup">
+    <cup srcfile="pcl.cup" interface="yes"/>
+  </target>-->
 
   <target name="genclean">
     <delete file="Scanner.java"/>
