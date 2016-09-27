@@ -80,60 +80,60 @@ SingleCharacter = [^\r\n\'\\]
   "AND"                          { return symbol(AND); }
 
   /* boolean literals */
-  "true"                         { return symbol(BOOLEAN_LITERAL, true); }
-  "false"                        { return symbol(BOOLEAN_LITERAL, false); }
+  "true"                         { return symbol(BOOLEAN_LITERAL, true); } //----------**
+  "false"                        { return symbol(BOOLEAN_LITERAL, false); } //----------**
 
   /* null literal */
-  "null"                         { return symbol(NULL_LITERAL); }
+  "nil"                         { return symbol(NIL); }
 
 
   /* separators */
-  "("                            { return symbol(LPAREN); }
-  ")"                            { return symbol(RPAREN); }
-  "["                            { return symbol(LBRACK); }
-  "]"                            { return symbol(RBRACK); }
-  ";"                            { return symbol(SEMICOLON); }
-  ","                            { return symbol(COMMA); }
-  "."                            { return symbol(DOT); }
+  "("                            { return symbol(LPAREN); } //valid
+  ")"                            { return symbol(RPAREN); } //valid
+  "["                            { return symbol(LBRACK); } //valid
+  "]"                            { return symbol(RBRACK); } //valid
+  ";"                            { return symbol(SEMICOLON); } //valid
+  ","                            { return symbol(COMMA); } //valid
+  "."                            { return symbol(DOT); } //valid
 
   /* operators */
-  "="                            { return symbol(EQ); }
-  ">"                            { return symbol(GT); }
-  "<"                            { return symbol(LT); }
-  "!"                            { return symbol(NOT); }
-  "~"                            { return symbol(COMP); }
-  "?"                            { return symbol(QUESTION); }
-  ":"                            { return symbol(COLON); }
-  "=="                           { return symbol(EQEQ); }
-  "<="                           { return symbol(LTEQ); }
-  ">="                           { return symbol(GTEQ); }
-  "!="                           { return symbol(NOTEQ); }
-  "&&"                           { return symbol(ANDAND); }
-  "||"                           { return symbol(OROR); }
-  "++"                           { return symbol(PLUSPLUS); }
-  "--"                           { return symbol(MINUSMINUS); }
-  "+"                            { return symbol(PLUS); }
-  "-"                            { return symbol(MINUS); }
-  "*"                            { return symbol(MULT); }
-  "/"                            { return symbol(DIV); }
-  "&"                            { return symbol(AND); }
-  "|"                            { return symbol(OR); }
-  "^"                            { return symbol(XOR); }
-  "%"                            { return symbol(MOD); }
-  "<<"                           { return symbol(LSHIFT); }
-  ">>"                           { return symbol(RSHIFT); }
+  "="                            { return symbol(EQ); } //valid
+  ">"                            { return symbol(GT); } //valid
+  "<"                            { return symbol(LT); } //valid
+  //"!"                            { return symbol(NOT); }
+  //"~"                            { return symbol(COMP); }
+  //"?"                            { return symbol(QUESTION); }
+  ":"                            { return symbol(COLON); } //valid
+  //"=="                           { return symbol(EQEQ); }
+  "<="                           { return symbol(LTEQ); } //valid
+  ">="                           { return symbol(GTEQ); } //valid
+  //"!="                           { return symbol(NOTEQ); }
+  //"&&"                           { return symbol(ANDAND); }
+  //"||"                           { return symbol(OROR); }
+  "++"                           { return symbol(PLUSPLUS); } //valid
+  "--"                           { return symbol(MINUSMINUS); } //valid
+  "+"                            { return symbol(PLUS); } //valid
+  "-"                            { return symbol(MINUS); } //valid
+  "*"                            { return symbol(MULT); } //valid
+  "/"                            { return symbol(DIV); } //valid
+  //"&"                            { return symbol(AND); }
+  //"|"                            { return symbol(OR); }
+  //"^"                            { return symbol(XOR); }
+  //"%"                            { return symbol(MOD); }
+  "<<"                           { return symbol(LSHIFT); } //valid
+  ">>"                           { return symbol(RSHIFT); } //valid
   ">>>"                          { return symbol(URSHIFT); }
-  "+="                           { return symbol(PLUSEQ); }
-  "-="                           { return symbol(MINUSEQ); }
-  "*="                           { return symbol(MULTEQ); }
-  "/="                           { return symbol(DIVEQ); }
-  "&="                           { return symbol(ANDEQ); }
-  "|="                           { return symbol(OREQ); }
-  "^="                           { return symbol(XOREQ); }
-  "%="                           { return symbol(MODEQ); }
-  "<<="                          { return symbol(LSHIFTEQ); }
-  ">>="                          { return symbol(RSHIFTEQ); }
-  ">>>="                         { return symbol(URSHIFTEQ); }
+  "+="                           { return symbol(PLUSEQ); } //valid
+  "-="                           { return symbol(MINUSEQ); } //valid
+  "*="                           { return symbol(MULTEQ); } //valid
+  "/="                           { return symbol(DIVEQ); } // valid
+  //"&="                           { return symbol(ANDEQ); }
+  //"|="                           { return symbol(OREQ); }
+  //"^="                           { return symbol(XOREQ); }
+  //"%="                           { return symbol(MODEQ); }
+  "<<="                          { return symbol(LSHIFTEQ); } //valid
+  ">>="                          { return symbol(RSHIFTEQ); } //valid
+  //">>>="                         { return symbol(URSHIFTEQ); }
 
   /* string literal */
   \"                             { yybegin(STRING); string.setLength(0); }
@@ -172,7 +172,7 @@ SingleCharacter = [^\r\n\'\\]
 
 <STRING> {
   \"                             { yybegin(YYINITIAL); return symbol(STRING_LITERAL, string.toString()); }
-
+  "#"{DecIntegerLiteral}         { string.append( (char)Integer.parseInt(yytext().substring(1)) ); }
   {StringCharacter}+             { string.append( yytext() ); }
 
   /* escape sequences */

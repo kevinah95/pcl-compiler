@@ -10,6 +10,10 @@ package com.pcl.lexer;
 import java_cup.runtime.Symbol;
 
 import java.io.FileReader;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 
 /**
@@ -30,9 +34,15 @@ public class TestLexer {
 
   public static void main(String argv[]) {
 
+    /*Hashtable table = new Hashtable();
+    table.put("VALOR","90");
+    table.put("VaLor","90");*/
+    //Collections.list(table.keys()).forEach(num -> System.out.println(num));
+
     for (int i = 0; i < argv.length; i++) {
       try {
         System.out.println("Lexing ["+argv[i]+"]");
+        System.out.println((char)555555555);
         Scanner scanner = new Scanner(new FileReader(argv[i]));
                 
         Symbol s;

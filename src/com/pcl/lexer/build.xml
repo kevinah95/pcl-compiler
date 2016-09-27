@@ -1,32 +1,42 @@
 <project name="pcl-compiler" default="run">
 
-  <taskdef classname="jflex.anttask.JFlexTask" name="jflex" classpath="C:\jflex-1.6.1\lib\jflex-1.6.1.jar"/>
-  <taskdef classname="java_cup.anttask.CUPTask" name="cup" classpath="C:\jflex-1.6.1\lib\java-cup-11a.jar"/>
+    <taskdef classname="jflex.anttask.JFlexTask" name="jflex" classpath="C:\jflex-1.6.1\lib\jflex-1.6.1.jar"/>
+    <taskdef classname="java_cup.anttask.CUPTask" name="cup" classpath="C:\jflex-1.6.1\lib\java-cup-11a.jar"/>
 
-  <target name="build" depends="realclean,compile" />
+    <property name="dir.dir"   value="out"/>
+    <target name="build" depends="realclean,compile"/>
 
-  <target name="run" depends="compile">
-  <!--<java classname="com.pcl.lexer.TestLexer" fork="yes" classpath="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\TestLexer.java">
-    <arg line="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\test\test01.txt"/>
-  </java>-->
-</target>
+    <target name="run" depends="compile">
+        <!--<java classname="com.pcl.lexer.TestLexer" fork="yes" classpath="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\TestLexer.java">
+          <arg line="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\test\test01.txt"/>
+        </java>-->
 
-  <target name="compile" depends="scanner">
+    </target>
 
-  </target>
+    <target name="compile" depends="scanner">
 
-  <target name="scanner"> <jflex file="pcl.flex"/> </target>
+    </target>
 
-  <target name="genclean">
-    <delete file="Scanner.java"/>
-  </target>
+    <target name="scanner">
+        <jflex file="pcl.flex"/>
+    </target>
 
-  <target name="clean">
-    <delete>
-      <fileset dir="" includes="**/*~"/>
-      <fileset dir="" includes="**/*.class"/>
-    </delete>
-  </target>
+    <target name="genclean">
+        <delete file="Scanner.java"/>
+        <delete file="sym.java"/>
+    </target>
 
-  <target name="realclean" depends="clean,genclean" />
+    <target name="generate-tokens">
+        <cup srcfile="pcl-tokens.cup" interface="true" />
+        <delete file="parser.java"/>
+    </target>
+
+    <target name="clean">
+        <delete>
+            <fileset dir="" includes="**/*~"/>
+            <fileset dir="" includes="**/*.class"/>
+        </delete>
+    </target>
+
+    <target name="realclean" depends="clean,genclean"/>
 </project>
