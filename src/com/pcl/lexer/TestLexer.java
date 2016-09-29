@@ -42,7 +42,6 @@ public class TestLexer {
     for (int i = 0; i < argv.length; i++) {
       try {
         System.out.println("Lexing ["+argv[i]+"]");
-        System.out.println((char)555555555);
         Scanner scanner = new Scanner(new FileReader(argv[i]));
                 
         Symbol s;

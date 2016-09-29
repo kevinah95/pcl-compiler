@@ -13,7 +13,7 @@
 
     </target>
 
-    <target name="compile" depends="scanner">
+    <target name="compile" depends="scanner,generate-tokens">
 
     </target>
 
@@ -27,7 +27,7 @@
     </target>
 
     <target name="generate-tokens">
-        <cup srcfile="pcl-tokens.cup" interface="true" />
+        <cup srcfile="pcl-tokens.cup" package="com.pcl.lexer" interface="true" />
         <delete file="parser.java"/>
     </target>
 
