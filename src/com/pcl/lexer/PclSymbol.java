@@ -1,8 +1,10 @@
 package com.pcl.lexer;
+import java.util.HashMap;
 
 public class PclSymbol extends java_cup.runtime.Symbol {
   private int line;
   private int column;
+  //private HashMap<String,String,HashMap> tokenTable;
 
   public PclSymbol(int type, int line, int column) {
     this(type, line, column, -1, -1, null);
@@ -17,6 +19,7 @@ public class PclSymbol extends java_cup.runtime.Symbol {
     this.line = line;
     this.column = column;
   }
+
 
   public int getLine() {
     return line;

@@ -214,6 +214,6 @@ SingleCharacter = [^\r\n\'\\]
 }
 
 /* error fallback */
-[^]                              { throw new RuntimeException("Illegal character \""+yytext()+
+[^]                              { System.out.println("Illegal character \""+yytext()+
                                                               "\" at line "+yyline+", column "+yycolumn); }
 <<EOF>>                          { return symbol(EOF); }
