@@ -7,10 +7,10 @@ import java.util.HashMap;
  */
 public class TableRow {
     private PclSymbol token;
-    private String tipo;
+    private int tipo;
     private HashMap<Integer,Integer> lineas; //el primer integer es la línea y el segundo es la cantidad de apariciones por linea
 
-    public TableRow(PclSymbol pToken,String pTipo, Integer pLinea){
+    public TableRow(PclSymbol pToken,int pTipo, int pLinea){
         token = pToken;
         tipo = pTipo;
         lineas = new HashMap<Integer,Integer>();
@@ -28,18 +28,39 @@ public class TableRow {
     }
 
     public String toString(){
-        String result = "Valor: " + token.getValue() +" tipo: "+ tipo+ "Linea:";
+        String result = "Valor: " + token.getValue() +" tipo: "+ getTokenName(tipo)+ " Linea:";
         for(Integer key : lineas.keySet()){
             result += (" "+Integer.toString(key)+"("+Integer.toString(lineas.get(key))+")");
         }
         return result;
     }
 
+    /**
+     * Converts an int token code into the name of the
+     * token by reflection on the cup symbol class/interface sym
+     *
+     * This code was contributed by Karl Meissner <meissnersd@yahoo.com>
+     */
+    private String getTokenName(int token) {
+        try {
+            java.lang.reflect.Field [] classFields = sym.class.getFields();
+            for (int i = 0; i < classFields.length; i++) {
+                if (classFields[i].getInt(null) == token) {
+                    return classFields[i].getName();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+
+        return "UNKNOWN TOKEN";
+    }
+
     public String getValor(){
         return token.getValue();
     }
 
-    public  String getTipo(){
+    public  int getTipo(){
         return tipo;
     }
 }
