@@ -12,6 +12,8 @@ import jflex.LexScan;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -43,28 +45,48 @@ public class TestLexer {
     table.put("VaLor","90");*/
     //Collections.list(table.keys()).forEach(num -> System.out.println(num));
 
-    TokenTable tokenTable = new TokenTable();
+    boolean control = true;
+    while(control){
+      System.out.println("\n1. Scan pcl file...");
+      System.out.println("2. Exit");
+      System.out.print("->");
+      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+      String opc;
+      String dir;
+      TokenTable tokenTable = new TokenTable();
+      try{
+        opc = br.readLine();
+        if (opc.equals("1")){
+          System.out.println("Write pcl file url");
+          System.out.print("->");
+          dir = br.readLine();
+          try {
+            System.out.println("Lexing ["+dir+"]");
+            Scanner scanner = new Scanner(new FileReader(dir));
+            Symbol s;
+            do {
+              s = scanner.debug_next_token();
+              //System.out.println("token: "+s);
+              tokenTable.agregarFila((PclSymbol) s);
+              //System.out.println("s.sym = " + getTokenName(s.sym));
+            } while (s.sym != sym.EOF);
 
-    for (int i = 0; i < argv.length; i++) {
-      System.out.println(argv[i]);
-      try {
-        System.out.println("Lexing ["+argv[i]+"]");
-        //System.out.println(new Integer(5));
-        Scanner scanner = new Scanner(new FileReader(argv[i]));
-        Symbol s;
-        do {
-          s = scanner.debug_next_token();
-          //System.out.println("token: "+s);
-          tokenTable.agregarFila((PclSymbol) s);
-          //System.out.println("s.sym = " + getTokenName(s.sym));
-        } while (s.sym != sym.EOF);
-        
-        System.out.println("No errors.");
-        tokenTable.imprimirTable();
+            System.out.println("No errors.");
+            tokenTable.imprimirTable();
+          }
+          catch (Exception e) {
+            System.out.println("Invalid URL. Try again!");
+          }
+        }
+        else if(opc.equals("2")){
+          control = false;
+        }
+        else{
+          System.out.println("Invalid choice. Try again!");
+        }
       }
-      catch (Exception e) {
-        e.printStackTrace(System.out);
-        System.exit(1);
+      catch(IOException ioe){
+        System.out.println("IO error trying to read. Try again!");
       }
     }
   }
