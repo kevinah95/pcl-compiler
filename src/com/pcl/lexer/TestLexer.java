@@ -44,22 +44,34 @@ public class TestLexer {
     table.put("VALOR","90");
     table.put("VaLor","90");*/
     //Collections.list(table.keys()).forEach(num -> System.out.println(num));
-
     boolean control = true;
+    boolean withArgv = argv.length != 0 ? true : false;
+    boolean firstUse = true;
     while(control){
-      System.out.println("\n1. Scan pcl file...");
-      System.out.println("2. Exit");
-      System.out.print("->");
+
       BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
       String opc;
       String dir;
       TokenTable tokenTable = new TokenTable();
       try{
-        opc = br.readLine();
-        if (opc.equals("1")){
-          System.out.println("Write pcl file url");
+        if(withArgv && firstUse){
+          opc = "1";
+        }else{
+          System.out.println("\n1. Scan pcl file...");
+          System.out.println("2. Exit");
           System.out.print("->");
-          dir = br.readLine();
+          opc = br.readLine();
+        }
+
+        if (opc.equals("1")){
+          if(withArgv && firstUse){
+            dir = argv[0];
+          }else{
+            System.out.println("Write pcl file url");
+            System.out.print("->");
+            dir = br.readLine();
+          }
+
           try {
             System.out.println("Lexing ["+dir+"]");
             Scanner scanner = new Scanner(new FileReader(dir));
@@ -88,6 +100,8 @@ public class TestLexer {
       catch(IOException ioe){
         System.out.println("IO error trying to read. Try again!");
       }
+      firstUse = false;
     }
+
   }
 }

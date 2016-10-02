@@ -17,7 +17,8 @@ VaLoR
 valor AND valor
 //mas de 127 caracteres
 //syesdffgdhfgyhdxrrrtycytyghgy3w4567897bjj78kjh6j787bv5ch6j787bvc6gx6hvunve4x6c5vu6ctxvt5hu65g5xhc656uuybeg5hxjynbvtxrtnutbh5b12adwdasdasdddddddddddddasdasdasdasdasd
-
+"Multiple
+dasdasdasd"
 (*Test Negatives*)
 -5
 5*5

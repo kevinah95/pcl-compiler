@@ -1,6 +1,7 @@
 package com.pcl.lexer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,8 +34,13 @@ public class TokenTable {
     }
 
     public void imprimirTable(){
+        AsciiTable4j t = new AsciiTable4j();
+        t.addRow(Arrays.asList("Token", "Type", "Line"));
         for (int i = 0; i < filas.size(); i++) {
+            TableRow temp = filas.get(i);
+            t.addRow(Arrays.asList(temp.getValor(), temp.getTokenName(temp.getTipo()), temp.getLineas()));
             System.out.println(filas.get(i).toString());
         }
+        t.showTable();
     }
 }

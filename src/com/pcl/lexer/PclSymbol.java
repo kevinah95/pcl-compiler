@@ -29,7 +29,7 @@ public class PclSymbol extends java_cup.runtime.Symbol {
   }
 
   public String getValue(){
-    return (value == null ? "" : ("'"+value+"'"));}
+    return (value == null ? "" : ("'"+value.toString().replace("\n", "").replace("\r", "")+"'"));}
 
   public String toString() {   
     return "line "+line+", column "+column+", sym: "+sym+(value == null ? "" : (", value: '"+value+"'"));

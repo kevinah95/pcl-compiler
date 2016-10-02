@@ -35,13 +35,21 @@ public class TableRow {
         return result;
     }
 
+    public String getLineas(){
+        String result = "";
+        for(Integer key : lineas.keySet()){
+            result += (Integer.toString(key)+"("+Integer.toString(lineas.get(key))+")");
+        }
+        return result;
+    }
+
     /**
      * Converts an int token code into the name of the
      * token by reflection on the cup symbol class/interface sym
      *
      * This code was contributed by Karl Meissner <meissnersd@yahoo.com>
      */
-    private String getTokenName(int token) {
+    public String getTokenName(int token) {
         try {
             java.lang.reflect.Field [] classFields = sym.class.getFields();
             for (int i = 0; i < classFields.length; i++) {
