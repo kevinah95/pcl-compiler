@@ -125,12 +125,12 @@ SingleCharacter = [^\r\n\'\\]
 
 
   /* OPERADORES */
-  "AND"                          { return symbol(OPERADOR,yytext(); }
-  "NOT"                          { return symbol(OPERADOR,yytext(); }
-  "OR"                           { return symbol(OPERADOR,yytext(); }
-  "XOR"                          { return symbol(OPERADOR,yytext(); }
-  "DIV"                          { return symbol(OPERADOR,yytext(); }
-  "MOD"                          { return symbol(OPERADOR,yytext(); }
+  "AND"                          { return symbol(OPERADOR,yytext()); }
+  "NOT"                          { return symbol(OPERADOR,yytext()); }
+  "OR"                           { return symbol(OPERADOR,yytext()); }
+  "XOR"                          { return symbol(OPERADOR,yytext()); }
+  "DIV"                          { return symbol(OPERADOR,yytext()); }
+  "MOD"                          { return symbol(OPERADOR,yytext()); }
 
   ","                            { return symbol(OPERADOR,yytext()); } //valid
   ";"                            { return symbol(OPERADOR,yytext()); } //valid
@@ -223,8 +223,7 @@ SingleCharacter = [^\r\n\'\\]
   {SingleCharacter}\'            { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, yytext().charAt(0)); }
   /* escape sequences */
   "\\b"\'                        { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\b');}
-  "\\t"\'                        { yybegin(YYINITIAL); return sy
-mbol(CHARACTER_LITERAL, '\t');}
+  "\\t"\'                        { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\t');}
  //"\\n"\'                         { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\n');}
  // "\\f"\'                        { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\f');}
  // "\\r"\'                        { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\r');}
