@@ -10,6 +10,7 @@ package com.pcl.lexer;
 import java_cup.runtime.Symbol;
 import jflex.LexScan;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +46,7 @@ public class TestLexer {
     TokenTable tokenTable = new TokenTable();
 
     for (int i = 0; i < argv.length; i++) {
+      System.out.println(argv[i]);
       try {
         System.out.println("Lexing ["+argv[i]+"]");
         Scanner scanner = new Scanner(new FileReader(argv[i]));

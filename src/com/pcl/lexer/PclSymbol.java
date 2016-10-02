@@ -1,5 +1,4 @@
 package com.pcl.lexer;
-import java.util.HashMap;
 
 public class PclSymbol extends java_cup.runtime.Symbol {
   private int line;
@@ -29,7 +28,8 @@ public class PclSymbol extends java_cup.runtime.Symbol {
     return column;
   }
 
-  public String getValue(){return sym+(value == null ? "" : (", value: '"+value+"'"));}
+  public String getValue(){
+    return "'"+value+"'";}
 
   public String toString() {   
     return "line "+line+", column "+column+", sym: "+sym+(value == null ? "" : (", value: '"+value+"'"));
