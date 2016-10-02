@@ -2,7 +2,6 @@ package com.pcl.lexer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by Jose Aguilar Quesada on 9/29/2016.
@@ -39,7 +38,7 @@ public class TokenTable {
         for (int i = 0; i < filas.size(); i++) {
             TableRow temp = filas.get(i);
             t.addRow(Arrays.asList(temp.getValor(), temp.getTokenName(temp.getTipo()), temp.getLineas()));
-            System.out.println(filas.get(i).toString());
+            //System.out.println(filas.get(i).toString());
         }
         t.showTable();
     }

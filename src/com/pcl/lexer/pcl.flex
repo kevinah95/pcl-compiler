@@ -25,6 +25,16 @@ import java_cup.runtime.*;
     return new PclSymbol(type, yyline+1, yycolumn+1, value);
   }
 
+  private void printError(String type){
+    System.out.println("Error: line:" + (yyline+1) + " col:" + (yycolumn+1) + " type:" + type);
+  }
+
+  public java_cup.runtime.Symbol custom_debug_next_token() throws java.io.IOException {
+      java_cup.runtime.Symbol s = next_token();
+      //System.out.println( "line:" + (yyline+1) + " col:" + (yycolumn+1) + " --"+ yytext() + "--" + getTokenName(s.sym) + "--");
+      return s;
+  }
+
 
 %}
 
@@ -215,8 +225,8 @@ SingleCharacter = [^\r\n\'\\]
                         				   string.append( val ); }***/
 
   /* error cases */
-  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
-  {LineTerminator}               { throw new RuntimeException("Unterminated string at end of line"); }
+  \\.                            { printError("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}               { printError("Unterminated string at end of line"); }
 }
 
 <CHARLITERAL> {
@@ -235,11 +245,11 @@ SingleCharacter = [^\r\n\'\\]
 			                            return symbol(CHARACTER_LITERAL, (char)val); }***/
 
   /* error cases */
-  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
-  {LineTerminator}               { throw new RuntimeException("Unterminated character literal at end of line"); }
+  \\.                            { printError("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}               { printError("Unterminated character literal at end of line"); }
 }
 
 /* error fallback */
-[^]                              { System.out.println("Illegal character \""+yytext()+
+[^]                              { printError("Illegal character \""+yytext()+
                                                               "\" at line "+yyline+", column "+yycolumn); }
 <<EOF>>                          { return symbol(EOF); }

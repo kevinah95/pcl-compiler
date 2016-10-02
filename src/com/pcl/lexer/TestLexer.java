@@ -8,16 +8,11 @@ package com.pcl.lexer;
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 import java_cup.runtime.Symbol;
-import jflex.LexScan;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Hashtable;
 
 
 /**
@@ -77,13 +72,13 @@ public class TestLexer {
             Scanner scanner = new Scanner(new FileReader(dir));
             Symbol s;
             do {
-              s = scanner.debug_next_token();
+              s = scanner.custom_debug_next_token();
               //System.out.println("token: "+s);
               tokenTable.agregarFila((PclSymbol) s);
               //System.out.println("s.sym = " + getTokenName(s.sym));
             } while (s.sym != sym.EOF);
 
-            System.out.println("No errors.");
+            //System.out.println("No errors.");
             tokenTable.imprimirTable();
           }
           catch (Exception e) {
