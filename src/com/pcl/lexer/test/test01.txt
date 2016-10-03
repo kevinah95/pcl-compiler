@@ -34,3 +34,6 @@ dasdasdasd"
 "#54"
 'c'
 "d3"
+"Una sola línea"
+"Pueden ser
+varias"
