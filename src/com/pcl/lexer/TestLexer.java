@@ -40,7 +40,7 @@ public class TestLexer {
     table.put("VaLor","90");*/
     //Collections.list(table.keys()).forEach(num -> System.out.println(num));
     boolean control = true;
-    boolean withArgv = argv.length != 0 ? true : false;
+    boolean withArgv = argv.length != 0;
     boolean firstUse = true;
     while(control){
 
