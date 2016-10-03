@@ -210,7 +210,7 @@ SingleCharacter = [^\r\n\'\\]
 <STRING> {
   \"                             { yybegin(YYINITIAL); return symbol(STRING_LITERAL, string.toString()); }
   "#"{DecIntegerLiteral}         { string.append( (char)Integer.parseInt(yytext().substring(1)) ); }
-  {StringCharacter}\"            { return symbol(CHARACTER_LITERAL,yytext().charAt(0)); }
+  {StringCharacter}\"            { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL,yytext().charAt(0)); }
   {StringCharacter}+             { string.append( yytext() ); }
 
 

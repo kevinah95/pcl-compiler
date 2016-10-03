@@ -1,39 +1,127 @@
-(*Prueba de comentarios*)
-{dasdada
+//--PALABRAS RESERVADAS-- 
+AND
+ARRAY
+BEGIN
+BOOLEAN 
+BYTE 
+CASE 
+CHAR 
+CONST 
+DIV 
+DO 
+DOWNTO 
+ELSE 
+END 
+FALSE 
+FILE 
+FOR 
+FORWARD 
+FUNCTION 
+GOTO 
+IF 
+IN 
+INLINE 
+INT 
+LABEL 
+LONGINT 
+MOD 
+NIL 
+NOT 
+OF 
+OR 
+PACKED
+PROCEDURE 
+PROGRAM 
+READ 
+REAL 
+RECORD 
+REPEAT 
+SET 
+SHORTINT 
+STRING 
+THEN 
+TO 
+TRUE 
+TYPE
+UNTIL 
+VAR 
+WHILE 
+WITH 
+WRITE 
+XOR 
 
-(*dasdsad*)sdasd
-
-}
-(**
-
-
-*)
-
-//single comment
-
-(*Test Identificadores*)
+{--IDENTIFICADORES-- nombres de variables, funciones, etc - 1 A 127 char - no tienen espacios ni símbolos - no son palabras reservadas - no es case sensitive}
 VALOR
 VaLoR
-valor AND valor
-//mas de 127 caracteres
-//syesdffgdhfgyhdxrrrtycytyghgy3w4567897bjj78kjh6j787bv5ch6j787bvc6gx6hvunve4x6c5vu6ctxvt5hu65g5xhc656uuybeg5hxjynbvtxrtnutbh5b12adwdasdasdddddddddddddasdasdasdasdasd
-"Multiple
-dasdasdasd"
-(*Test Negatives*)
--5
-5*5
+valor
 
-(*Test Reales*)
-3.0E5
+//--OPERADORES--
+, 
+; 
+++ 
+-- 
+>= 
+> 
+<= 
+< 
+<> 
+=  
++  
+-  
+*   
+(  
+)  
+[  
+]  
+:=  
+.   
+:   
++=  
+-=  
+*= 
+/= 
+>> 
+<< 
+<<=
+>>=
+NOT 
+OR 
+AND 
+XOR 
+DIV 
+MOD
+
+//--LITERALES--
+{ENTEROS} 
+1 
+2 
+5 
+4 
+-1 
+-2 
+-3
+{FLOTANTES} 
+1.55 
+-1.55
+0.05
+{NOTACION CIENTIFICA}  
+3.0E5 
 1.5E-4
-.5
-..5
-(*Prueba de strings*)
+{CHARACTERS} 
+"A" "B"
+"#33"
+{STRING} 
+"De Una Sola Línea"
+"PUEDEN SER 
+MULTILINEA"
 
-"string"
-"#54"
-'c'
-"d3"
-"Una sola línea"
-"Pueden ser
-varias"
+//--COMENTARIOS--
+(* COMENTARIO *)
+{ COMENTARIO }
+//COMENTARIO
+
+//Errores
+And
+if
+@
+$
