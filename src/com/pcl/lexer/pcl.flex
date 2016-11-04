@@ -53,7 +53,7 @@ EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
 DocumentationComment = "(*" "*"+ [^(*] ~"*)"
 
 /* identifiers */
-Identifier = [:jletter:][:jletterdigit:]{1,126}
+Identifier = [:jletter:][:jletterdigit:]{0,126}
 
 /* integer literals */
 DecIntegerLiteral = 0 | [1-9][0-9]*
