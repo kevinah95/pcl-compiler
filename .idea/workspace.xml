@@ -1,43 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="852272a0-b0c5-4b59-9b40-b78f8303a61f" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/inamik-text-tables.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/java-cup-11a.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/jflex-1.6.1.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/CUP$parser$actions.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/PclSymbol.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/Scanner.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/TableRow.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/TestLexer.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/TokenTable.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/sym.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/example/JavaSymbol.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/example/Scanner.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/example/TestLexer.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/example/UnicodeEscapes.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/example/sym.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/parser.class" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/build.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/pcl-tokens.cup" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/com/pcl/lexer/test/test01.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/example/build.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/example/java12.cup" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/out/production/pcl-compiler/example/test/test01.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/pcl/lexer/Scanner.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/example/java12.cup" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/example/parser.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/com/pcl/lexer/AsciiTable4j.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pcl-compiler.iml" afterPath="$PROJECT_DIR$/pcl-compiler.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/pcl/lexer/PclSymbol.java" afterPath="$PROJECT_DIR$/src/com/pcl/lexer/PclSymbol.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/pcl/lexer/TestLexer.java" afterPath="$PROJECT_DIR$/src/com/pcl/lexer/TestLexer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/pcl/lexer/TokenTable.java" afterPath="$PROJECT_DIR$/src/com/pcl/lexer/TokenTable.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/pcl/lexer/build.xml" afterPath="$PROJECT_DIR$/src/com/pcl/lexer/build.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/pcl/lexer/sym.java" afterPath="$PROJECT_DIR$/src/com/pcl/lexer/sym.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/pcl/lexer/test/test01.txt" afterPath="$PROJECT_DIR$/src/com/pcl/lexer/test/test01.txt" />
-    </list>
+    <list default="true" id="852272a0-b0c5-4b59-9b40-b78f8303a61f" name="Default" comment="" />
     <ignored path="pcl-compiler.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/out/" />
@@ -858,7 +822,7 @@
       <workItem from="1478035861877" duration="9585000" />
       <workItem from="1478047353046" duration="1114000" />
       <workItem from="1478048714214" duration="1703000" />
-      <workItem from="1478471836127" duration="989000" />
+      <workItem from="1478471836127" duration="1094000" />
     </task>
     <task id="LOCAL-00001" summary="Testing commit">
       <created>1474310660979</created>
@@ -969,7 +933,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="112359000" />
+    <option name="totallyTimeSpent" value="112464000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
