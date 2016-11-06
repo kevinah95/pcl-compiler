@@ -1,0 +1,23 @@
+import java_cup.runtime.*;
+
+terminal IDENTIFICADOR;
+terminal OPERADOR;
+terminal PALABRA_RESERVADA;
+terminal LITERAL;
+
+
+terminal java.lang.String STRING_LITERAL;
+
+terminal java.lang.Number INTEGER_LITERAL;
+terminal java.lang.Number FLOATING_POINT_LITERAL;
+terminal java.lang.Boolean BOOLEAN_LITERAL;
+terminal java.lang.Character CHARACTER_LITERAL;
+
+//terminal java.lang.String IDENTIFIER; // name
+
+/*-*
+ * The following two lines define a dummy non-terminal and grammar rule.  CUP
+ * needs at least one rule to run without errors.
+ */
+non terminal dummy;
+dummy ::= ;

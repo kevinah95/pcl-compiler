@@ -1,6 +1,8 @@
 package com.pcl.lexer;
 
-public class PclSymbol extends java_cup.runtime.Symbol {
+import java_cup.runtime.Symbol;
+
+public class PclSymbol extends Symbol {
   private int line;
   private int column;
   //private HashMap<String,String,HashMap> tokenTable;

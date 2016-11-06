@@ -10,7 +10,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/jflex-1.6.1/lib/java-cup-11a.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/inamik-text-tables.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -19,7 +19,16 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/jflex-1.6.1/lib/jflex-1.6.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/java-cup-11a.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jflex-1.6.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
