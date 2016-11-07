@@ -10,11 +10,9 @@
     <target name="build" depends="realclean,compile"/>
 
     <target name="run" >
-
         <!--<java classname="com.pcl.lexer.TestLexer" fork="yes" classpath="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\TestLexer.java">
           <arg line="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\test\test01.txt"/>
         </java>-->
-
     </target>
 
     <target name="compile" depends="scanner,generate-tokens">

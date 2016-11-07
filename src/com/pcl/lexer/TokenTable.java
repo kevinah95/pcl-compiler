@@ -6,9 +6,6 @@ import com.inamik.text.tables.grid.Border;
 import com.inamik.text.tables.grid.Util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import static com.inamik.text.tables.Cell.Functions.*;
 
 /**
  * Created by Jose Aguilar Quesada on 9/29/2016.
@@ -40,20 +37,16 @@ public class TokenTable {
     }
 
     public void imprimirTable() {
-        // new library inamik-text-tables.jar
         SimpleTable t = SimpleTable.of().nextRow()
                 .nextCell().addLine("--Token--")
                 .nextCell().addLine("--Type--")
                 .nextCell().addLine("--Line--");
-
-        //t.addRow(Arrays.asList("Token", "Type", "Line"));
         for (int i = 0; i < filas.size(); i++) {
             TableRow temp = filas.get(i);
             t.nextRow()
                     .nextCell().addLine(temp.getValor())
                     .nextCell().addLine(temp.getTokenName(temp.getTipo()))
                     .nextCell().addLine(temp.getLineas());
-            //System.out.println(filas.get(i).toString());
         }
         // Convert to grid
         GridTable g = t.toGrid();

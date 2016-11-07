@@ -5,7 +5,6 @@ import java_cup.runtime.Symbol;
 public class PclSymbol extends Symbol {
   private int line;
   private int column;
-  //private HashMap<String,String,HashMap> tokenTable;
 
   public PclSymbol(int type, int line, int column) {
     this(type, line, column, -1, -1, null);
