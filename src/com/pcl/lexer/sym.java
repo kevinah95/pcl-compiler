@@ -20,5 +20,6 @@ public interface sym {
   public static final int error = 1;
   public static final int IDENTIFICADOR = 2;
   public static final int INTEGER_LITERAL = 7;
+
 }
 
