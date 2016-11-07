@@ -1,0 +1,40 @@
+{ Con este ejemplo se quiere probar los diferentes tipos de comentarios y
+ademas que reconozca tanto las palabras reservadas como los operadores }
+
+
+
+AND ARRAY 
+BEGIN BOOLEAN BYTE 
+CASE CHAR CONST 
+DIV DO DOWNTO 
+ELSE END 
+FALSE FILE FOR FORWARD FUNCTION 
+GOTO 
+IF IN INLINE INT 
+LABEL LONGINT 
+MOD 
+NIL NOT 
+OF OR 
+PACKED PROCEDURE PROGRAM 
+READ REAL RECORD REPEAT 
+SET SHORTINT STRING 
+THEN TO TRUE TYPE 
+UNTIL 
+VAR 
+WHILE WITH WRITE XOR
+
+//No hay errores en este archivo
+
+
+
+,	;	
+++	--	>=	>	<=	<	<>	= 	
++ 	- 	*    / 
+( 	) 	[ 	] 	
+:= 	.   :   += 	-= 	*=	/=	
+>> << <<= >>=	
+
+
+
+(* POr ultimo este es el otro tipo de comentarios
+Tambien es de Boloque *)

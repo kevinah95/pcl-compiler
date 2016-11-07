@@ -1,5 +1,5 @@
 //--PALABRAS RESERVADAS-- 
-AND
+(*AND
 ARRAY
 BEGIN
 BOOLEAN 
@@ -48,16 +48,18 @@ VAR
 WHILE 
 WITH 
 WRITE 
-XOR 
+XOR *)
 
 {--IDENTIFICADORES-- nombres de variables, funciones, etc - 1 A 127 char - no tienen espacios ni símbolos - no son palabras reservadas - no es case sensitive}
 VALOR
 VaLoR
 valor
 x
+AND
+
 
 //--OPERADORES--
-, 
+(*,
 ; 
 ++ 
 -- 
@@ -90,31 +92,31 @@ OR
 AND 
 XOR 
 DIV 
-MOD
+MOD*)
 
 //--LITERALES--
 {ENTEROS} 
-1 
+(*1
 2 
 5 
 4 
 -1 
 -2 
--3
+-3*)
 {FLOTANTES} 
-1.55 
+(*1.55
 -1.55
-0.05
+0.05*)
 {NOTACION CIENTIFICA}  
-3.0E5 
-1.5E-4
+(*3.0E5
+1.5E-4*)
 {CHARACTERS} 
-"A" "B"
-"#33"
+(*"A" "B"
+"#33"*)
 {STRING} 
-"De Una Sola Línea"
+(*"De Una Sola Línea"
 "PUEDEN SER 
-MULTILINEA"
+MULTILINEA"*)
 
 //--COMENTARIOS--
 (* COMENTARIO *)

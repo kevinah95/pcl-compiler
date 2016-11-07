@@ -1,0 +1,44 @@
+<project name="cup-example" default="run" basedir=".">
+
+    <property name="lib" location="../../lib"/>
+    <property name="lexer" location="src/cup"/>
+
+    <taskdef name="jflex" classname="jflex.anttask.JFlexTask" classpath="${lib}/jflex-1.6.1.jar"/>
+    <taskdef name="cup" classname="java_cup.anttask.CUPTask" classpath="${lib}/java-cup-11a.jar" />
+
+
+    <target name="build" depends="realclean,compile"/>
+
+    <target name="run" >
+        <!--<java classname="com.pcl.lexer.TestLexer" fork="yes" classpath="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\TestLexer.java">
+          <arg line="C:\Users\kevinah95\IdeaProjects\pcl-compiler\src\com\pcl\lexer\test\test01.txt"/>
+        </java>-->
+    </target>
+
+    <target name="compile" depends="scanner,generate-tokens">
+
+    </target>
+
+    <target name="scanner">
+        <jflex file="lcalc.flex"/>
+    </target>
+
+    <target name="genclean">
+        <delete file="Scanner.java"/>
+        <delete file="sym.java"/>
+    </target>
+
+    <target name="generate-tokens">
+        <cup srcfile="ycalc.cup" package="cup" interface="true" />
+
+    </target>
+
+    <target name="clean">
+        <delete>
+            <fileset dir="" includes="**/*~"/>
+            <fileset dir="" includes="**/*.class"/>
+        </delete>
+    </target>
+
+    <target name="realclean" depends="clean,genclean"/>
+</project>

@@ -39,18 +39,20 @@ import java_cup.runtime.*;
 %}
 
 /* main character classes */
-LineTerminator = \r|\n|\r\n
+LineTerminator = \r|\n|\r\n|[\u2028\u2029\u000A\u000B\u000C\u000D\u0085] | \u000D\u000A
 InputCharacter = [^\r\n]
 
 WhiteSpace = {LineTerminator} | [ \t\f]
 
 /* comments */
-Comment = {TraditionalComment} | {EndOfLineComment} |
+Comment = {TraditionalComment} |
           {DocumentationComment}
+PCLCommentChar = [^*)] | ")"+[^*)] | "*"+[^*)]
+PCLComment = ~"*)"
 
-TraditionalComment = "(*" [^*] ~"*)" | "(*" "*"+ ")" | "{" ~"}"
+TraditionalComment = [^*] ~"*)" | "*"+ ")" | ~"}"
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
-DocumentationComment = "(*" "*"+ [^(*] ~"*)"
+DocumentationComment = "*"+ [^(*] ~"*)"
 
 /* identifiers */
 Identifier = [:jletter:][:jletterdigit:]{0,126}
@@ -59,19 +61,11 @@ Identifier = [:jletter:][:jletterdigit:]{0,126}
 DecIntegerLiteral = 0 | [1-9][0-9]*
 DecLongLiteral    = {DecIntegerLiteral} [lL]
 
-/***HexIntegerLiteral = 0 [xX] 0* {HexDigit} {1,8}
-HexLongLiteral    = 0 [xX] 0* {HexDigit} {1,16} [lL]
-HexDigit          = [0-9a-fA-F]
-
-OctIntegerLiteral = 0+ [1-3]? {OctDigit} {1,15}
-OctLongLiteral    = 0+ 1? {OctDigit} {1,21} [lL]
-OctDigit          = [0-7]***/
-
 /* floating point literals */
-FloatLiteral  = ({FLit1}|{FLit2}|{FLit3}) {Exponent}? [fF]
-DoubleLiteral = ({FLit1}|{FLit2}|{FLit3}) {Exponent}?
+FloatLiteral  = ({FLit1}) {Exponent}? [fF]
+DoubleLiteral = ({FLit1}) {Exponent}?
 
-FLit1    = [0-9]+ \. [0-9]*
+FLit1    = [0-9]+ \. [0-9]+
 FLit2    = \. [0-9]+
 FLit3    = [0-9]+
 Exponent = [eE] [+-]? [0-9]+
@@ -80,7 +74,7 @@ Exponent = [eE] [+-]? [0-9]+
 StringCharacter = [^\"\\]
 SingleCharacter = [^\r\n\'\\]
 
-%state STRING, CHARLITERAL
+%state STRING, CHARLITERAL, COMMENT
 
 %%
 
@@ -132,8 +126,6 @@ SingleCharacter = [^\r\n\'\\]
   "WITH"                         { return symbol(PALABRA_RESERVADA,yytext()); }
   "WRITE"                        { return symbol(PALABRA_RESERVADA,yytext()); }
 
-
-
   /* OPERADORES */
   "AND"                          { return symbol(OPERADOR,yytext()); }
   "NOT"                          { return symbol(OPERADOR,yytext()); }
@@ -177,6 +169,7 @@ SingleCharacter = [^\r\n\'\\]
 
   /* character literal */
   \'                             { yybegin(CHARLITERAL); }
+  \#{DecIntegerLiteral}          { return symbol(CHARACTER_LITERAL, yytext()); }
 
   /* numeric literals */
 
@@ -187,19 +180,14 @@ SingleCharacter = [^\r\n\'\\]
   {DecIntegerLiteral}            { return symbol(INTEGER_LITERAL, new Integer(yytext())); }
   {DecLongLiteral}               { return symbol(INTEGER_LITERAL, new Long(yytext().substring(0,yylength()-1))); }
 
-  /***{HexIntegerLiteral}            { return symbol(INTEGER_LITERAL, new Integer((int) parseLong(2, yylength(), 16))); }
-  {HexLongLiteral}               { return symbol(INTEGER_LITERAL, new Long(parseLong(2, yylength()-1, 16))); }
-
-  {OctIntegerLiteral}            { return symbol(INTEGER_LITERAL, new Integer((int) parseLong(0, yylength(), 8))); }
-  {OctLongLiteral}               { return symbol(INTEGER_LITERAL, new Long(parseLong(0, yylength()-1, 8))); }***/
-
   {FloatLiteral}                 { return symbol(FLOATING_POINT_LITERAL, new Float(yytext().substring(0,yylength()-1))); }
   {DoubleLiteral}                { return symbol(FLOATING_POINT_LITERAL, new Double(yytext())); }
   {DoubleLiteral}[dD]            { return symbol(FLOATING_POINT_LITERAL, new Double(yytext().substring(0,yylength()-1))); }
 
   /* comments */
-  {Comment}                      { /* ignore */ }
-
+  "(*"                           { yybegin(COMMENT); }
+  "{"                            { yybegin(COMMENT); }
+  {EndOfLineComment}             { /* ignore */ }
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
 
@@ -207,10 +195,16 @@ SingleCharacter = [^\r\n\'\\]
   {Identifier}                   { return symbol(IDENTIFICADOR, yytext()); }
 }
 
+<COMMENT> {
+
+  {PCLComment}                   { /* ignore */ }
+
+  <<EOF>>                        { printError("Unterminated comment at end of file"); return symbol(EOF); }
+}
+
 <STRING> {
   \"                             { yybegin(YYINITIAL); return symbol(STRING_LITERAL, string.toString()); }
-  "#"{DecIntegerLiteral}         { string.append( (char)Integer.parseInt(yytext().substring(1)) ); }
-  "#"{DecIntegerLiteral}\"       { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL,(char)Integer.parseInt(yytext().substring(1,yytext().length()-1))); }
+
   {StringCharacter}\"            { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL,yytext().charAt(0)); }
   {StringCharacter}+             { string.append( yytext() ); }
 
@@ -224,12 +218,12 @@ SingleCharacter = [^\r\n\'\\]
   "\\\""                         { string.append( '\"' ); }
   "\\'"                          { string.append( '\'' ); }
   "\\\\"                         { string.append( '\\' ); }
-  /***\\[0-3]?{OctDigit}?{OctDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),8);
-                        				   string.append( val ); }***/
+
 
   /* error cases */
   \\.                            { printError("Illegal escape sequence \""+yytext()+"\""); }
   {LineTerminator}               { printError("Unterminated string at end of line"); }
+  <<EOF>>                        { printError("Unterminated string at end of file"); return symbol(EOF); }
 }
 
 <CHARLITERAL> {
@@ -243,16 +237,15 @@ SingleCharacter = [^\r\n\'\\]
   "\\\""\'                       { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\"');}
   "\\'"\'                        { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\'');}
   "\\\\"\'                       { yybegin(YYINITIAL); return symbol(CHARACTER_LITERAL, '\\'); }
-  /***\\[0-3]?{OctDigit}?{OctDigit}\' { yybegin(YYINITIAL);
-			                              int val = Integer.parseInt(yytext().substring(1,yylength()-1),8);
-			                            return symbol(CHARACTER_LITERAL, (char)val); }***/
+
 
   /* error cases */
   \\.                            { printError("Illegal escape sequence \""+yytext()+"\""); }
   {LineTerminator}               { printError("Unterminated character literal at end of line"); }
+  <<EOF>>                        { printError("Unterminated character at end of file"); return symbol(EOF); }
 }
 
 /* error fallback */
 [^]                              { printError("Illegal character \""+yytext()+
-                                                              "\" at line "+yyline+", column "+yycolumn); }
+                                                              "\" at line "+(yyline+1)+", column "+(yycolumn+1)); }
 <<EOF>>                          { return symbol(EOF); }

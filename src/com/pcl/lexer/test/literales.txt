@@ -1,0 +1,74 @@
+"Este es un String"
+
+
+#3  #45 #123 #765  //estos son literales de caracteres CHECK
+
+
+
+" un string de 
+varias 
+lineas"
+"c"
+
+
+
+"ljhgsdkjaghsdf ;" //String sin cerrar
+
+
+
+{Ahora vienen numeros enteros}
+
+45
+
+89
+
+
+
+123
+324
++304  //separar el operdor del numero
+
+
+-989  //separar el operdor del numero
+
+
+
+{Ahora vienen numeros flotantes}
+
+
+
+1.23
+
+123.345
+
+123.  // error porque no tiene nada despues del punto
+
+
+123.22
+
+.22  //error. 
+
+.67 // No tiene nada antes del punto
+
+
+
++1.23   //separar el operdor del numero
+
+
+-123.345 //separar el operdor del numero
+
+
+
+{Con exponentes}
+
+
+
+3.0E5  
+
+1.5E-4 
+
+-123E10  //error el numero antes del exponente debe ser real 
+123.5E  //error no tiene nada despues del exponente
+
+
+5.4E3.4 // error el numero despes del e tiene que ser entero
