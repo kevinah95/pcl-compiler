@@ -4,7 +4,7 @@ These are recommendations. They should be followed in the absence of good, justi
 
 ## Branches
 
-* Feature branches are named like "[developer initials]-[feature-name]", e.g. __kg-new-settings-page__
+* Feature branches are named like "[developer initials]-[feature-name]", e.g. __kh-new-settings-page__
 * feature branches are cut from the __development__ branch, and get merged into it
 * the __master__ branch matches what is in production
 
@@ -13,7 +13,7 @@ These are recommendations. They should be followed in the absence of good, justi
 ```shell
 $ git checkout development
 $ git pull --rebase
-$ git checkout -b [new feature branch name] #-b causes a new branch and then checkout it
+$ git checkout -b [new feature branch name]    #-b causes a new branch and then checkout it
 $ git push -u origin [new feature branch name] #To push it to the remote repository
 ```
 
