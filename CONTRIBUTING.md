@@ -11,7 +11,7 @@ These are recommendations. They should be followed in the absence of good, justi
 ### Start a new feature branch
 
 ```shell
-$ git checkout development
+$ git checkout master
 $ git pull --rebase
 $ git checkout -b [new feature branch name]    #-b causes a new branch and then checkout it
 $ git push -u origin [new feature branch name] #To push it to the remote repository
