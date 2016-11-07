@@ -35,7 +35,7 @@ $ git push -u origin [new feature branch name] #To push it to the remote reposit
   or as a short summary for features ("logout button"),
   followed by an empty line,
   followed by an optional longer description.
-  
+
 ## Staying in sync
 
 It is important that you keep your feature branches in sync with the main _development_ branch.
