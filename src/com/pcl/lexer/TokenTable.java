@@ -40,6 +40,7 @@ public class TokenTable {
     }
 
     public void imprimirTable() {
+        // new library inamik-text-tables.jar
         SimpleTable t = SimpleTable.of().nextRow()
                 .nextCell().addLine("--Token--")
                 .nextCell().addLine("--Type--")
