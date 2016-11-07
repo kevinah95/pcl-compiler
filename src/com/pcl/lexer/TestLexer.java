@@ -25,22 +25,7 @@ import java.io.InputStreamReader;
 public class TestLexer {
 
   /** some numerals to for lexer testing */
-  /*int intDec = 37;
-  long longDec = 37l;
-  int intHex = 0x0001;
-  long longHex = 0xFFFFl;
-  int intOct = 0377;
-  long longOc = 007l;
-  int smallest = -2147483648;*/
-
-
-
   public static void main(String argv[]) {
-
-    /*Hashtable table = new Hashtable();
-    table.put("VALOR","90");
-    table.put("VaLor","90");*/
-    //Collections.list(table.keys()).forEach(num -> System.out.println(num));
     boolean control = true;
     boolean withArgv = argv.length != 0;
     boolean firstUse = true;
@@ -89,7 +74,8 @@ public class TestLexer {
 
           try {
             parser p = new parser(new Scanner(new FileReader(dir)));
-            Object result = p.parse().value;
+            Object result = p.debug_parse().value;
+
           } catch (Exception e) {
           /* do cleanup here -- possibly rethrow e */
             e.printStackTrace();

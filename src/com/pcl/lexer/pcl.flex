@@ -42,27 +42,15 @@ import java_cup.runtime.*;
 LineTerminator = \r|\n|\r\n|[\u2028\u2029\u000A\u000B\u000C\u000D\u0085] | \u000D\u000A
 InputCharacter = [^\r\n]
 
-WhiteSpace = {LineTerminator} | [ \t\f]
+WhiteSpace = {LineTerminator} | [ \t\f] | " "
 
 /* comments */
-Comment = {TraditionalComment} |
-          {DocumentationComment}
-PCLCommentChar = [^*)] | ")"+[^*)] | "*"+[^*)] | [^}\n]*"}"
-PCLComment = ~"*)"
-
-TraditionalComment = [^*] ~"*)" | "*"+ ")" | ~"}"
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
-DocumentationComment = "*"+ [^(*] ~"*)"
-
-lbrace			= \{
-rbrace			= ~"}"
-nobrace			= [^{}]
-comment_body_brace	= {nobrace}*
-
-lparenthesis    = "(*"
-rparenthesis	= ~"*)"
-noparenthesis	= [^(**)]
-comment_body_parenthesis = {noparenthesis}*
+ComentarioTradicional   = "(*" [^*] ~"*)" | "(*" "*"+ ")" | "{" [^{] ~"}"
+ComentarioInvalidoInicio = "{"( [!"}"] | {WhiteSpace})* | "(*"( [!"*)"] | {WhiteSpace})* | "(*" | "{"
+ComentarioInvalidoFinal = "}" | "*)" | "}". | "*)".
+ComentarioInvalido = {ComentarioInvalidoInicio} |{ComentarioInvalidoFinal}
+Comment = {ComentarioTradicional} | {EndOfLineComment}
 
 /* identifiers */
 Identifier = [:jletter:][:jletterdigit:]{0,126}
@@ -106,7 +94,7 @@ SingleCharacter = [^\r\n\'\\]
     "FILE"                        { return symbol(FILE       , yytext()); }
     "FOR"                         { return symbol(FOR        , yytext()); }
     "FORWARD"                     { return symbol(FORWARD    , yytext()); }
-    "FUNCTION"                    { return symbol(FUNCTION  , yytext()); }
+    "FUNCTION"                    { return symbol(FUNCTION   , yytext()); }
     "GOTO"                        { return symbol(GOTO       , yytext()); }
     "IF"                          { return symbol(IF         , yytext()); }
     "IN"                          { return symbol(IN         , yytext()); }
@@ -117,14 +105,14 @@ SingleCharacter = [^\r\n\'\\]
     "NIL"                         { return symbol(NIL        , yytext()); }
     "OF"                          { return symbol(OF         , yytext()); }
     "PACKED"                      { return symbol(PACKED     , yytext()); }
-    "PROCEDURE"                   { return symbol(PROCEDURE , yytext()); }
+    "PROCEDURE"                   { return symbol(PROCEDURE  , yytext()); }
     "PROGRAM"                     { return symbol(PROGRAM    , yytext()); }
     "READ"                        { return symbol(READ       , yytext()); }
     "REAL"                        { return symbol(REAL       , yytext()); }
     "RECORD"                      { return symbol(RECORD     , yytext()); }
     "REPEAT"                      { return symbol(REPEAT     , yytext()); }
     "SET"                         { return symbol(SET        , yytext()); }
-    "SHORTINT"                    { return symbol(SHORTINT  , yytext()); }
+    "SHORTINT"                    { return symbol(SHORTINT   , yytext()); }
     "STRING"                      { return symbol(STRING     , yytext()); }
     "THEN"                        { return symbol(THEN       , yytext()); }
     "TO"                          { return symbol(TO         , yytext()); }
@@ -195,9 +183,11 @@ SingleCharacter = [^\r\n\'\\]
   {DoubleLiteral}[dD]            { return symbol(FLOATING_POINT_LITERAL, new Double(yytext().substring(0,yylength()-1))); }
 
   /* comments */
-  {lparenthesis}                 { yybegin(COMMENT); }
-  {lbrace}                       { yybegin(COMMENT); }
+
   {EndOfLineComment}             { /* ignore */ }
+  {Comment}                      { /* ignore */ }
+  {ComentarioInvalido}           { printError("Unterminated character literal at end of line");}
+  {LineTerminator}               { System.out.println("Salto"); }
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
 
@@ -205,21 +195,7 @@ SingleCharacter = [^\r\n\'\\]
   {Identifier}                   { return symbol(IDENTIFIER, yytext()); }
 }
 
-<COMMENT> {
-
-  {lbrace}						{  }
-  {rbrace}						{ yybegin(YYINITIAL); }
-  {comment_body_brace}				{ }
-
-  {lparenthesis}						{  }
-  {rparenthesis}						{ yybegin(YYINITIAL); }
-  {comment_body_parenthesis}				{ }
-
   //{PCLComment}                   { /* ignore */ }
-
-  <<EOF>>                        { printError("Unterminated comment at end of file"); return symbol(EOF); }
-}
-
 <STRING> {
   \"                             { yybegin(YYINITIAL); return symbol(STRING_LITERAL, string.toString()); }
 

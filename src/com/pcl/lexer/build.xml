@@ -30,7 +30,7 @@
     </target>
 
     <target name="generate-tokens">
-        <cup srcfile="pcl-tokens.cup" package="com.pcl.lexer" interface="true" />
+        <cup srcfile="pcl.cup" package="com.pcl.lexer" interface="true" />
     </target>
 
     <target name="clean">

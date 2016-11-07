@@ -1,0 +1,67 @@
+import java_cup.runtime.*;
+
+
+/* User code */
+parser code {:
+	private int line;
+	private int column;
+
+	public void syntax_error(Symbol cur_token){
+		line = cur_token.left+1;
+		column = cur_token.right+1;
+
+		System.err.println();
+		System.err.print("Error en linea "+(cur_token.left+1)+" columna "+(cur_token.right+1));
+		if(cur_token.value != null)
+			System.err.print(" en lexema: "+cur_token.value);
+		System.err.print(": ");
+	}
+
+	public void unrecovered_syntax_error(Symbol cur_token) {
+		System.err.println("Error de sintaxis en la línea " + line + " columna " + column);
+	}
+
+	public void syntax_error(String msg){
+		System.err.println(msg);
+	}
+:}
+
+/* Terminals */
+terminal IDENTIFIER;
+
+/* keywords */
+//terminal ARRAY, BEGIN, BOOLEAN, BYTE, CASE, CHAR, CONST, DO, DOWNTO, ELSE, END, FALSE, FILE, FOR, FORWARD, FUNCTION, GOTO, IF, IN, INLINE, INT, LABEL, LONGINT, NIL, OF, PACKED, PROCEDURE, PROGRAM, READ, REAL, RECORD, REPEAT, SET, SHORTINT, STRING, THEN, TO, TRUE, TYPE, UNTIL, VAR, WHILE, WITH, WRITE, AND, NOT, OR, XOR, DIV, MOD, COMMA, SEMICOLON, PLUSPLUS, MINUSMINUS, GTEQ, GT, LTEQ, LT, NEQ, EQ, PLUS, MINUS, MULT, DIV_SYM, LPAREN, RPAREN, LBRACK, RBRACK, ASSIGN, DOT, COLON, PLUSEQ, MINUSEQ, MULTEQ, DIVEQ, RSHIFT, LSHIFT, LSHIFTEQ, RSHIFTEQ;
+terminal ARRAY, BEGIN, BOOLEAN, BYTE, CASE, CHAR, CONST, DO, DOWNTO, ELSE, END;
+terminal FALSE, FILE, FOR, FORWARD, FUNCTION, GOTO, IF, IN, INLINE, INT, LABEL;
+terminal LONGINT, NIL, OF, PACKED, PROCEDURE, PROGRAM, READ, REAL, RECORD, REPEAT;
+terminal SET, SHORTINT, STRING, THEN, TO, TRUE, TYPE, UNTIL, VAR, WHILE, WITH, WRITE;
+
+terminal AND, NOT, OR, XOR, DIV, MOD;
+
+terminal COMMA, SEMICOLON, PLUSPLUS, MINUSMINUS, GTEQ, GT, LTEQ, LT, NEQ, EQ, PLUS;
+terminal MINUS, MULT, DIV_SYM, LPAREN, RPAREN, LBRACK, RBRACK, ASSIGN, DOT, COLON;
+terminal PLUSEQ, MINUSEQ, MULTEQ, DIVEQ, RSHIFT, LSHIFT, LSHIFTEQ, RSHIFTEQ;
+
+terminal java.lang.String STRING_LITERAL;
+terminal java.lang.Number INTEGER_LITERAL;
+terminal java.lang.Number FLOATING_POINT_LITERAL;
+terminal java.lang.Boolean BOOLEAN_LITERAL;
+terminal java.lang.Character CHARACTER_LITERAL;
+
+/* Non terminals */
+non terminal type, identtype, arraytype, vardecl, vars, var;
+non terminal java.lang.Number integer;
+non terminal identifier,types;
+
+/*-*
+non terminal dummy;
+dummy ::= ;
+*/
+
+/* GRAMMAR */
+non terminal dummy;
+dummy ::= ;
+
+
+
+
