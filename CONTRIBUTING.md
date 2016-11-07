@@ -36,7 +36,7 @@ $ git push -u origin [new feature branch name] #To push it to the remote reposit
   followed by an empty line,
   followed by an optional longer description.
   
-  ## Staying in sync
+## Staying in sync
 
 It is important that you keep your feature branches in sync with the main _development_ branch.
 This prevents merge conflicts from building up, and lets you deal with them one at a time. The goal is
@@ -56,7 +56,7 @@ $ git push -f # Read "Force-push to update your pull request" section, first
 
 Note that you should *replace* `${HASH}` with the actual commit hash from the previous command. For example, if your merge-base is `abc123`, you would run `$ git rebase -i abc123`. (Your hash will be a lot longer than 6 characters. Also, do NOT include a `$`!)
 
-## Squash your changes
+### Squash your changes
 
 Once you've run a `git rebase -i` command, your text editor will open with a file that lists all the commits in your branch, and in front of each commit is the word "pick". It looks something like this:
 
@@ -78,7 +78,7 @@ squash c619268 fixing typos
 
 Save and close the file, and a moment later a new file should pop up in your editor, combining all the commit messages of all the commits. Reword this commit message as you want, and then save and close that file as well. This commit message will be the commit message for the one, big commit that you are squashing all of your larger commits into. Once you've saved and closed that file, your commits have been squashed together, and you're done with this step!
 
-## Resolving conflicts
+### Resolving conflicts
 
 Conflicts happen when two developers change the same line in the same file at the same time.
 To resolve them
@@ -90,7 +90,7 @@ To resolve them
 $ git add [path of resolved file]
 $ git rebase --continue
 ```
-## Force-push to update your pull request
+### Force-push to update your pull request
 
 When doing force pushes, it is *highly* recommended that you set your `push.default` config setting to `simple`, which is the default in Git 2.0. To make sure that your config is correct, run:
 
