@@ -49,7 +49,7 @@ $ git checkout [feature branch]
 $ git pull --rebase
 $ git merge-base [feature branch] development
 $ git rebase -i ${HASH}  # Read ${HASH} meaning below
-$ git rebase development # You may get conflicts while doing this step so: if you do, read "Resolving conflicts" section
+$ git rebase development # If you get conflicts, read "Resolving conflicts" section
 $ git push -f # Read "Force-push to update your pull request" section, first
 # To Finish: Create the pull request on the Github page of the project
 ```
