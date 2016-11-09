@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 /**
  * Simple test driver for the java lexer. Just runs it on some
  * input files and produces debug output. Needs symbol class from
- * parser. 
+ * parser.
  */
 public class TestLexer {
 
@@ -86,6 +86,15 @@ public class TestLexer {
           catch (Exception e) {
             System.out.println("Invalid URL. Try again!");
           }
+
+          try {
+            parser p = new parser(new Scanner(new FileReader(dir)));
+            Object result = p.parse().value;
+          } catch (Exception e) {
+          /* do cleanup here -- possibly rethrow e */
+            e.printStackTrace();
+          }
+
         }
         else if(opc.equals("2")){
           control = false;

@@ -55,3 +55,7 @@ fabric.properties
 #Testing
 /cup/
 /example/
+
+src/com/pcl/lexer/sym.java
+src/com/pcl/lexer/parser.java
+src/com/pcl/lexer/Scanner.java

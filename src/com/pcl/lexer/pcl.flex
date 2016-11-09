@@ -47,12 +47,22 @@ WhiteSpace = {LineTerminator} | [ \t\f]
 /* comments */
 Comment = {TraditionalComment} |
           {DocumentationComment}
-PCLCommentChar = [^*)] | ")"+[^*)] | "*"+[^*)]
+PCLCommentChar = [^*)] | ")"+[^*)] | "*"+[^*)] | [^}\n]*"}"
 PCLComment = ~"*)"
 
 TraditionalComment = [^*] ~"*)" | "*"+ ")" | ~"}"
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
 DocumentationComment = "*"+ [^(*] ~"*)"
+
+lbrace			= \{
+rbrace			= ~"}"
+nobrace			= [^{}]
+comment_body_brace	= {nobrace}*
+
+lparenthesis    = "(*"
+rparenthesis	= ~"*)"
+noparenthesis	= [^(**)]
+comment_body_parenthesis = {noparenthesis}*
 
 /* identifiers */
 Identifier = [:jletter:][:jletterdigit:]{0,126}
@@ -81,88 +91,88 @@ SingleCharacter = [^\r\n\'\\]
 <YYINITIAL> {
 
   /* keywords */
-  "ARRAY"                        { return symbol(PALABRA_RESERVADA,yytext()); }
-  "BEGIN"                        { return symbol(PALABRA_RESERVADA,yytext()); }
-  "BOOLEAN"                      { return symbol(PALABRA_RESERVADA,yytext()); }
-  "BYTE"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "CASE"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "CHAR"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "CONST"                        { return symbol(PALABRA_RESERVADA,yytext()); }
-  "DO"                           { return symbol(PALABRA_RESERVADA,yytext()); }
-  "DOWNTO"                       { return symbol(PALABRA_RESERVADA,yytext()); }
-  "ELSE"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "END"                          { return symbol(PALABRA_RESERVADA,yytext()); }
-  "FALSE"                        { return symbol(PALABRA_RESERVADA,yytext()); }
-  "FILE"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "FOR"                          { return symbol(PALABRA_RESERVADA,yytext()); }
-  "FORWARD"                      { return symbol(PALABRA_RESERVADA,yytext()); }
-  "FUNCTION"                     { return symbol(PALABRA_RESERVADA,yytext()); }
-  "GOTO"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "IF"                           { return symbol(PALABRA_RESERVADA,yytext()); }
-  "IN"                           { return symbol(PALABRA_RESERVADA,yytext()); }
-  "INLINE"                       { return symbol(PALABRA_RESERVADA,yytext()); }
-  "INT"                          { return symbol(PALABRA_RESERVADA,yytext()); }
-  "LABEL"                        { return symbol(PALABRA_RESERVADA,yytext()); }
-  "LONGINT"                      { return symbol(PALABRA_RESERVADA,yytext()); }
-  "NIL"                          { return symbol(PALABRA_RESERVADA,yytext()); }
-  "OF"                           { return symbol(PALABRA_RESERVADA,yytext()); }
-  "PACKED"                       { return symbol(PALABRA_RESERVADA,yytext()); }
-  "PROCEDURE"                    { return symbol(PALABRA_RESERVADA,yytext()); }
-  "PROGRAM"                      { return symbol(PALABRA_RESERVADA,yytext()); }
-  "READ"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "REAL"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "RECORD"                       { return symbol(PALABRA_RESERVADA,yytext()); }
-  "REPEAT"                       { return symbol(PALABRA_RESERVADA,yytext()); }
-  "SET"                          { return symbol(PALABRA_RESERVADA,yytext()); }
-  "SHORTINT"                     { return symbol(PALABRA_RESERVADA,yytext()); }
-  "STRING"                       { return symbol(PALABRA_RESERVADA,yytext()); }
-  "THEN"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "TO"                           { return symbol(PALABRA_RESERVADA,yytext()); }
-  "TRUE"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "TYPE"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "UNTIL"                        { return symbol(PALABRA_RESERVADA,yytext()); }
-  "VAR"                          { return symbol(PALABRA_RESERVADA,yytext()); }
-  "WHILE"                        { return symbol(PALABRA_RESERVADA,yytext()); }
-  "WITH"                         { return symbol(PALABRA_RESERVADA,yytext()); }
-  "WRITE"                        { return symbol(PALABRA_RESERVADA,yytext()); }
+    "ARRAY"                       { return symbol(ARRAY      , yytext()); }
+    "BEGIN"                       { return symbol(BEGIN      , yytext()); }
+    "BOOLEAN"                     { return symbol(BOOLEAN    , yytext()); }
+    "BYTE"                        { return symbol(BYTE       , yytext()); }
+    "CASE"                        { return symbol(CASE       , yytext()); }
+    "CHAR"                        { return symbol(CHAR       , yytext()); }
+    "CONST"                       { return symbol(CONST      , yytext()); }
+    "DO"                          { return symbol(DO         , yytext()); }
+    "DOWNTO"                      { return symbol(DOWNTO     , yytext()); }
+    "ELSE"                        { return symbol(ELSE       , yytext()); }
+    "END"                         { return symbol(END        , yytext()); }
+    "FALSE"                       { return symbol(FALSE      , yytext()); }
+    "FILE"                        { return symbol(FILE       , yytext()); }
+    "FOR"                         { return symbol(FOR        , yytext()); }
+    "FORWARD"                     { return symbol(FORWARD    , yytext()); }
+    "FUNCTION"                    { return symbol(FUNCTION  , yytext()); }
+    "GOTO"                        { return symbol(GOTO       , yytext()); }
+    "IF"                          { return symbol(IF         , yytext()); }
+    "IN"                          { return symbol(IN         , yytext()); }
+    "INLINE"                      { return symbol(INLINE     , yytext()); }
+    "INT"                         { return symbol(INT        , yytext()); }
+    "LABEL"                       { return symbol(LABEL      , yytext()); }
+    "LONGINT"                     { return symbol(LONGINT    , yytext()); }
+    "NIL"                         { return symbol(NIL        , yytext()); }
+    "OF"                          { return symbol(OF         , yytext()); }
+    "PACKED"                      { return symbol(PACKED     , yytext()); }
+    "PROCEDURE"                   { return symbol(PROCEDURE , yytext()); }
+    "PROGRAM"                     { return symbol(PROGRAM    , yytext()); }
+    "READ"                        { return symbol(READ       , yytext()); }
+    "REAL"                        { return symbol(REAL       , yytext()); }
+    "RECORD"                      { return symbol(RECORD     , yytext()); }
+    "REPEAT"                      { return symbol(REPEAT     , yytext()); }
+    "SET"                         { return symbol(SET        , yytext()); }
+    "SHORTINT"                    { return symbol(SHORTINT  , yytext()); }
+    "STRING"                      { return symbol(STRING     , yytext()); }
+    "THEN"                        { return symbol(THEN       , yytext()); }
+    "TO"                          { return symbol(TO         , yytext()); }
+    "TRUE"                        { return symbol(TRUE       , yytext()); }
+    "TYPE"                        { return symbol(TYPE       , yytext()); }
+    "UNTIL"                       { return symbol(UNTIL      , yytext()); }
+    "VAR"                         { return symbol(VAR        , yytext()); }
+    "WHILE"                       { return symbol(WHILE      , yytext()); }
+    "WITH"                        { return symbol(WITH       , yytext()); }
+    "WRITE"                       { return symbol(WRITE      , yytext()); }
 
   /* OPERADORES */
-  "AND"                          { return symbol(OPERADOR,yytext()); }
-  "NOT"                          { return symbol(OPERADOR,yytext()); }
-  "OR"                           { return symbol(OPERADOR,yytext()); }
-  "XOR"                          { return symbol(OPERADOR,yytext()); }
-  "DIV"                          { return symbol(OPERADOR,yytext()); }
-  "MOD"                          { return symbol(OPERADOR,yytext()); }
+  "AND"                          { return symbol(AND,yytext()); }
+  "NOT"                          { return symbol(NOT,yytext()); }
+  "OR"                           { return symbol(OR,yytext()); }
+  "XOR"                          { return symbol(XOR,yytext()); }
+  "DIV"                          { return symbol(DIV,yytext()); }
+  "MOD"                          { return symbol(MOD,yytext()); }
 
-  ","                            { return symbol(OPERADOR,yytext()); } //valid
-  ";"                            { return symbol(OPERADOR,yytext()); } //valid
-  "++"                           { return symbol(OPERADOR,yytext()); } //valid
-  "--"                           { return symbol(OPERADOR,yytext()); } //valid
-  ">="                           { return symbol(OPERADOR,yytext()); } //valid
-  ">"                            { return symbol(OPERADOR,yytext()); } //valid
-  "<="                           { return symbol(OPERADOR,yytext()); } //valid
-  "<"                            { return symbol(OPERADOR,yytext()); } //valid
-  "<>"                           { return symbol(OPERADOR,yytext()); } //valid
-  "="                            { return symbol(OPERADOR,yytext()); } //valid
-  "+"                            { return symbol(OPERADOR,yytext()); } //valid
-  "-"                            { return symbol(OPERADOR,yytext()); } //valid
-  "*"                            { return symbol(OPERADOR,yytext()); } //valid
-  "/"                            { return symbol(OPERADOR,yytext()); } //valid
-  "("                            { return symbol(OPERADOR,yytext()); } //valid
-  ")"                            { return symbol(OPERADOR,yytext()); } //valid
-  "["                            { return symbol(OPERADOR,yytext()); } //valid
-  "]"                            { return symbol(OPERADOR,yytext()); } //valid
-  ":="                           { return symbol(OPERADOR,yytext()); } //valid
-  "."                            { return symbol(OPERADOR,yytext()); } //valid
-  ":"                            { return symbol(OPERADOR,yytext()); } //valid
-  "+="                           { return symbol(OPERADOR,yytext()); } //valid
-  "-="                           { return symbol(OPERADOR,yytext()); } //valid
-  "*="                           { return symbol(OPERADOR,yytext()); } //valid
-  "/="                           { return symbol(OPERADOR,yytext()); } //valid
-  ">>"                           { return symbol(OPERADOR,yytext()); } //valid
-  "<<"                           { return symbol(OPERADOR,yytext()); } //valid
-  "<<="                          { return symbol(OPERADOR,yytext()); } //valid
-  ">>="                          { return symbol(OPERADOR,yytext()); } //valid
+    ","                            { return symbol(COMMA      , yytext()); } //valid
+    ";"                            { return symbol(SEMICOLON  , yytext()); } //valid
+    "++"                           { return symbol(PLUSPLUS   , yytext()); } //valid
+    "--"                           { return symbol(MINUSMINUS , yytext()); } //valid
+    ">="                           { return symbol(GTEQ       , yytext()); } //valid
+    ">"                            { return symbol(GT         , yytext()); } //valid
+    "<="                           { return symbol(LTEQ       , yytext()); } //valid
+    "<"                            { return symbol(LT         , yytext()); } //valid
+    "<>"                           { return symbol(NEQ        , yytext()); } //valid
+    "="                            { return symbol(EQ         , yytext()); } //valid
+    "+"                            { return symbol(PLUS       , yytext()); } //valid
+    "-"                            { return symbol(MINUS      , yytext()); } //valid
+    "*"                            { return symbol(MULT       , yytext()); } //valid
+    "/"                            { return symbol(DIV_SYM    , yytext()); } //valid
+    "("                            { return symbol(LPAREN     , yytext()); } //valid
+    ")"                            { return symbol(RPAREN     , yytext()); } //valid
+    "["                            { return symbol(LBRACK     , yytext()); } //valid
+    "]"                            { return symbol(RBRACK     , yytext()); } //valid
+    ":="                           { return symbol(ASSIGN     , yytext()); } //valid
+    "."                            { return symbol(DOT        , yytext()); } //valid
+    ":"                            { return symbol(COLON      , yytext()); } //valid
+    "+="                           { return symbol(PLUSEQ     , yytext()); } //valid
+    "-="                           { return symbol(MINUSEQ    , yytext()); } //valid
+    "*="                           { return symbol(MULTEQ     , yytext()); } //valid
+    "/="                           { return symbol(DIVEQ      , yytext()); } //valid
+    ">>"                           { return symbol(RSHIFT     , yytext()); } //valid
+    "<<"                           { return symbol(LSHIFT     , yytext()); } //valid
+    "<<="                          { return symbol(LSHIFTEQ   , yytext()); } //valid
+    ">>="                          { return symbol(RSHIFTEQ   , yytext()); } //valid
 
   /* string literal */
   \"                             { yybegin(STRING); string.setLength(0); }
@@ -185,19 +195,27 @@ SingleCharacter = [^\r\n\'\\]
   {DoubleLiteral}[dD]            { return symbol(FLOATING_POINT_LITERAL, new Double(yytext().substring(0,yylength()-1))); }
 
   /* comments */
-  "(*"                           { yybegin(COMMENT); }
-  "{"                            { yybegin(COMMENT); }
+  {lparenthesis}                 { yybegin(COMMENT); }
+  {lbrace}                       { yybegin(COMMENT); }
   {EndOfLineComment}             { /* ignore */ }
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
 
   /* identifiers */
-  {Identifier}                   { return symbol(IDENTIFICADOR, yytext()); }
+  {Identifier}                   { return symbol(IDENTIFIER, yytext()); }
 }
 
 <COMMENT> {
 
-  {PCLComment}                   { /* ignore */ }
+  {lbrace}						{  }
+  {rbrace}						{ yybegin(YYINITIAL); }
+  {comment_body_brace}				{ }
+
+  {lparenthesis}						{  }
+  {rparenthesis}						{ yybegin(YYINITIAL); }
+  {comment_body_parenthesis}				{ }
+
+  //{PCLComment}                   { /* ignore */ }
 
   <<EOF>>                        { printError("Unterminated comment at end of file"); return symbol(EOF); }
 }
