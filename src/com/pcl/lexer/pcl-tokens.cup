@@ -13,7 +13,6 @@ terminal java.lang.Number FLOATING_POINT_LITERAL;
 terminal java.lang.Boolean BOOLEAN_LITERAL;
 terminal java.lang.Character CHARACTER_LITERAL;
 
-//terminal java.lang.String IDENTIFIER; // name
 
 /*-*
  * The following two lines define a dummy non-terminal and grammar rule.  CUP

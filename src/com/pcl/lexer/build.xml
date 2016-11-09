@@ -30,7 +30,6 @@
 
     <target name="generate-tokens">
         <cup srcfile="pcl-tokens.cup" package="com.pcl.lexer" interface="true" />
-        <delete file="parser.java"/>
     </target>
 
     <target name="clean">
