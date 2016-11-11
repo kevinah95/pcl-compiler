@@ -187,7 +187,7 @@ SingleCharacter = [^\r\n\'\\]
   {EndOfLineComment}             { /* ignore */ }
   {Comment}                      { /* ignore */ }
   {ComentarioInvalido}           { printError("Unterminated character literal at end of line");}
-  {LineTerminator}               { System.out.println("Salto"); }
+  {LineTerminator}               { /* ignore */ }
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
 
