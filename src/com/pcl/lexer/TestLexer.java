@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TestLexer {
     String dir;
-    TokenTable tokenTable = new TokenTable();
+
 
     private void displayFirstMenu() {
         System.out.println("\n[1] Scan pcl file...");
@@ -40,6 +40,7 @@ public class TestLexer {
     private void scan() {
         try {
             System.out.println("Lexing [" + dir + "]");
+            TokenTable tokenTable = new TokenTable();
             Scanner scanner = new Scanner(new FileReader(dir));
             Symbol s;
             do {

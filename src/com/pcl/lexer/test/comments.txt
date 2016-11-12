@@ -1,1 +1,4 @@
-{ { POr ultimo este es el otro tipo de comentarios }
+{ { POr ultimo este es el otro tipo de comentarios }}
+(**
+* Multiple Line comment
+**)
