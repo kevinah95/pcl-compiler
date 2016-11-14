@@ -54,10 +54,15 @@ public class TestLexer {
     }
 
     private void parser() {
+        boolean withDebug = false; //TODO put as argument
         try {
             parser p = new parser(new Scanner(new FileReader(dir)));
-            Object result = p.debug_parse().value;
-            p.debug_stack();
+            if(withDebug){
+                Object result = p.debug_parse().value;
+            }else {
+                Object result = p.parse().value;
+            }
+            //p.debug_stack();
 
         } catch (Exception e) {
             e.printStackTrace();

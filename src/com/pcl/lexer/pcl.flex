@@ -88,7 +88,6 @@ SingleCharacter   = [^\r\n\'\\]
   "DOWNTO"    { return symbol(DOWNTO     , yytext()); }
   "ELSE"      { return symbol(ELSE       , yytext()); }
   "END"       { return symbol(END        , yytext()); }
-  "FALSE"     { return symbol(FALSE      , yytext()); }
   "FILE"      { return symbol(FILE       , yytext()); }
   "FOR"       { return symbol(FOR        , yytext()); }
   "FORWARD"   { return symbol(FORWARD    , yytext()); }
@@ -114,7 +113,6 @@ SingleCharacter   = [^\r\n\'\\]
   "STRING"    { return symbol(STRING     , yytext()); }
   "THEN"      { return symbol(THEN       , yytext()); }
   "TO"        { return symbol(TO         , yytext()); }
-  "TRUE"      { return symbol(TRUE       , yytext()); }
   "TYPE"      { return symbol(TYPE       , yytext()); }
   "UNTIL"     { return symbol(UNTIL      , yytext()); }
   "VAR"       { return symbol(VAR        , yytext()); }
@@ -159,6 +157,10 @@ SingleCharacter   = [^\r\n\'\\]
   "<<"        { return symbol(LSHIFT     , yytext()); } //valid
   "<<="       { return symbol(LSHIFTEQ   , yytext()); } //valid
   ">>="       { return symbol(RSHIFTEQ   , yytext()); } //valid
+
+  /* bool literal */
+  "TRUE"      { return symbol(BOOLEAN_LITERAL, new Boolean(yytext())); } //TODO change TYPE_LITERALS
+  "FALSE"     { return symbol(BOOLEAN_LITERAL, new Boolean(yytext())); }
 
   /* string literal */
   \"                             { yybegin(STRING); string.setLength(0); }

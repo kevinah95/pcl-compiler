@@ -3,6 +3,7 @@
     cl = clone
 	ci = commit
     co = checkout
+    cob = checkout -b
     r = reset
     cp = cherry-pick
     gr = grep -Ii

@@ -11,7 +11,7 @@
                 <path refid="classpath"/>
                 <path location="${lib}/TestLexer.jar"/>
             </classpath>
-            <arg line="${test.dir}\comments.txt"/>
+            <arg line="${test.dir}\big_one.pascal"/>
         </java>
     </target>
 </project>

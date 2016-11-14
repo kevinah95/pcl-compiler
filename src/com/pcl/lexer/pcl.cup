@@ -6,7 +6,7 @@ parser code {:
 	private int line;
 	private int column;
 
-	public void syntax_error(Symbol cur_token){
+	/*public void syntax_error(Object cur_token){
 		line = cur_token.left+1;
 		column = cur_token.right+1;
 
@@ -15,15 +15,32 @@ parser code {:
 		if(cur_token.value != null)
 			System.err.print(" en lexema: "+cur_token.value);
 		System.err.print(": ");
-	}
+	}*/
 
-	public void unrecovered_syntax_error(Symbol cur_token) {
+	/*public void unrecovered_syntax_error(Symbol cur_token) {
 		System.err.println("Error de sintaxis en la línea " + line + " columna " + column);
-	}
+	}*/
 
 	public void syntax_error(String msg){
 		System.err.println(msg);
 	}
+
+	public void report_error(String message, Object info) {
+            System.err.print(message);
+            System.err.flush();
+            System.out.println(info instanceof java_cup.runtime.Symbol);
+            if(info instanceof java_cup.runtime.Symbol) {
+                System.err.println(" "+info);
+                if(((Symbol)info).left != -1) {
+                    System.err.println(" at character " + ((Symbol)info).left + " of input");
+                } else {
+                    System.err.println("");
+                }
+            } else {
+                System.err.println("");
+            }
+
+        }
 :}
 
 /* Terminals */
@@ -33,7 +50,7 @@ terminal IDENTIFIER;
 //terminal ARRAY, BEGIN, BOOLEAN, BYTE, CASE, CHAR, CONST, DO, DOWNTO, ELSE, END, FALSE, FILE, FOR, FORWARD, FUNCTION, GOTO, IF, IN, INLINE, INT, LABEL, LONGINT, NIL, OF, PACKED, PROCEDURE, PROGRAM, READ, REAL, RECORD, REPEAT, SET, SHORTINT, STRING, THEN, TO, TRUE, TYPE, UNTIL, VAR, WHILE, WITH, WRITE, AND, NOT, OR, XOR, DIV, MOD, COMMA, SEMICOLON, PLUSPLUS, MINUSMINUS, GTEQ, GT, LTEQ, LT, NEQ, EQ, PLUS, MINUS, MULT, DIV_SYM, LPAREN, RPAREN, LBRACK, RBRACK, ASSIGN, DOT, COLON, PLUSEQ, MINUSEQ, MULTEQ, DIVEQ, RSHIFT, LSHIFT, LSHIFTEQ, RSHIFTEQ;
 terminal ARRAY, BEGIN, BOOLEAN, BYTE, CASE, CHAR, CONST, DO, DOWNTO, ELSE, END;
 terminal FALSE, FILE, FOR, FORWARD, FUNCTION, GOTO, IF, IN, INLINE, INT, LABEL;
-terminal LONGINT, NIL, OF, PACKED, PROCEDURE, PROGRAM, READ, REAL, RECORD, REPEAT;
+terminal LONGINT, NIL, OF, PACKED, PROCEDURE, PROGRAM, READ, REAL, RECORD, REPEAT; //TODO NIL
 terminal SET, SHORTINT, STRING, THEN, TO, TRUE, TYPE, UNTIL, VAR, WHILE, WITH, WRITE;
 
 terminal AND, NOT, OR, XOR, DIV, MOD;
@@ -46,7 +63,7 @@ terminal java.lang.String STRING_LITERAL;
 terminal java.lang.Number INTEGER_LITERAL;
 terminal java.lang.Number FLOATING_POINT_LITERAL;
 terminal java.lang.Boolean BOOLEAN_LITERAL;
-terminal java.lang.Character CHARACTER_LITERAL;
+terminal java.lang.Character CHARACTER_LITERAL; //TODO "#80" is not valid
 
 /* Non terminals */
 non terminal type, identtype, arraytype, vardecl, vars, var;
@@ -114,36 +131,52 @@ non terminal identifiers_aux;
 non terminal assignment_type;
 non terminal value;
 non terminal array;
-non terminal type;
 non terminal array_type;
+
+non terminal one_var_assignment,one_const_assignment;
+non terminal var_assignments_prime,cons_assignments_prime;
+
+precedence left error;
+precedence nonassoc NOT;
+precedence left PLUS, MINUS;
+precedence left MULT, DIV_SYM;
+precedence left DOT,LPAREN,RPAREN;
+precedence left IDENTIFIER;
+precedence left READ,WRITE;
+
 
 
 /* GRAMMAR */
 program ::= program_head program_aux;
 
-program_head ::= PROGRAM IDENTIFIER
+program_head ::= PROGRAM:t_p IDENTIFIER:t_i {:System.out.println(t_p+" "+t_i);:}
     | error {:parser.syntax_error("Falta PROGRAM");:} IDENTIFIER
-    | PROGRAM error {:parser.syntax_error("Falta el identificador");:};
+    | PROGRAM:p error {:parser.report_error("Syntax error",p);:};
 
-program_aux ::= constants globals functions error_begin block error_end
-    | constants error_begin block error_end
-    | globals error_begin block error_end
-    | functions error_begin block error_end
-    | constants globals error_begin block error_end
-    | constants functions error_begin block error_end
-    | globals functions error_begin block error_end
-    | error_begin block error_end;
+program_aux ::= constants globals functions error_begin error_end;
+/*program_aux ::= //constants globals functions error_begin block error_end
+    //| constants error_begin block error_end
+    //| globals error_begin error_end;//| globals error_begin block error_end;
+    //| functions error_begin block error_end
+    //| constants globals error_begin block error_end
+    //| constants functions error_begin block error_end
+    //| globals functions error_begin block error_end
+    //| error_begin block error_end;*/
 
-error_begin ::= BEGIN | error {:parser.syntax_error("Falta BEGIN");:};
-error_end ::= END | error {:parser.syntax_error("Falta END");:};
+error_begin ::= BEGIN:t_b {:System.out.println(t_b);:} | error {:parser.syntax_error("Falta BEGIN");:};
 
-functions ::= function | procedure;
+error_end ::= END:t_e {:System.out.println(t_e);:} | error {:parser.syntax_error("Falta END");:};
 
-function ::= function_head BEGIN function_body END
+functions ::= function;
+//functions ::= function | procedure;
+
+function ::= function_head BEGIN function_body END:t_end
+        {:System.out.println("Function body: "+t_end);:}
     | function_head error {:parser.syntax_error("Falta BEGIN");:} function_body END
     | function_head BEGIN function_body error {:parser.syntax_error("Falta END");:};
 
-function_head ::= FUNCTION IDENTIFIER LPAREN parameters RPAREN COLON type
+function_head ::= FUNCTION:t_func IDENTIFIER:t_id LPAREN:t_lparen parameters RPAREN:t_rparen COLON:t_colon type
+            {: System.out.println(t_func+""+t_id+""+t_lparen+""+t_rparen+""+t_colon+""); :}
     | error {:parser.syntax_error("Falta FUNCTION");:} IDENTIFIER LPAREN parameters RPAREN COLON type
     | FUNCTION error {:parser.syntax_error("Falta IDENTIFIER");:} LPAREN parameters RPAREN COLON type
     | FUNCTION IDENTIFIER error {:parser.syntax_error("Falta LPAREN");:} parameters RPAREN COLON type
@@ -152,145 +185,63 @@ function_head ::= FUNCTION IDENTIFIER LPAREN parameters RPAREN COLON type
     | FUNCTION IDENTIFIER LPAREN parameters RPAREN COLON error {:parser.syntax_error("Falta tipo de retorno");:};
 
 function_body ::= globals constants block return;
+//function_body ::= globals constants block return; //ORIGINAL
 
-return ::= IDENTIFIER COLON EQ value
-    | error {:parser.syntax_error("Falta identificador");:} COLON EQ value
-    | IDENTIFIER error {:parser.syntax_error("Falta :");:} EQ value
-    | IDENTIFIER COLON error {:parser.syntax_error("Falta =");:} value
-    | IDENTIFIER COLON EQ error {:parser.syntax_error("Falta value");:};
+return ::= IDENTIFIER ASSIGN value
+    | error {:parser.syntax_error("Falta identificador");:} ASSIGN value
+    | IDENTIFIER error {:parser.syntax_error("Falta :=");:} value
+    | IDENTIFIER ASSIGN error {:parser.syntax_error("Falta value");:};
 
-procedure ::= procedure_head BEGIN procedure_body END
-    | procedure_head error {:parser.syntax_error("Falta BEGIN");:} function_body END
-    | procedure_head BEGIN function_body error {:parser.syntax_error("Falta END");:};
-
-procedure_body ::= globals constants block;
-
-procedure_head ::= PROCEDURE IDENTIFIER LPAREN parameters RPAREN
-    | error {:parser.syntax_error("Falta PROCEDURE");:} IDENTIFIER LPAREN parameters RPAREN
-    | PROCEDURE error {:parser.syntax_error("Falta IDENTIFIER");:} LPAREN parameters RPAREN
-    | PROCEDURE IDENTIFIER error {:parser.syntax_error("Falta LPAREN");:} parameters RPAREN
-    | PROCEDURE IDENTIFIER LPAREN parameters error {:parser.syntax_error("Falta RPAREN");:};
-
-block ::= sentence_block | ;
+block ::= {::} | sentence_block;
 
 sentence_block ::= sentence sentence_block | sentence;
 
 sentence ::= value_assignment
-    | read_write
-    | control
-    | operation;
+    | read_write;
+    //| control //TODO
+    //| operation; //TODO
 
-value_assignment ::= IDENTIFIER ASSIGN VALUE SEMICOLON
-    | error {:parser.syntax_error("Falta identificador");:} ASSIGN VALUE SEMICOLON
-    | IDENTIFIER error {:parser.syntax_error("Falta :=");:} VALUE SEMICOLON
+value_assignment ::= IDENTIFIER ASSIGN value SEMICOLON
+    | error {:parser.syntax_error("Falta identificador");:} ASSIGN value SEMICOLON
+    | IDENTIFIER error {:parser.syntax_error("Falta :=");:} value SEMICOLON
     | IDENTIFIER ASSIGN error {:parser.syntax_error("Falta valor");:} SEMICOLON
-    | IDENTIFIER ASSIGN VALUE error {:parser.syntax_error("Falta ;");:};
+    | IDENTIFIER ASSIGN value error {:parser.syntax_error("Falta ;");:};
 
+//read_write ::= read | write;
 read_write ::= read | write;
 
 read ::= READ LPAREN read_parameters RPAREN
-    | error {:parser.syntax_error("Falta READ");:} LPAREN read_parameters RPAREN
+    //| error {:parser.syntax_error("Falta READ");:} LPAREN read_parameters RPAREN
     | READ error {:parser.syntax_error("Falta (");:} read_parameters RPAREN
     | READ LPAREN read_parameters error {:parser.syntax_error("Falta )");:};
 
 read_parameters ::= read_parameter_list | ;
-read_parameter_list ::= read_parameter read_parameter_list_aux
-    | error {:parser.syntax_error("Falta valor");:} read_parameter_list_aux;
+
+read_parameter_list ::= read_parameter read_parameter_list_aux;
+    //| error {:parser.syntax_error("Falta valor");:} read_parameter_list_aux;
+
 read_parameter ::= IDENTIFIER | value;
+
 read_parameter_list_aux ::= COMMA read_parameter_list
-    | error {:parser.syntax_error("Falta ,");:} read_parameter_list
+    //| error {:parser.syntax_error("Falta ,");:} read_parameter_list
     | ;
 
-write ::= WRITE LPAREN read_parameters RPAREN
-    | error {:parser.syntax_error("Falta WRITE");:} LPAREN read_parameters RPAREN
-    | WRITE error {:parser.syntax_error("Falta (");:} read_parameters RPAREN
+
+
+write ::= WRITE LPAREN write_parameters RPAREN
+    | WRITE error {:parser.syntax_error("Falta (");:} write_parameters RPAREN
     | WRITE LPAREN error {:parser.syntax_error("Falta parametro(s)");:} RPAREN
-    | WRITE LPAREN read_parameters error {:parser.syntax_error("Falta )");:};
+    | WRITE LPAREN write_parameters error {:parser.syntax_error("Falta )");:}
+    | error {:parser.syntax_error("Falta WRITE");:} LPAREN write_parameters RPAREN;
 
-write_parameters ::= write_parameter write_parameters_aux
-    | error {:parser.syntax_error("Falta valor");:} write_parameters_aux;
+write_parameters ::= write_parameter write_parameters_aux;
+    //| error {:parser.syntax_error("Falta valor");:} write_parameters_aux;
+
 write_parameter ::= IDENTIFIER | value;
+
 write_parameters_aux ::= COMMA write_parameters
-    | error {:parser.syntax_error("Falta ,");:} write_parameters
+    //| error {:parser.syntax_error("Falta ,");:} write_parameters
     | ;
-
-control ::= while | repeat | if | for | case;
-
-while ::= WHILE condition DO BEGIN block END
-    | error {:parser.syntax_error("Falta WHILE");:} condition DO BEGIN block END
-    | WHILE condition error {:parser.syntax_error("Falta DO");:} BEGIN block END
-    | WHILE condition DO error {:parser.syntax_error("Falta BEGIN");:} block END
-    | WHILE condition DO BEGIN block error {:parser.syntax_error("Falta END");:};
-
-repeat ::= REPEAT block UNTIL condition
-    | error {:parser.syntax_error("Falta REPEAT");:} block UNTIL condition
-    | REPEAT block error {:parser.syntax_error("Falta UNTIL");:} condition;
-
-if ::= IF condition THEN block ELSE LBRACK block RBRACK
-    | error {:parser.syntax_error("Falta IF");:} condition THEN block ELSE LBRACK block RBRACK
-    | IF condition error {:parser.syntax_error("Falta THEN");:} block ELSE LBRACK block RBRACK
-    | IF condition THEN block error {:parser.syntax_error("Falta ELSE");:} LBRACK block RBRACK
-    | IF condition THEN block ELSE error {:parser.syntax_error("Falta (");:} block RBRACK
-    | IF condition THEN block ELSE LBRACK block error {:parser.syntax_error("Falta )");:};
-
-for ::= IDENTIFIER ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block END
-    | error {:parser.syntax_error("Falta identificador");:} ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block END
-    | IDENTIFIER error {:parser.syntax_error("Falta :=");:} INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block END
-    | IDENTIFIER ASSIGN error {:parser.syntax_error("Falta el valor");:} TO INTEGER_LITERAL DO BEGIN block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL error {:parser.syntax_error("Falta TO");:} INTEGER_LITERAL DO BEGIN block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL TO error {:parser.syntax_error("Falta el valor");:} DO BEGIN block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL error {:parser.syntax_error("Falta DO");:} BEGIN block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL DO error {:parser.syntax_error("Falta BEGIN");:} block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block error {:parser.syntax_error("Falta END");:};
-
-case ::= CASE IDENTIFIER OF cases ELSE block
-    | error {:parser.syntax_error("Falta CASE");:} IDENTIFIER OF cases ELSE block
-    | CASE error {:parser.syntax_error("Falta el identificador");:} OF cases ELSE block
-    | CASE IDENTIFIER error {:parser.syntax_error("Falta of");:} cases ELSE block
-    | CASE IDENTIFIER OF cases error {:parser.syntax_error("Falta ELSE");:} block;
-
-cases ::= case_option cases_aux;
-
-cases_aux ::= cases | ;
-
-case_option ::= value COLON block SEMICOLON
-    | error {:parser.syntax_error("Falta un valor");:} COLON block SEMICOLON
-    | value error {:parser.syntax_error("Falta :");:} block SEMICOLON
-    | value COLON block error {:parser.syntax_error("Falta ;");:}
-
-condition ::= comparison other_comparison;
-
-other_comparison ::= boolean_exp condition
-    | error {:parser.syntax_error("Falta operador booleano");:}
-    | ;
-
-boolean_exp ::= AND | NOT;
-
-comparison ::= compared comparison_op compared;
-
-compared ::= IDENTIFIER | value | operation;
-
-comparison_op ::= EQ | GTEQ | GT | LTEQ | LT | NEQ;
-
-operation ::= single_side_operation | double_side_operation;
-
-single_side_operation ::= operated right_operator
-    | left_operator operated
-    | error {:parser.syntax_error("Falta operando izquierdo");:} right_operator
-    | left_operator error {:parser.syntax_error("Falta operando derecho");:}
-    | operated error {:parser.syntax_error("Falta operador derecho");:}
-    | error {:parser.syntax_error("Falta operador izquierdo");:}  operated;
-
-right_operator ::= PLUSPLUS | MINUSMINUS | RPAREN;
-left_operator ::= LPAREN;
-
-double_side_operation ::= operated center_operator operated double_side_operation_aux;
-
-double_side_operation_aux ::= center_operator operated double_side_operation_aux | ;
-
-center_operator ::= PLUS | MINUS | MULT | DIV_SYM | MOD | DIVE | PLUSEQ | MINUSEQ | MULTEQ | DIVEQ;
-
-operated ::= value | IDENTIFIER;
 
 parameters ::= parameter_list | ;
 parameter_list ::= type IDENTIFIER parameter_list_aux
@@ -301,38 +252,48 @@ parameter_list_aux ::= COMMA parameter_list
     | error {:parser.syntax_error("Falta ,");:} parameter_list
     | ;
 
-constants ::= CONST cons_assignments
-    | error {:parser.syntax_error("Falta CONST");:} cons_assignments
-    | ;
+constants ::=
+    | {:System.out.println("CONST");:}CONST cons_assignments
+    | error {:parser.syntax_error("Falta CONST");:} cons_assignments;
 
-globals ::= VAR var_assignments
-    | error {:parser.syntax_error("Falta VAR");:} var_assignments
-    | ;
+globals ::= {::}
+    | {:System.out.println("VAR");:}VAR var_assignments
+    | error {:parser.syntax_error("Falta VAR");:} var_assignments;
 
-var_assignments ::= identifiers COLON assignment_type SEMICOLON
-    | identifiers error {:parser.syntax_error("Falta :");:} assignment_type SEMICOLON
-    | identifiers COLON assignment_type error {:parser.syntax_error("Falta ;");:}
-    | error {:parser.syntax_error("Faltan los identificadores");:} COLON assignment_type SEMICOLON
-    | identifiers COLON error {:parser.syntax_error("Falta el tipo");:} SEMICOLON;
 
-cons_assignments ::= IDENTIFIER EQ value SEMICOLON
-    | error {:parser.syntax_error("Falta identificador");:} EQ value SEMICOLON
-    | IDENTIFIER error {:parser.syntax_error("Falta =");:} value SEMICOLON
-    | IDENTIFIER EQ error {:parser.syntax_error("Falta el valor");:} SEMICOLON
-    | IDENTIFIER EQ value error {:parser.syntax_error("Falta ;");:};
+var_assignments ::= one_var_assignment var_assignments_prime;
 
-identifiers ::= IDENTIFIER identifiers_aux
+var_assignments_prime ::= var_assignments | ;
+
+one_var_assignment ::= identifiers COLON assignment_type SEMICOLON:t_sc
+        {:System.out.println(""+t_sc);:}
+       | identifiers error {:parser.syntax_error("Falta :");:} assignment_type SEMICOLON
+       | identifiers COLON error {:parser.syntax_error("Falta el tipo");:} SEMICOLON
+       | identifiers COLON assignment_type error {:parser.syntax_error("Falta ;");:};
+
+cons_assignments ::= one_const_assignment cons_assignments_prime;
+
+cons_assignments_prime ::= cons_assignments | ;
+
+one_const_assignment ::= IDENTIFIER:t_id EQ:t_eq value:nt_val SEMICOLON:t_sc {:System.out.println(t_id+""+t_eq+""+nt_val+""+t_sc);:}
+         | error {:parser.syntax_error("Falta identificador");:} EQ value SEMICOLON
+         | IDENTIFIER error {:parser.syntax_error("Falta =");:} value SEMICOLON
+         | IDENTIFIER:t_id EQ:t_eq error:e SEMICOLON:t_sc {:System.out.println(t_id+""+t_eq+""+t_sc); parser.syntax_error("Falta el valor");:}
+         | IDENTIFIER EQ value error {:parser.syntax_error("Falta ;");:};
+
+identifiers ::= IDENTIFIER:i {:System.out.print(i);:} identifiers_aux
     | error {:parser.syntax_error("Falta el identificador");:} identifiers_aux;
 
-identifiers_aux ::= COMMA identifiers
+identifiers_aux ::= COMMA:c {:System.out.print(c);:} identifiers
     | error {:parser.syntax_error("Falta la ,");:} identifiers
     | ;
 
-assignment_type ::= type | array;
+assignment_type ::= {:System.out.print(":");:}type | {:System.out.print(":");:}array;
 
-value ::= STRING_LITERAL | INTEGER_LITERAL | FLOATING_POINT_LITERAL | BOOLEAN_LITERAL | CHARACTER_LITERAL;
+value ::= STRING_LITERAL:t_str_lit {: RESULT = t_str_lit; :}  | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :} | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :} | BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :} | CHARACTER_LITERAL:t_char_lit {: RESULT = t_char_lit; :};
 
-array ::= ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF array_type
+array ::= ARRAY:t_a LBRACK:t_lb INTEGER_LITERAL:t_fst_i DOT:t_fst_d DOT:t_snd_d INTEGER_LITERAL:t_snd_i RBRACK:t_rb OF:t_of array_type
+        {:System.out.print(t_a+""+t_lb+""+t_fst_i+""+t_fst_d+""+t_snd_d+""+t_snd_i+""+t_rb+""+t_of);:}
     | error {:parser.syntax_error("Falta ARRAY");:} LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF array_type
     | ARRAY error {:parser.syntax_error("Falta LBRACK");:} INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF array_type
     | ARRAY LBRACK error {:parser.syntax_error("Falta INTEGER");:} DOT DOT INTEGER_LITERAL RBRACK OF array_type
@@ -343,5 +304,5 @@ array ::= ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF array_t
     | ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK error {:parser.syntax_error("Falta OF");:} array_type
     | ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF error {:parser.syntax_error("Falta tipo");:};
 
-type ::= BOOLEAN | BYTE | CHAR | INT | LONGINT | SHORTINT | STRING;
-array_type ::= CHAR | INT | LONGINT | SHORTINT;
+type ::= BOOLEAN:bool {:System.out.print(bool);:} | BYTE:pbyte {:System.out.print(pbyte);:} | CHAR:pchar {:System.out.print(pchar);:} | INT:pint {:System.out.print(pint);:} | LONGINT:plongint {:System.out.print(plongint);:} | SHORTINT:pshortint {:System.out.print(pshortint);:} | STRING:pstring {:System.out.print(pstring);:};
+array_type ::= CHAR:pchar {:System.out.print(pchar);:} | INT:pint {:System.out.print(pint);:} | LONGINT:plongint {:System.out.print(plongint);:} | SHORTINT:pshortint {:System.out.print(pshortint);:};
