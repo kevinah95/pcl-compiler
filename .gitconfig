@@ -3,7 +3,6 @@
     cl = clone
 	ci = commit
     co = checkout
-    br = branch
     r = reset
     cp = cherry-pick
     gr = grep -Ii
@@ -17,3 +16,4 @@
     cm = !git add -A && git commit -m
     save = !git add -A && git commit -m 'SAVEPOINT'
     ours = "!f() { git co --ours $@ && git add $@; }; f"
+    bd = "!git branch -d $1 && echo '' && git branch -l && echo '  (Removed) $1'"
