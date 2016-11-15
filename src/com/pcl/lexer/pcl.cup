@@ -101,7 +101,7 @@ precedence left OR;
 precedence left AND;
 precedence left EQ, NEQ;
 precedence left LT, LTEQ, GT, GTEQ;
-precedence left IF,CASE,REPEAT,WHILE;
+precedence left FOR,IF,CASE,REPEAT,WHILE;
 precedence left STRING_LITERAL,INTEGER_LITERAL,FLOATING_POINT_LITERAL,BOOLEAN_LITERAL,CHARACTER_LITERAL;
 
 
@@ -112,8 +112,8 @@ program_head ::= PROGRAM:t_p IDENTIFIER:t_i {: RESULT = t_p+" "+t_i+"\n";:}
     | error {:parser.syntax_error("Falta PROGRAM");:} IDENTIFIER
     | PROGRAM:p error {:parser.report_error("Syntax error",p);:};
 
-program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs error_begin:nt_begin error_end:nt_end
-                {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+nt_begin+"\n"+nt_end;:};
+program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs error_begin:nt_begin block:nt_b error_end:nt_end
+                {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+nt_begin+"\n"+nt_b+"\n"+nt_end;:};
 /*program_aux ::= //constants globals functions error_begin block error_end
     //| constants error_begin block error_end
     //| globals error_begin error_end;//| globals error_begin block error_end;
@@ -263,8 +263,8 @@ if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 ELSE:t_else LBRACK:t_lb 
     | IF condition THEN block ELSE error {:parser.syntax_error("Falta (");:} block RBRACK
     | IF condition THEN block ELSE LBRACK block error {:parser.syntax_error("Falta )");:};*/
 
-for ::= IDENTIFIER:t_id ASSIGN:t_a INTEGER_LITERAL:t_int_lit1 TO:t_to INTEGER_LITERAL:t_int_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
-        {:RESULT = t_id+""+t_a+""+t_int_lit1+""+t_to+""+t_int_lit2+""+t_do+""+t_begin+""+nt_b+""+t_end;:};
+for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a INTEGER_LITERAL:t_int_lit1 TO:t_to INTEGER_LITERAL:t_int_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
+        {:RESULT = t_for+" "+t_id+" "+t_a+" "+t_int_lit1+" "+t_to+" "+t_int_lit2+" "+t_do+" "+t_begin+"\n"+nt_b+"\n"+t_end;:};
     /*| error {:parser.syntax_error("Falta identificador");:} ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block END
     | IDENTIFIER error {:parser.syntax_error("Falta :=");:} INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block END
     | IDENTIFIER ASSIGN error {:parser.syntax_error("Falta el valor");:} TO INTEGER_LITERAL DO BEGIN block END
