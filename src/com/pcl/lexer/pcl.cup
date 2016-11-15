@@ -195,7 +195,7 @@ sentence_block ::= sentence:nt_s sentence_block:nt_s_b_p {:RESULT = nt_s+"\n"+nt
 
 sentence ::= value_assignment:nt_v_a {:RESULT = nt_v_a;:}
     | read_write:nt_r_w {:RESULT = nt_r_w;:}
-    | function_call:nt_fn_cl SEMICOLON:t_scn {:RESULT = nt_fn_cl+""+t_scn;:};
+    | function_call:nt_fn_cl SEMICOLON:t_scn {:RESULT = nt_fn_cl+""+t_scn;:}
     | control
     | operation; //TODO
 
