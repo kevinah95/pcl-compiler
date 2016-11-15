@@ -16,7 +16,7 @@ VAR
 FUNCTION fact(INT a, STRING s): INT
 BEGIN
     WRITE("a")
-    fact := 3;
+    fact := 4;
     Procedimiento(Funcion(123));
 
 END
