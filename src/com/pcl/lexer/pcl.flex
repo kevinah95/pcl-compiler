@@ -110,7 +110,7 @@ SingleCharacter   = [^\r\n\'\\]
   "REPEAT"    { return symbol(REPEAT     , yytext()); }
   "SET"       { return symbol(SET        , yytext()); }
   "SHORTINT"  { return symbol(SHORTINT   , yytext()); }
-  "STRING"    { return symbol(STRING     , yytext()); }
+  "STRING"    { return symbol(STRING_TYPE, yytext()); }
   "THEN"      { return symbol(THEN       , yytext()); }
   "TO"        { return symbol(TO         , yytext()); }
   "TYPE"      { return symbol(TYPE       , yytext()); }
