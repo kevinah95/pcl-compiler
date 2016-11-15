@@ -83,6 +83,7 @@ non terminal java.lang.Number integer;
 
 non terminal one_var_assignment,one_const_assignment;
 non terminal var_assignments_prime,cons_assignments_prime,functions_prime;
+non terminal function_call,function_call_parameters,function_call_parameter_list,function_call_parameter_list_element;
 
 precedence left error;
 precedence nonassoc NOT;
@@ -183,7 +184,8 @@ sentence_block ::= sentence:nt_s sentence_block:nt_s_b_p {:RESULT = nt_s+"\n"+nt
                 | sentence:nt_s {:RESULT = nt_s;:};
 
 sentence ::= value_assignment:nt_v_a {:RESULT = nt_v_a;:}
-    | read_write:nt_r_w {:RESULT = nt_r_w;:};
+    | read_write:nt_r_w {:RESULT = nt_r_w;:}
+    | function_call:nt_fn_cl SEMICOLON:t_scn {:RESULT = nt_fn_cl+""+t_scn;:};
     //| control //TODO
     //| operation; //TODO
 
@@ -277,7 +279,12 @@ identifiers_aux ::= COMMA:t_comma identifiers:ids {:RESULT = t_comma+""+ids;:}
 
 assignment_type ::= type:t {:RESULT = t;:} | array:a {:RESULT = a;:};
 
-value ::= STRING_LITERAL:t_str_lit {: RESULT = t_str_lit; :}  | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :} | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :} | BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :} | CHARACTER_LITERAL:t_char_lit {: RESULT = t_char_lit; :};
+value ::= STRING_LITERAL:t_str_lit {: RESULT = t_str_lit; :}
+    | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :}
+    | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :}
+    | BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
+    | CHARACTER_LITERAL:t_char_lit {: RESULT = t_char_lit; :}
+    | function_call:nt_fn_cl {: RESULT = nt_fn_cl;:};
 
 array ::= ARRAY:t_a LBRACK:t_lb INTEGER_LITERAL:t_fst_i DOT:t_fst_d DOT:t_snd_d INTEGER_LITERAL:t_snd_i RBRACK:t_rb OF:t_of array_type:t_atype
         {:RESULT =  t_a+""+t_lb+""+t_fst_i+""+t_fst_d+""+t_snd_d+""+t_snd_i+""+t_rb+""+t_of+""+t_atype;:}
@@ -291,5 +298,26 @@ array ::= ARRAY:t_a LBRACK:t_lb INTEGER_LITERAL:t_fst_i DOT:t_fst_d DOT:t_snd_d 
     | ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK error {:parser.syntax_error("Falta OF");:} array_type
     | ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF error {:parser.syntax_error("Falta tipo");:};
 
+function_call ::= IDENTIFIER:t_id LPAREN:t_lb function_call_parameters:nt_fn_cl_pm RPAREN:t_rb
+        {:RESULT =  t_id+""+t_lb+""+nt_fn_cl_pm+""+t_rb;:};
+    /*| error {:parser.syntax_error("Falta identificador");:} LBRACK function_call_parameters RBRACK
+    | IDENTIFIER error {:parser.syntax_error("Falta (");:} function_call_parameters RBRACK
+    | IDENTIFIER LBRACK function_call_parameters error {:parser.syntax_error("Falta )");:};*/
+
+function_call_parameters ::= function_call_parameter_list:nt_fn_cl_pm_lt {:RESULT = nt_fn_cl_pm_lt;:}
+    | {:RESULT = "";:};
+
+function_call_parameter_list ::= function_call_parameter_list_element:nt_fn_cl_pm_lt_el COMMA:t_cm function_call_parameter_list:nt_fn_cl_pm_lt
+    {:RESULT =  nt_fn_cl_pm_lt_el+""+t_cm+""+nt_fn_cl_pm_lt;:}
+    | function_call_parameter_list_element:nt_fn_cl_pm_lt_el {:RESULT =  nt_fn_cl_pm_lt_el;:};
+   /* | error {:parser.syntax_error("Falta parámetro");:} COMMA function_call_parameter_list
+    | function_call_parameter_list_element error {:parser.syntax_error("Falta ,");:} function_call_parameter_list
+    | error {:parser.syntax_error("Falta parámetro");:};*/
+
+function_call_parameter_list_element ::= value:nt_vl {: RESULT = nt_vl;:}
+                                    | IDENTIFIER:t_id {: RESULT = t_id;:}
+                                    | NIL:t_nl {: RESULT = t_nl;:};
+
 type ::= BOOLEAN:p_bool {:RESULT = p_bool;:} | BYTE:pbyte {:RESULT = pbyte;:} | CHAR:pchar {:RESULT = pchar;:} | INT:pint {:RESULT = pint;:} | LONGINT:plongint {:RESULT = plongint;:} | SHORTINT:pshortint {:RESULT = pshortint;:} | STRING_TYPE:pstring {:RESULT = pstring;:};
 array_type ::= CHAR:pchar {:RESULT = pchar;:} | INT:pint {:RESULT = pint;:} | LONGINT:plongint {:RESULT = plongint;:} | SHORTINT:pshortint {:RESULT = pshortint;:};
+

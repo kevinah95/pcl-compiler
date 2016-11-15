@@ -3,7 +3,7 @@ CONST
     PI = 3.1415926;
     Nombre = "Juan Gutiérrez";
     CARACTER = "c";
-    BOOLEANOIDE = TRUE;
+    BOOLEANOIDE = Funcion(123);
     REPETICIONES = 3;
 VAR
         i,j,k : INT;
@@ -17,6 +17,8 @@ FUNCTION fact(INT a, STRING s): INT
 BEGIN
     WRITE("a")
     fact := 3;
+    Procedimiento(Funcion(123));
+
 END
 (*PROCEDURES*)
 PROCEDURE hello2(INT a)
