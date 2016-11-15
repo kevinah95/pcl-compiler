@@ -12,11 +12,20 @@ VAR
 		f : ARRAY[0..8] OF INT;
 		p : INT;
 		s : STRING;
+(*FUNCTIONS*)
 FUNCTION fact(INT a, STRING s): INT
 BEGIN
     WRITE("a")
     fact := 3;
 END
+(*PROCEDURES*)
+PROCEDURE hello2(INT a)
+   (*TODO hacerlas recursivas
+   PROCEDURE a(BOOLEAN b)
+   BEGIN
+   END { a }*)
+BEGIN
+END { hello2 }
 BEGIN
 
 END

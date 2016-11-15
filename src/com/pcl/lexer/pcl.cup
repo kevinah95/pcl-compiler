@@ -82,7 +82,7 @@ non terminal value;
 non terminal java.lang.Number integer;
 
 non terminal one_var_assignment,one_const_assignment;
-non terminal var_assignments_prime,cons_assignments_prime;
+non terminal var_assignments_prime,cons_assignments_prime,functions_prime;
 
 precedence left error;
 precedence nonassoc NOT;
@@ -116,13 +116,15 @@ error_begin ::= BEGIN:t_b {:RESULT = t_b;:} | error {:parser.syntax_error("Falta
 
 error_end ::= END:t_e {:RESULT = t_e;:} | error {:parser.syntax_error("Falta END");:};
 
-/* bloques error */
-functions ::= {:RESULT = "";:}
-        | function:func {:RESULT = func;:};
-//functions ::= function | procedure; //TODO Falta epsilon
+/* functions */
+functions ::= function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
+        | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:};
+//functions ::= function | procedure;
+functions_prime::={:RESULT = "";:}
+        | functions:nt_fs{:RESULT = nt_fs;:};
 
 function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
-            {:RESULT = f_h+"\n"+t_begin+"\n"+f_b+"\n"+t_end;:}
+            {:RESULT = f_h+"\n"+t_begin+"\n"+f_b+"\n"+t_end+"\n";:}
     | function_head error {:parser.syntax_error("Falta BEGIN");:} function_body END
     | function_head BEGIN function_body error {:parser.syntax_error("Falta END");:};
 
@@ -158,6 +160,22 @@ return ::= IDENTIFIER:t_id ASSIGN:t_a value:nt_v {:RESULT = t_id+""+t_a+""+nt_v;
     | error {:parser.syntax_error("Falta identificador");:} ASSIGN value
     | IDENTIFIER error {:parser.syntax_error("Falta :=");:} value
     | IDENTIFIER ASSIGN error {:parser.syntax_error("Falta value");:};
+
+/* procedure */
+procedure ::= procedure_head:nt_p_h BEGIN:t_begin procedure_body:nt_p_b END:t_end
+            {:RESULT=nt_p_h+""+t_begin+"\n"+nt_p_b+""+t_end+"\n";:};
+    //| procedure_head error {:parser.syntax_error("Falta BEGIN");:} function_body END
+    //| procedure_head BEGIN function_body error {:parser.syntax_error("Falta END");:};
+
+procedure_body ::= globals:nt_g constants:nt_c block:nt_b {:RESULT=nt_g+""+nt_c+""+nt_b;:};
+
+procedure_head ::= PROCEDURE:t_proc IDENTIFIER:t_id LPAREN:t_lp parameters:nt_p RPAREN:t_rp
+                    {:RESULT=t_proc+" "+t_id+""+t_lp+""+nt_p+""+t_rp+"\n";:}
+    //| error {:parser.syntax_error("Falta PROCEDURE");:} IDENTIFIER LPAREN parameters RPAREN
+    | PROCEDURE error {:parser.syntax_error("Falta IDENTIFIER");:} LPAREN parameters RPAREN
+    | PROCEDURE IDENTIFIER error {:parser.syntax_error("Falta LPAREN");:} parameters RPAREN
+    | PROCEDURE IDENTIFIER LPAREN parameters error {:parser.syntax_error("Falta RPAREN");:};
+/* procedure */
 
 block ::= {:RESULT = "";:} | sentence_block:nt_s_b {:RESULT = nt_s_b;:};
 
@@ -217,7 +235,7 @@ parameter_list_aux ::= {:RESULT = "";:}
     | COMMA:t_comma parameter_list:nt_pl {:RESULT = t_comma+""+nt_pl;:}
     | error {:parser.syntax_error("Falta ,");:} parameter_list;
 
-/* bloques error */
+/* functions */
 
 constants ::= {:RESULT = "";:}
     | CONST:t_const cons_assignments:nt_const_assign {:RESULT = t_const+"\n"+nt_const_assign;:}
