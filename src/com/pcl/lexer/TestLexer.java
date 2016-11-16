@@ -63,6 +63,7 @@ public class TestLexer {
             }else {
                 result = p.parse().value;
             }
+            TimeUnit.MILLISECONDS.sleep(500);
             System.out.println(result);
             //p.debug_stack();
 

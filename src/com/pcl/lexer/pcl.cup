@@ -86,6 +86,7 @@ non terminal one_var_assignment,one_const_assignment;
 non terminal var_assignments_prime,cons_assignments_prime,functions_prime,assigned_value;
 non terminal function_call,function_call_parameters,function_call_parameter_list,function_call_parameter_list_element;
 non terminal value_assignment_prime;
+non terminal for_literal;
 
 precedence left error;
 precedence left BEGIN;
@@ -185,7 +186,7 @@ assigned_value::= value:nt_v {:RESULT = nt_v;:}
 
 read_write ::= read:nt_r {:RESULT = nt_r;:} | write:nt_w {:RESULT = nt_w;:};
 
-read ::= READ:t_r LPAREN:t_lp read_parameters:nt_r_p RPAREN:t_rp {:RESULT = t_r+""+t_lp+""+nt_r_p+""+t_rp;:};
+read ::= READ:t_r LPAREN:t_lp read_parameters:nt_r_p RPAREN:t_rp SEMICOLON:t_sm {:RESULT = t_r+""+t_lp+""+nt_r_p+""+t_rp+""+t_sm;:};
 
 read_parameters ::= {:RESULT = "";:}
             | rw_parameter_list:r_p_l {:RESULT = r_p_l;:};
@@ -200,6 +201,7 @@ write_parameters ::= rw_parameter_list:r_p_l {:RESULT = r_p_l;:};
 rw_parameter_list ::= rw_parameter:r_p rw_parameter_list_aux:r_p_l_a {:RESULT = r_p+""+r_p_l_a;:};
 
 rw_parameter ::= IDENTIFIER:t_id {:RESULT = t_id;:}
+                | MINUS:t_minus IDENTIFIER:t_id {:RESULT = t_minus+""+t_id;:}
                 | value:nt_v {:RESULT = nt_v;:}
                 | operation:nt_op {:RESULT = nt_op;:};
 
@@ -224,8 +226,11 @@ if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 else:nt_else
 else::= ELSE:t_else  block:nt_b2 {:RESULT= t_else+"\n"+nt_b2;:}
     | {:RESULT= "";:};
 
-for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a INTEGER_LITERAL:t_int_lit1 TO:t_to INTEGER_LITERAL:t_int_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
-        {:RESULT = t_for+" "+t_id+" "+t_a+" "+t_int_lit1+" "+t_to+" "+t_int_lit2+" "+t_do+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:};
+for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:nt_for_lit1 TO:t_to for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
+        {:RESULT = t_for+" "+t_id+" "+t_a+" "+nt_for_lit1+" "+t_to+" "+nt_for_lit2+" "+t_do+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:};
+
+for_literal::= MINUS:t_minus INTEGER_LITERAL:t_int_lit {:RESULT = t_minus+""+t_int_lit;:}
+            | INTEGER_LITERAL:t_int_lit {:RESULT = t_int_lit;:};
 
 case ::= CASE:t_case IDENTIFIER:t_id OF:t_of cases:nt_cases ELSE:t_else block:nt_b
         {:RESULT = t_case+" "+t_id+" "+t_of+"\n"+nt_cases+""+t_else+"\n"+nt_b+"\n";:};
@@ -256,6 +261,7 @@ comparison ::= compared:nt_c1 comparison_op:nt_c_o compared:nt_c2
             {:RESULT = t_lp+""+nt_c1+""+nt_c_o+""+nt_c2+""+t_rp;:};
 
 compared ::= IDENTIFIER:t_id {:RESULT = t_id;:}
+        | MINUS:t_minus IDENTIFIER:t_id {:RESULT = t_minus+""+t_id;:}
         | value:nt_v {:RESULT = nt_v;:}
         | operation:nt_o {:RESULT = nt_o;:};
 
@@ -344,11 +350,15 @@ assignment_type ::= type:t {:RESULT = t;:} | array:a {:RESULT = a;:};
 
 value ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
     | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :}
+    | MINUS:t_minus INTEGER_LITERAL:t_int_lit {: RESULT = t_minus+""+t_int_lit; :}
     | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :}
+    | MINUS:t_minus FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_minus+""+t_float_lit; :}
     | boolean_value:nt_b_v {: RESULT = nt_b_v; :}
     | CHARACTER_LITERAL:t_char_lit {: RESULT = "\""+t_char_lit+"\""; :}
     | array_call:nt_ar_cl {: RESULT = nt_ar_cl; :}
-    | function_call:nt_fn_cl {: RESULT = nt_fn_cl;:};
+    | MINUS:t_minus array_call:nt_ar_cl {: RESULT = t_minus+""+nt_ar_cl; :}
+    | function_call:nt_fn_cl {: RESULT = nt_fn_cl;:}
+    | MINUS:t_minus function_call:nt_fn_cl {: RESULT = t_minus+""+nt_fn_cl;:};
 
 boolean_value::= BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
     | NOT:t_nt BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_nt+""+t_bool_lit; :};
@@ -364,6 +374,9 @@ array ::= ARRAY:t_a LBRACK:t_lb array_size:nt_a_z RBRACK:t_rb OF:t_of array_type
         {:RESULT =  t_a+""+t_lb+""+nt_a_z+""+t_rb+""+t_of+""+t_atype;:};
 
 array_size::= array_size_values:t_fst_i DOT:t_fst_d DOT:t_snd_d array_size_values:t_snd_i {:RESULT =  t_fst_i+""+t_fst_d+""+t_snd_d+""+t_snd_i;:}
+        | MINUS:t_minus array_size_values:t_fst_i DOT:t_fst_d DOT:t_snd_d array_size_values:t_snd_i {:RESULT =  t_minus+""+t_fst_i+""+t_fst_d+""+t_snd_d+""+t_snd_i;:}
+        | array_size_values:t_fst_i DOT:t_fst_d DOT:t_snd_d MINUS:t_minus array_size_values:t_snd_i {:RESULT =  t_fst_i+""+t_fst_d+""+t_snd_d+""+t_minus+""+t_snd_i;:}
+        | MINUS:t_minus1 array_size_values:t_fst_i DOT:t_fst_d DOT:t_snd_d MINUS:t_minus2 array_size_values:t_snd_i {:RESULT =  t_minus1+""+t_fst_i+""+t_fst_d+""+t_snd_d+""+t_minus2+""+t_snd_i;:}
         | array_size_values:t_fst_i {: RESULT = t_fst_i; :};
 
 array_size_values::= IDENTIFIER:t_id {: RESULT = t_id; :}

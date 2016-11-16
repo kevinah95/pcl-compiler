@@ -4,12 +4,16 @@ CONST
     Nombre = "Juan Gutiérrez";
     CARACTER = "c";
     BOOLEANOIDE = Funcion(123);
+    REPETICIONES = -f[3];
     REPETICIONES = -3;
+    REPETICIONES = -f(3);
+    //REPETICIONES = PI; //TODO MINUS and EQ IDENTIFIER
+    REPETICIONES = -3.14;
 VAR
         i,j,k : INT;
 		a : BOOLEAN;
 		b : CHAR;
-		f : ARRAY[FunOp()..b] OF INT;
+		f : ARRAY[-FunOp()..-b] OF INT;
 		f : ARRAY[8] OF INT;
 		p : INT;
 		s : STRING;
@@ -41,24 +45,26 @@ BEGIN
     WRITE("a");
     }
     WRITE("b");
-    j := 4; //TODO UMINUS -4
+    j := -4; //TODO UMINUS -4
     k := 3;
     REPEAT
         f[5] := fact(k);
-        WRITE(fact(k));
-        k := 1;
-    UNTIL k = 0;
+        WRITE(-fact(k));
+        WRITE(-2);
+        READ(-45);
+        k := -1;
+    UNTIL k = -4;
 
     b:="a";
     a:=FALSE;
 
-    FOR i := 0 TO 10 DO
+    FOR i := -12 TO -10 DO
         BEGIN
-        IF (i < 6) THEN
+        IF (i < -6) THEN
                 WRITE(a);
                 a := NOT a;
                 b := NOT TRUE;
-                IF (a=b) OR (n=x) THEN k:=95; j:=3; ELSE k:=2; //La condción no puede ir entre parentesis
+                IF (a=(-b-3)) OR (n=x) THEN k:=95; j:=3; ELSE k:=2; //La condción no puede ir entre parentesis
                 WHILE (j < 9) DO //TODO NEGATVE NUMBERS
                     BEGIN
                         WRITE(j);
