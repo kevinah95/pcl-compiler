@@ -106,7 +106,7 @@ precedence left STRING_LITERAL,INTEGER_LITERAL,FLOATING_POINT_LITERAL,BOOLEAN_LI
 
 
 /* GRAMMAR */
-program ::= program_head:p_head program_aux:p_aux {: System.out.println(p_head+""+p_aux);:};
+program ::= program_head:p_head program_aux:p_aux {: RESULT = p_head+""+p_aux;:};
 
 program_head ::= PROGRAM:t_p IDENTIFIER:t_i {: RESULT = t_p+" "+t_i+"\n";:}
     | error {:parser.syntax_error("Falta PROGRAM");:} IDENTIFIER

@@ -56,12 +56,14 @@ public class TestLexer {
     private void parser() {
         boolean withDebug = false; //TODO put as argument
         try {
+            Object result;
             parser p = new parser(new Scanner(new FileReader(dir)));
             if(withDebug){
-                Object result = p.debug_parse().value;
+                result = p.debug_parse().value;
             }else {
-                Object result = p.parse().value;
+                result = p.parse().value;
             }
+            System.out.println(result);
             //p.debug_stack();
 
         } catch (Exception e) {
