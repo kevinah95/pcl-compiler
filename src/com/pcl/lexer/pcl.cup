@@ -235,7 +235,6 @@ write_parameters ::= rw_parameter_list:r_p_l {:RESULT = r_p_l;:};
 rw_parameter_list ::= rw_parameter:r_p rw_parameter_list_aux:r_p_l_a {:RESULT = r_p+""+r_p_l_a;:};
 
 rw_parameter ::= expression:nt_op {:RESULT = nt_op;:};
-                | MINUS:t_minus IDENTIFIER:t_id {:RESULT = t_minus+""+t_id;:}
 
 rw_parameter_list_aux ::= {:RESULT = "";:}
         | COMMA:t_comma rw_parameter_list:r_p_l {:RESULT = t_comma+""+r_p_l;:};
@@ -293,9 +292,6 @@ comparison ::= compared:nt_c1 comparison_op:nt_c_o compared:nt_c2
             {:RESULT = t_lp+""+nt_c1+""+nt_c_o+""+nt_c2+""+t_rp;:};
 
 compared ::= expression:nt_o {:RESULT = nt_o;:};
-        //| MINUS:t_minus IDENTIFIER:t_id {:RESULT = t_minus+""+t_id;:}
-        //| value:nt_v {:RESULT = nt_v;:}
-        //| IDENTIFIER:t_id {:RESULT = t_id;:};
 
 comparison_op ::= EQ:t_eq {:RESULT = t_eq;:}
         | GTEQ:t_gteq {:RESULT = t_gteq;:}
@@ -393,11 +389,8 @@ assignment_type ::= type:t {:RESULT = t;:} | array:a {:RESULT = a;:};
 
 value_prime ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
     | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :}
-    | MINUS:t_minus INTEGER_LITERAL:t_int_lit {: RESULT = t_minus+""+t_int_lit; :}
     | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :}
     | CHARACTER_LITERAL:t_char_lit {: RESULT = "\""+t_char_lit+"\""; :};
-    | function_call:nt_fn_cl {: RESULT = nt_fn_cl;:}
-    | MINUS:t_minus function_call:nt_fn_cl {: RESULT = t_minus+""+nt_fn_cl;:};
 
 boolean_value::= BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
     | NOT:t_nt BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_nt+""+t_bool_lit; :};
@@ -406,8 +399,6 @@ array_call::= IDENTIFIER:t_id LBRACK:t_lb array_subindex:nt_sa RBRACK:t_rb
             {: RESULT = t_id+""+t_lb+""+nt_sa+""+t_rb;:};
 
 array_subindex::= expression:nt_op {: RESULT = nt_op; :};
-        //| IDENTIFIER:t_id {: RESULT = t_id; :};
-        //| value:nt_vl {: RESULT = nt_vl; :};
 
 array ::= ARRAY:t_a LBRACK:t_lb array_size:nt_a_z RBRACK:t_rb OF:t_of array_type:t_atype
         {:RESULT =  t_a+""+t_lb+""+nt_a_z+""+t_rb+""+t_of+""+t_atype;:};
@@ -421,8 +412,6 @@ array_size::= array_size_values:t_fst_i DOT:t_fst_d DOT:t_snd_d array_size_value
 array_size_values::= IDENTIFIER:t_id {: RESULT = t_id; :}
         | INTEGER_LITERAL:t_i_l {: RESULT = t_i_l; :}
         | function_call:nt_fn_cl {: RESULT = nt_fn_cl; :};
-
-
 
 type ::= BOOLEAN:p_bool {:RESULT = p_bool;:} | BYTE:pbyte {:RESULT = pbyte;:} | CHAR:pchar {:RESULT = pchar;:} | INT:pint {:RESULT = pint;:} | LONGINT:plongint {:RESULT = plongint;:} | SHORTINT:pshortint {:RESULT = pshortint;:} | STRING_TYPE:pstring {:RESULT = pstring;:};
 array_type ::= CHAR:pchar {:RESULT = pchar;:} | INT:pint {:RESULT = pint;:} | LONGINT:plongint {:RESULT = plongint;:} | SHORTINT:pshortint {:RESULT = pshortint;:};
