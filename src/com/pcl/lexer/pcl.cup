@@ -72,24 +72,26 @@ non terminal type, identtype, arraytype, vardecl, vars, var,
         procedure_head, block, sentence_block, sentence, value_assignment, read_write, read,
         read_parameters, rw_parameter_list, rw_parameter , rw_parameter_list_aux,
         write, write_parameters, write_parameter, write_parameters_aux, control, while,
-        repeat, if, for, case, cases, cases_aux, case_option, condition, other_comparison,
+        repeat, if, else, for, case, cases, cases_aux, case_option, condition, other_comparison,
         boolean_exp, comparison, compared, comparison_op, operation, single_side_operation,
-        right_operator, left_operator, double_side_operation, double_side_operation_aux,
+        left_right_operator, left_operator, double_side_operation, double_side_operation_aux,
         center_operator, operated, parameters, parameter_list, parameter_list_aux, constants,
         globals, var_assignments, cons_assignments, identifiers, identifiers_aux,
         assignment_type, array, array_type;
-non terminal value;
+non terminal value,boolean_value,array_size_values;
+non terminal array_call,array_subindex,array_size;
 non terminal java.lang.Number integer;
 
 non terminal one_var_assignment,one_const_assignment;
-non terminal var_assignments_prime,cons_assignments_prime,functions_prime;
+non terminal var_assignments_prime,cons_assignments_prime,functions_prime,assigned_value;
 non terminal function_call,function_call_parameters,function_call_parameter_list,function_call_parameter_list_element;
+non terminal value_assignment_prime;
 
 precedence left error;
 precedence left BEGIN;
 //precedence right UMINUS, OP_NOT;
 precedence right NOT;
-//precedence left PLUSPLUS,MINUSMINUS;
+precedence left PLUSPLUS,MINUSMINUS;
 precedence left PLUS, MINUS;
 precedence left MULT, DIV_SYM, MOD;
 precedence left DOT,LPAREN,RPAREN;
@@ -106,47 +108,30 @@ precedence left STRING_LITERAL,INTEGER_LITERAL,FLOATING_POINT_LITERAL,BOOLEAN_LI
 
 
 /* GRAMMAR */
-program ::= program_head:p_head program_aux:p_aux {: RESULT = p_head+""+p_aux;:};
+program ::= {:RESULT = "";:}
+        | program_head:p_head program_aux:p_aux {: RESULT = p_head+""+p_aux;:};
 
-program_head ::= PROGRAM:t_p IDENTIFIER:t_i {: RESULT = t_p+" "+t_i+"\n";:}
-    | error {:parser.syntax_error("Falta PROGRAM");:} IDENTIFIER
-    | PROGRAM:p error {:parser.report_error("Syntax error",p);:};
+program_head ::= PROGRAM:t_p IDENTIFIER:t_i {: RESULT = t_p+" "+t_i+"\n";:};
 
 program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs error_begin:nt_begin block:nt_b error_end:nt_end
                 {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+nt_begin+"\n"+nt_b+"\n"+nt_end;:};
-/*program_aux ::= //constants globals functions error_begin block error_end
-    //| constants error_begin block error_end
-    //| globals error_begin error_end;//| globals error_begin block error_end;
-    //| functions error_begin block error_end
-    //| constants globals error_begin block error_end
-    //| constants functions error_begin block error_end
-    //| globals functions error_begin block error_end
-    //| error_begin block error_end;*/
 
-error_begin ::= BEGIN:t_b {:RESULT = t_b;:} | error {:parser.syntax_error("Falta BEGIN");:};
+error_begin ::= BEGIN:t_b {:RESULT = t_b;:};
 
-error_end ::= END:t_e {:RESULT = t_e;:} | error {:parser.syntax_error("Falta END");:};
+error_end ::= END:t_e {:RESULT = t_e;:};
 
 /* functions */
 functions ::= function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
         | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:};
-//functions ::= function | procedure;
-functions_prime::={:RESULT = "";:}
+
+functions_prime ::= {:RESULT = "";:}
         | functions:nt_fs{:RESULT = nt_fs;:};
 
 function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
-            {:RESULT = f_h+"\n"+t_begin+"\n"+f_b+"\n"+t_end+"\n";:}
-    | function_head error {:parser.syntax_error("Falta BEGIN");:} function_body END
-    | function_head BEGIN function_body error {:parser.syntax_error("Falta END");:};
+            {:RESULT = f_h+"\n"+t_begin+"\n"+f_b+"\n"+t_end+"\n";:};
 
 function_head ::= FUNCTION:t_func IDENTIFIER:t_id LPAREN:t_lparen parameters:params RPAREN:t_rparen COLON:t_colon type:nt_type
-            {: RESULT = t_func+" "+t_id+""+t_lparen+""+params+""+t_rparen+""+t_colon+""+nt_type; :}
-    | error {:parser.syntax_error("Falta FUNCTION");:} IDENTIFIER LPAREN parameters RPAREN COLON type
-    | FUNCTION error {:parser.syntax_error("Falta IDENTIFIER");:} LPAREN parameters RPAREN COLON type
-    | FUNCTION IDENTIFIER error {:parser.syntax_error("Falta LPAREN");:} parameters RPAREN COLON type
-    | FUNCTION IDENTIFIER LPAREN parameters error {:parser.syntax_error("Falta RPAREN");:} COLON type
-    | FUNCTION IDENTIFIER LPAREN parameters RPAREN error {:parser.syntax_error("Falta :");:} type
-    | FUNCTION IDENTIFIER LPAREN parameters RPAREN COLON error {:parser.syntax_error("Falta tipo de retorno");:};
+            {: RESULT = t_func+" "+t_id+""+t_lparen+""+params+""+t_rparen+""+t_colon+""+nt_type; :};
 
 /*
 Puede ser que sea un bloque de retorno
@@ -158,8 +143,6 @@ function_body ::= globals:nt_g constants:nt_c block:nt_b value_assignment:nt_r
                 {:RESULT = nt_g+""+nt_c+""+nt_b+""+nt_r;:}
                 | globals:nt_g constants:nt_c block:nt_b
                 {:RESULT = nt_g+""+nt_c+""+nt_b;:};
-//function_body ::= globals constants block return; //ORIGINAL
-
 /*
 No funciona con esto, porque no sabe qué camino tomar si assignment o return:
 BEGIN
@@ -167,25 +150,16 @@ BEGIN
     fact := 3
 END
 */
-return ::= IDENTIFIER:t_id ASSIGN:t_a value:nt_v {:RESULT = t_id+""+t_a+""+nt_v;:}
-    | error {:parser.syntax_error("Falta identificador");:} ASSIGN value
-    | IDENTIFIER error {:parser.syntax_error("Falta :=");:} value
-    | IDENTIFIER ASSIGN error {:parser.syntax_error("Falta value");:};
+return ::= IDENTIFIER:t_id ASSIGN:t_a value:nt_v {:RESULT = t_id+""+t_a+""+nt_v;:};
 
 /* procedure */
 procedure ::= procedure_head:nt_p_h BEGIN:t_begin procedure_body:nt_p_b END:t_end
             {:RESULT=nt_p_h+""+t_begin+"\n"+nt_p_b+""+t_end+"\n";:};
-    //| procedure_head error {:parser.syntax_error("Falta BEGIN");:} function_body END
-    //| procedure_head BEGIN function_body error {:parser.syntax_error("Falta END");:};
 
 procedure_body ::= globals:nt_g constants:nt_c block:nt_b {:RESULT=nt_g+""+nt_c+""+nt_b;:};
 
 procedure_head ::= PROCEDURE:t_proc IDENTIFIER:t_id LPAREN:t_lp parameters:nt_p RPAREN:t_rp
-                    {:RESULT=t_proc+" "+t_id+""+t_lp+""+nt_p+""+t_rp+"\n";:}
-    //| error {:parser.syntax_error("Falta PROCEDURE");:} IDENTIFIER LPAREN parameters RPAREN
-    | PROCEDURE error {:parser.syntax_error("Falta IDENTIFIER");:} LPAREN parameters RPAREN
-    | PROCEDURE IDENTIFIER error {:parser.syntax_error("Falta LPAREN");:} parameters RPAREN
-    | PROCEDURE IDENTIFIER LPAREN parameters error {:parser.syntax_error("Falta RPAREN");:};
+                    {:RESULT=t_proc+" "+t_id+""+t_lp+""+nt_p+""+t_rp+"\n";:};
 /* procedure */
 
 block ::= {:RESULT = "";:} | sentence_block:nt_s_b {:RESULT = nt_s_b;:};
@@ -196,45 +170,41 @@ sentence_block ::= sentence:nt_s sentence_block:nt_s_b_p {:RESULT = nt_s+"\n"+nt
 sentence ::= value_assignment:nt_v_a {:RESULT = nt_v_a;:}
     | read_write:nt_r_w {:RESULT = nt_r_w;:}
     | function_call:nt_fn_cl SEMICOLON:t_scn {:RESULT = nt_fn_cl+""+t_scn;:}
-    | control
-    | operation; //TODO
+    | control:nt_c {:RESULT = nt_c;:}
+    | operation:nt_o {:RESULT = nt_o;:};
 
-value_assignment ::= IDENTIFIER:t_id ASSIGN:t_a value:nt_v SEMICOLON:t_sc {:RESULT = t_id+""+t_a+""+nt_v+""+t_sc;:};
-    /*| error {:parser.syntax_error("Falta identificador");:} ASSIGN value SEMICOLON
-    | IDENTIFIER error {:parser.syntax_error("Falta :=");:} value SEMICOLON
-    | IDENTIFIER ASSIGN error {:parser.syntax_error("Falta valor");:} SEMICOLON
-    | IDENTIFIER ASSIGN value error {:parser.syntax_error("Falta ;");:};*/
+value_assignment ::= value_assignment_prime:nt_v_a_p ASSIGN:t_a assigned_value:nt_v SEMICOLON:t_sc {:RESULT = nt_v_a_p+""+t_a+""+nt_v+""+t_sc;:};
+
+value_assignment_prime ::= IDENTIFIER:t_id {:RESULT=t_id;:}
+                        | array_call:nt_a {:RESULT=nt_a;:};
+
+assigned_value::= value:nt_v {:RESULT = nt_v;:}
+    | IDENTIFIER:t_id {:RESULT = t_id;:}
+    | NOT:t_nt IDENTIFIER:t_id {:RESULT = t_nt+""+t_id;:}
+    | operation:nt_op {:RESULT = nt_op;:};
 
 read_write ::= read:nt_r {:RESULT = nt_r;:} | write:nt_w {:RESULT = nt_w;:};
 
 read ::= READ:t_r LPAREN:t_lp read_parameters:nt_r_p RPAREN:t_rp {:RESULT = t_r+""+t_lp+""+nt_r_p+""+t_rp;:};
-    /*| error {:parser.syntax_error("Falta READ");:} LPAREN read_parameters RPAREN
-    | READ error {:parser.syntax_error("Falta (");:} read_parameters RPAREN
-    | READ LPAREN read_parameters error {:parser.syntax_error("Falta )");:};*/
 
 read_parameters ::= {:RESULT = "";:}
             | rw_parameter_list:r_p_l {:RESULT = r_p_l;:};
 
-write ::= WRITE:t_w LPAREN:t_lp write_parameters:nt_w_p RPAREN:t_rp
-          {:RESULT = t_w+""+t_lp+""+nt_w_p+""+t_rp;:};
-    /*| WRITE error {:parser.syntax_error("Falta (");:} write_parameters RPAREN
-    | WRITE LPAREN error {:parser.syntax_error("Falta parametro(s)");:} RPAREN
-    | WRITE LPAREN write_parameters error {:parser.syntax_error("Falta )");:}
-    | error {:parser.syntax_error("Falta WRITE");:} LPAREN write_parameters RPAREN;*/
+write ::= WRITE:t_w LPAREN:t_lp write_parameters:nt_w_p RPAREN:t_rp SEMICOLON:t_sm
+          {:RESULT = t_w+""+t_lp+""+nt_w_p+""+t_rp+""+t_sm;:};
 
 write_parameters ::= rw_parameter_list:r_p_l {:RESULT = r_p_l;:};
-    //| error {:parser.syntax_error("Falta valor");:} write_parameters_aux;
 
 //TODO rw_parameter_list check errors
 
 rw_parameter_list ::= rw_parameter:r_p rw_parameter_list_aux:r_p_l_a {:RESULT = r_p+""+r_p_l_a;:};
-    //| error {:parser.syntax_error("Falta valor");:} read_parameter_list_aux;
 
-rw_parameter ::= IDENTIFIER:t_id {:RESULT = t_id;:} | value:nt_v {:RESULT = nt_v;:};
+rw_parameter ::= IDENTIFIER:t_id {:RESULT = t_id;:}
+                | value:nt_v {:RESULT = nt_v;:}
+                | operation:nt_op {:RESULT = nt_op;:};
 
 rw_parameter_list_aux ::= {:RESULT = "";:}
         | COMMA:t_comma rw_parameter_list:r_p_l {:RESULT = t_comma+""+r_p_l;:};
-    //| error {:parser.syntax_error("Falta ,");:} read_parameter_list;
 
 /* control */
 control ::= while:nt_while {:RESULT= nt_while;:}
@@ -244,65 +214,46 @@ control ::= while:nt_while {:RESULT= nt_while;:}
         | case:nt_case {:RESULT= nt_case;:};
 
 while ::= WHILE:t_while condition:nt_c DO:t_do BEGIN:t_begin block:nt_b END:t_end
-          {:RESULT = t_while+"\n"+nt_c+""+t_do+"\n"+t_begin+"\n"+nt_b+""+t_end+"\n";:};
-    /*| error {:parser.syntax_error("Falta WHILE");:} condition DO BEGIN block END
-    | WHILE condition error {:parser.syntax_error("Falta DO");:} BEGIN block END
-    | WHILE condition DO error {:parser.syntax_error("Falta BEGIN");:} block END
-    | WHILE condition DO BEGIN block error {:parser.syntax_error("Falta END");:};*/
+          {:RESULT = t_while+" "+nt_c+" "+t_do+"\n"+t_begin+"\n"+nt_b+""+t_end+"\n";:};
 
-repeat ::= REPEAT:t_repeat block:nt_b UNTIL:t_until condition:nt_c
-           {:RESULT = t_repeat+""+nt_b+""+t_until+""+nt_c;:};
-    /*| error {:parser.syntax_error("Falta REPEAT");:} block UNTIL condition
-    | REPEAT block error {:parser.syntax_error("Falta UNTIL");:} condition;*/
+repeat ::= REPEAT:t_repeat block:nt_b UNTIL:t_until condition:nt_c SEMICOLON:t_sc
+           {:RESULT = t_repeat+"\n"+nt_b+"\n"+t_until+" "+nt_c+""+t_sc;:};
 
-if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 ELSE:t_else LBRACK:t_lb block:nt_b2 RBRACK:t_rb
-           {:RESULT = t_if+""+nt_con+""+t_then+""+nt_b1+""+t_else+""+t_lb+""+nt_b2+""+t_rb;:};
-    /*| error {:parser.syntax_error("Falta IF");:} condition THEN block ELSE LBRACK block RBRACK
-    | IF condition error {:parser.syntax_error("Falta THEN");:} block ELSE LBRACK block RBRACK
-    | IF condition THEN block error {:parser.syntax_error("Falta ELSE");:} LBRACK block RBRACK
-    | IF condition THEN block ELSE error {:parser.syntax_error("Falta (");:} block RBRACK
-    | IF condition THEN block ELSE LBRACK block error {:parser.syntax_error("Falta )");:};*/
+if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 else:nt_else
+           {:RESULT = t_if+" "+nt_con+" "+t_then+"\n"+nt_b1+"\n"+nt_else;:};
+else::= ELSE:t_else  block:nt_b2 {:RESULT= t_else+"\n"+nt_b2;:}
+    | {:RESULT= "";:};
 
 for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a INTEGER_LITERAL:t_int_lit1 TO:t_to INTEGER_LITERAL:t_int_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
-        {:RESULT = t_for+" "+t_id+" "+t_a+" "+t_int_lit1+" "+t_to+" "+t_int_lit2+" "+t_do+" "+t_begin+"\n"+nt_b+"\n"+t_end;:};
-    /*| error {:parser.syntax_error("Falta identificador");:} ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block END
-    | IDENTIFIER error {:parser.syntax_error("Falta :=");:} INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block END
-    | IDENTIFIER ASSIGN error {:parser.syntax_error("Falta el valor");:} TO INTEGER_LITERAL DO BEGIN block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL error {:parser.syntax_error("Falta TO");:} INTEGER_LITERAL DO BEGIN block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL TO error {:parser.syntax_error("Falta el valor");:} DO BEGIN block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL error {:parser.syntax_error("Falta DO");:} BEGIN block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL DO error {:parser.syntax_error("Falta BEGIN");:} block END
-    | IDENTIFIER ASSIGN INTEGER_LITERAL TO INTEGER_LITERAL DO BEGIN block error {:parser.syntax_error("Falta END");:};*/
+        {:RESULT = t_for+" "+t_id+" "+t_a+" "+t_int_lit1+" "+t_to+" "+t_int_lit2+" "+t_do+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:};
 
 case ::= CASE:t_case IDENTIFIER:t_id OF:t_of cases:nt_cases ELSE:t_else block:nt_b
-        {:RESULT = t_case+""+t_id+""+t_of+""+nt_cases+""+t_else+""+nt_b;:};
-    /*| error {:parser.syntax_error("Falta CASE");:} IDENTIFIER OF cases ELSE block
-    | CASE error {:parser.syntax_error("Falta el identificador");:} OF cases ELSE block
-    | CASE IDENTIFIER error {:parser.syntax_error("Falta of");:} cases ELSE block
-    | CASE IDENTIFIER OF cases error {:parser.syntax_error("Falta ELSE");:} block;*/
+        {:RESULT = t_case+" "+t_id+" "+t_of+"\n"+nt_cases+""+t_else+"\n"+nt_b+"\n";:};
 
-cases ::= case_option:nt_c_o cases_aux:nt_c_a {:RESULT = nt_c_o+""+nt_c_a;:};
+/*Los cases siempre deben terminar con SEMICOLON  y las asignaciones también
+por eso si en la sentencia de un case queda una asignación al final queda con
+dos SEMICOLON*/
+cases ::= case_option:nt_c_o cases_aux:nt_c_a {:RESULT = nt_c_o+"\n"+nt_c_a;:};
 
 cases_aux ::= {:RESULT = "";:}
         | cases:nt_c {:RESULT = nt_c;:};
 
 case_option ::= value:nt_v COLON:t_colon block:nt_b SEMICOLON:t_sc
             {:RESULT = nt_v+""+t_colon+""+nt_b+""+t_sc;:};
-    /*| error {:parser.syntax_error("Falta un valor");:} COLON block SEMICOLON
-    | value error {:parser.syntax_error("Falta :");:} block SEMICOLON
-    | value COLON block error {:parser.syntax_error("Falta ;");:};*/
 
-condition ::= comparison other_comparison;
+condition ::= comparison:nt_c other_comparison:nt_o_c {:RESULT = nt_c+" "+nt_o_c;:};
 
 other_comparison ::= {:RESULT = "";:}
-        | boolean_exp:nt_b_e condition:nt_c {:RESULT = nt_b_e+""+nt_c;:};
-    //| error {:parser.syntax_error("Falta operador booleano");:};
+        | boolean_exp:nt_b_e condition:nt_c {:RESULT = nt_b_e+" "+nt_c;:};
 
 boolean_exp ::= AND:t_and {:RESULT = t_and;:}
+        | OR:t_or {:RESULT = t_or;:}
         | NOT:t_not {:RESULT = t_not;:};
 
 comparison ::= compared:nt_c1 comparison_op:nt_c_o compared:nt_c2
-            {:RESULT = nt_c1+""+nt_c_o+""+nt_c2;:};
+            {:RESULT = nt_c1+""+nt_c_o+""+nt_c2;:}
+            | LPAREN:t_lp compared:nt_c1 comparison_op:nt_c_o compared:nt_c2 RPAREN:t_rp
+            {:RESULT = t_lp+""+nt_c1+""+nt_c_o+""+nt_c2+""+t_rp;:};
 
 compared ::= IDENTIFIER:t_id {:RESULT = t_id;:}
         | value:nt_v {:RESULT = nt_v;:}
@@ -319,19 +270,14 @@ comparison_op ::= EQ:t_eq {:RESULT = t_eq;:}
 
 /* operation */
 operation ::= single_side_operation:nt_s_s_o {:RESULT = nt_s_s_o;:}
-        | double_side_operation:nt_d_s_o {:RESULT = nt_d_s_o;:};
+        | double_side_operation:nt_d_s_o {:RESULT = nt_d_s_o;:}
+        | LPAREN:t_lp operation:nt_o RPAREN:t_rp {:RESULT = t_lp+""+nt_o+""+t_rp;:};
 
-single_side_operation ::= operated:nt_o right_operator:nt_r_o {:RESULT = nt_o+""+nt_r_o;:}
-    | left_operator:nt_l_o operated:nt_o {:RESULT = nt_l_o+""+nt_o;:};
-    /*| error {:parser.syntax_error("Falta operando izquierdo");:} right_operator
-    | left_operator error {:parser.syntax_error("Falta operando derecho");:}
-    | operated error {:parser.syntax_error("Falta operador derecho");:}
-    | error {:parser.syntax_error("Falta operador izquierdo");:}  operated;*/
+single_side_operation ::= operated:nt_o left_right_operator:nt_r_o {:RESULT = nt_o+""+nt_r_o;:}
+    | left_right_operator:nt_l_o operated:nt_o {:RESULT = nt_l_o+""+nt_o;:};
 
-right_operator ::= PLUSPLUS:t_p_p {:RESULT = t_p_p;:}
-        | MINUSMINUS:t_m_m {:RESULT = t_m_m;:}
-        | RPAREN:t_rp {:RESULT = t_rp;:};
-left_operator ::= LPAREN:t_lp {:RESULT = t_lp;:};
+left_right_operator ::= PLUSPLUS:t_p_p {:RESULT = t_p_p;:}
+        | MINUSMINUS:t_m_m {:RESULT = t_m_m;:};
 
 double_side_operation ::= operated:nt_o1 center_operator:nt_c_o operated:nt_o2 double_side_operation_aux:nt_d_s_o_a
                         {:RESULT = nt_o1+""+nt_c_o+""+nt_o2+""+nt_d_s_o_a;:};
@@ -359,24 +305,19 @@ parameters ::= {:RESULT ="";:}
         | parameter_list:p_l {:RESULT = p_l;:};
 
 parameter_list ::= type:nt_t IDENTIFIER:t_id parameter_list_aux:nt_p_l_a {:RESULT = nt_t+" "+t_id+""+nt_p_l_a;:};
-    /*| type error {:parser.syntax_error("Falta identificador");:} parameter_list_aux
-    | error {:parser.syntax_error("Falta tipo");:} IDENTIFIER parameter_list_aux;*/
 
 parameter_list_aux ::= {:RESULT = "";:}
     | COMMA:t_comma parameter_list:nt_pl {:RESULT = t_comma+""+nt_pl;:};
-    //| error {:parser.syntax_error("Falta ,");:} parameter_list;
 
 /* functions */
 
 
 
 constants ::= {:RESULT = "";:}
-    | CONST:t_const cons_assignments:nt_const_assign {:RESULT = t_const+"\n"+nt_const_assign;:}
-    | error {:parser.syntax_error("Falta CONST");:} cons_assignments;
+    | CONST:t_const cons_assignments:nt_const_assign {:RESULT = t_const+"\n"+nt_const_assign;:};
 
 globals ::= {:RESULT = "";:}
-    | VAR:t_var var_assignments:v_a {:RESULT = t_var+"\n"+v_a;:}
-    | error {:parser.syntax_error("Falta VAR");:} var_assignments;
+    | VAR:t_var var_assignments:v_a {:RESULT = t_var+"\n"+v_a;:};
 
 
 var_assignments ::= one_var_assignment:o_v_a var_assignments_prime:o_a_p {:RESULT= o_v_a+""+o_a_p;:};
@@ -385,55 +326,52 @@ var_assignments_prime ::= {:RESULT = "";:}
         | var_assignments:v_a {:RESULT = v_a;:};
 
 one_var_assignment ::= identifiers:ids COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
-        {:RESULT = ids+""+t_colon+""+a_t+""+t_sc+"\n";:}
-       | identifiers error {:parser.syntax_error("Falta :");:} assignment_type SEMICOLON
-       | identifiers COLON error {:parser.syntax_error("Falta el tipo");:} SEMICOLON
-       | identifiers COLON assignment_type error {:parser.syntax_error("Falta ;");:};
+        {:RESULT = ids+""+t_colon+""+a_t+""+t_sc+"\n";:};
 
 cons_assignments ::= one_const_assignment:o_c_a cons_assignments_prime:c_a_p {:RESULT= o_c_a+""+c_a_p;:};
 
 cons_assignments_prime ::= {:RESULT = "";:}
         | cons_assignments:c_p {:RESULT = c_p;:};
 
-one_const_assignment ::= IDENTIFIER:t_id EQ:t_eq value:nt_val SEMICOLON:t_sc {:RESULT = t_id+""+t_eq+""+nt_val+""+t_sc+"\n";:}
-         | error {:parser.syntax_error("Falta identificador");:} EQ value SEMICOLON
-         | IDENTIFIER error {:parser.syntax_error("Falta =");:} value SEMICOLON
-         | IDENTIFIER:t_id EQ:t_eq error:e SEMICOLON:t_sc {:System.out.println(t_id+""+t_eq+""+t_sc); parser.syntax_error("Falta el valor");:}
-         | IDENTIFIER EQ value error {:parser.syntax_error("Falta ;");:};
+one_const_assignment ::= IDENTIFIER:t_id EQ:t_eq value:nt_val SEMICOLON:t_sc {:RESULT = t_id+""+t_eq+""+nt_val+""+t_sc+"\n";:};
 
-identifiers ::= IDENTIFIER:t_id identifiers_aux:id_aux {:RESULT = t_id+""+id_aux;:}
-    | error {:parser.syntax_error("Falta el identificador");:} identifiers_aux;
+identifiers ::= IDENTIFIER:t_id identifiers_aux:id_aux {:RESULT = t_id+""+id_aux;:};
 
-identifiers_aux ::= COMMA:t_comma identifiers:ids {:RESULT = t_comma+""+ids;:}
-    | error {:parser.syntax_error("Falta la ,");:} identifiers
-    | {:RESULT = "";:};
+identifiers_aux ::= {:RESULT = "";:}
+    | COMMA:t_comma identifiers:ids {:RESULT = t_comma+""+ids;:};
 
 assignment_type ::= type:t {:RESULT = t;:} | array:a {:RESULT = a;:};
 
-value ::= STRING_LITERAL:t_str_lit {: RESULT = t_str_lit; :}
+value ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
     | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :}
     | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :}
-    | BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
-    | CHARACTER_LITERAL:t_char_lit {: RESULT = t_char_lit; :}
+    | boolean_value:nt_b_v {: RESULT = nt_b_v; :}
+    | CHARACTER_LITERAL:t_char_lit {: RESULT = "\""+t_char_lit+"\""; :}
+    | array_call:nt_ar_cl {: RESULT = nt_ar_cl; :}
     | function_call:nt_fn_cl {: RESULT = nt_fn_cl;:};
 
-array ::= ARRAY:t_a LBRACK:t_lb INTEGER_LITERAL:t_fst_i DOT:t_fst_d DOT:t_snd_d INTEGER_LITERAL:t_snd_i RBRACK:t_rb OF:t_of array_type:t_atype
-        {:RESULT =  t_a+""+t_lb+""+t_fst_i+""+t_fst_d+""+t_snd_d+""+t_snd_i+""+t_rb+""+t_of+""+t_atype;:}
-    | error {:parser.syntax_error("Falta ARRAY");:} LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF array_type
-    | ARRAY error {:parser.syntax_error("Falta LBRACK");:} INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF array_type
-    | ARRAY LBRACK error {:parser.syntax_error("Falta INTEGER");:} DOT DOT INTEGER_LITERAL RBRACK OF array_type
-    | ARRAY LBRACK INTEGER_LITERAL error {:parser.syntax_error("Falta .");:} DOT INTEGER_LITERAL RBRACK OF array_type
-    | ARRAY LBRACK INTEGER_LITERAL DOT error {:parser.syntax_error("Falta.");:} INTEGER_LITERAL RBRACK OF array_type
-    | ARRAY LBRACK INTEGER_LITERAL DOT DOT error {:parser.syntax_error("Falta INTEGER");:} RBRACK OF array_type
-    | ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL error {:parser.syntax_error("Falta RBRACK");:} OF array_type
-    | ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK error {:parser.syntax_error("Falta OF");:} array_type
-    | ARRAY LBRACK INTEGER_LITERAL DOT DOT INTEGER_LITERAL RBRACK OF error {:parser.syntax_error("Falta tipo");:};
+boolean_value::= BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
+    | NOT:t_nt BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_nt+""+t_bool_lit; :};
+
+array_call::= IDENTIFIER:t_id LBRACK:t_lb array_subindex:nt_sa RBRACK:t_rb
+            {: RESULT = t_id+""+t_lb+""+nt_sa+""+t_rb;:};
+
+array_subindex::= operation:nt_op {: RESULT = nt_op; :}
+        | IDENTIFIER:t_id {: RESULT = t_id; :}
+        | value:nt_vl {: RESULT = nt_vl; :};
+
+array ::= ARRAY:t_a LBRACK:t_lb array_size:nt_a_z RBRACK:t_rb OF:t_of array_type:t_atype
+        {:RESULT =  t_a+""+t_lb+""+nt_a_z+""+t_rb+""+t_of+""+t_atype;:};
+
+array_size::= array_size_values:t_fst_i DOT:t_fst_d DOT:t_snd_d array_size_values:t_snd_i {:RESULT =  t_fst_i+""+t_fst_d+""+t_snd_d+""+t_snd_i;:}
+        | array_size_values:t_fst_i {: RESULT = t_fst_i; :};
+
+array_size_values::= IDENTIFIER:t_id {: RESULT = t_id; :}
+        | INTEGER_LITERAL:t_i_l {: RESULT = t_i_l; :}
+        | function_call:nt_fn_cl {: RESULT = nt_fn_cl; :};
 
 function_call ::= IDENTIFIER:t_id LPAREN:t_lb function_call_parameters:nt_fn_cl_pm RPAREN:t_rb
         {:RESULT =  t_id+""+t_lb+""+nt_fn_cl_pm+""+t_rb;:};
-    /*| error {:parser.syntax_error("Falta identificador");:} LBRACK function_call_parameters RBRACK
-    | IDENTIFIER error {:parser.syntax_error("Falta (");:} function_call_parameters RBRACK
-    | IDENTIFIER LBRACK function_call_parameters error {:parser.syntax_error("Falta )");:};*/
 
 function_call_parameters ::= function_call_parameter_list:nt_fn_cl_pm_lt {:RESULT = nt_fn_cl_pm_lt;:}
     | {:RESULT = "";:};
@@ -441,9 +379,6 @@ function_call_parameters ::= function_call_parameter_list:nt_fn_cl_pm_lt {:RESUL
 function_call_parameter_list ::= function_call_parameter_list_element:nt_fn_cl_pm_lt_el COMMA:t_cm function_call_parameter_list:nt_fn_cl_pm_lt
     {:RESULT =  nt_fn_cl_pm_lt_el+""+t_cm+""+nt_fn_cl_pm_lt;:}
     | function_call_parameter_list_element:nt_fn_cl_pm_lt_el {:RESULT =  nt_fn_cl_pm_lt_el;:};
-   /* | error {:parser.syntax_error("Falta parámetro");:} COMMA function_call_parameter_list
-    | function_call_parameter_list_element error {:parser.syntax_error("Falta ,");:} function_call_parameter_list
-    | error {:parser.syntax_error("Falta parámetro");:};*/
 
 function_call_parameter_list_element ::= value:nt_vl {: RESULT = nt_vl;:}
                                     | IDENTIFIER:t_id {: RESULT = t_id;:}

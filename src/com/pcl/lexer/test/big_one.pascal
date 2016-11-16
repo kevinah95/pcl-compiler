@@ -4,18 +4,26 @@ CONST
     Nombre = "Juan Gutiérrez";
     CARACTER = "c";
     BOOLEANOIDE = Funcion(123);
-    REPETICIONES = 3;
+    REPETICIONES = -3;
 VAR
         i,j,k : INT;
 		a : BOOLEAN;
 		b : CHAR;
-		f : ARRAY[0..8] OF INT;
+		f : ARRAY[FunOp()..b] OF INT;
+		f : ARRAY[8] OF INT;
 		p : INT;
 		s : STRING;
 (*FUNCTIONS*)
 FUNCTION fact(INT a, STRING s): INT
 BEGIN
-    WRITE("a")
+    WRITE("a");
+    fact := 4;
+    Procedimiento(Funcion(123));
+
+END
+FUNCTION Func2(INT a, STRING s): INT
+BEGIN
+    WRITE("a");
     fact := 4;
     Procedimiento(Funcion(123));
 
@@ -31,41 +39,44 @@ END { hello2 }
 BEGIN
     i := 12;
     {ble{ ble} bleeee
-    WRITE('a');
+    WRITE("a");
     }
-    WRITE('b')
+    WRITE("b");
     j := 4; //TODO UMINUS -4
-    k := 3; //TODO identificador a otro identificador
+    k := 3;
     REPEAT
-        //f[5] := fact(k); //TODO array[id]
-        WRITE(fact(k))
+        f[5] := fact(k);
+        WRITE(fact(k));
         k := 1;
-    UNTIL k = 0
+    UNTIL k = 0;
 
-    b:='a';
+    b:="a";
     a:=FALSE;
 
     FOR i := 0 TO 10 DO
         BEGIN
-        IF i < 6 THEN
-                WRITE(a)
+        IF (i < 6) THEN
+                WRITE(a);
                 a := NOT a;
-                IF a THEN BEGIN k:=95; j:=3; END ELSE k:=2;
-                WHILE (j > -9) AND (j < -1) DO
+                b := NOT TRUE;
+                IF (a=b) OR (n=x) THEN k:=95; j:=3; ELSE k:=2; //La condción no puede ir entre parentesis
+                WHILE (j < 9) DO //TODO NEGATVE NUMBERS
                     BEGIN
                         WRITE(j);
                         CASE k OF
-                            95: j := j-1;
-                            -2: j:=j+1;
+                            95: j := j-1;; //
+                            9: k := n;;
                         ELSE
                             j:=j+1;
                     END
         ELSE IF i > 9 THEN
-            WRITE(b)
+            WRITE(b);
         ELSE
             WRITE(i);
         END
-    WRITE('k');
-    FOR i:=0TO 9DO
+    WRITE("k");
+    FOR i:=0 TO 9 DO
+    BEGIN
     WRITE(f[i]*1000*1000+i);
+    END
 END

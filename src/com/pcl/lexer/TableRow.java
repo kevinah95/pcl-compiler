@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class TableRow {
     private PclSymbol token;
     private int tipo;
+
     private HashMap<Integer,Integer> lineas; //el primer integer es la línea y el segundo es la cantidad de apariciones por linea
 
     public TableRow(PclSymbol pToken,int pTipo, int pLinea){
