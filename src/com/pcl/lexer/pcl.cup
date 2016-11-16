@@ -121,8 +121,7 @@ error_begin ::= BEGIN:t_b {:RESULT = t_b;:};
 error_end ::= END:t_e {:RESULT = t_e;:};
 
 /* functions */
-functions ::= {:RESULT = "";:}
-        | function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
+functions ::= function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
         | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:};
 
 functions_prime ::= {:RESULT = "";:}
