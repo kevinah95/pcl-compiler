@@ -1,6 +1,6 @@
 PROGRAM mojProgram
 CONST
-    PI = 3.1415926;
+    PI = 3+5*2+4/2;
     Nombre = "Juan Gutiérrez";
     CARACTER = "c";
     BOOLEANOIDE = Funcion(123);
@@ -9,6 +9,7 @@ CONST
     REPETICIONES = -f(3);
     //REPETICIONES = PI; //TODO MINUS and EQ IDENTIFIER
     REPETICIONES = -3.14;
+
 VAR
         i,j,k : INT;
 		a : BOOLEAN;
