@@ -80,6 +80,9 @@ BEGIN
             WRITE(i);
         END
     WRITE("k");
+    B(i-1);
+    A();
+    n:=(a-b+(3-2));
     FOR i:=0 TO 9 DO
     BEGIN
     WRITE(f[i]*1000*1000+i);

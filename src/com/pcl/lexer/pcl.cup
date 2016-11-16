@@ -21,9 +21,9 @@ parser code {:
 		System.err.println("Error de sintaxis en la línea " + line + " columna " + column);
 	}*/
 
-	public void syntax_error(String msg){
+	/*public void syntax_error(String msg){
 		System.err.println(msg);
-	}
+	}*/
 
 	public void report_error(String message, Object info) {
             System.err.print(message);
@@ -36,6 +36,11 @@ parser code {:
                 } else {
                     System.err.println("");
                 }
+                /*if(((Symbol)info).right != -1) {
+                    System.err.println(" at character " + ((Symbol)info).right + " of input");
+                } else {
+                    System.err.println("");
+                }*/
             } else {
                 System.err.println("");
             }
@@ -64,6 +69,7 @@ terminal java.lang.Number INTEGER_LITERAL;
 terminal java.lang.Number FLOATING_POINT_LITERAL;
 terminal java.lang.Boolean BOOLEAN_LITERAL;
 terminal java.lang.Character CHARACTER_LITERAL; //TODO "#80" is not valid
+terminal UMINUS,PREINCR;
 
 /* Non terminals */
 non terminal type, identtype, arraytype, vardecl, vars, var,
@@ -73,8 +79,8 @@ non terminal type, identtype, arraytype, vardecl, vars, var,
         read_parameters, rw_parameter_list, rw_parameter , rw_parameter_list_aux,
         write, write_parameters, write_parameter, write_parameters_aux, control, while,
         repeat, if, else, for, case, cases, cases_aux, case_option, condition, other_comparison,
-        boolean_exp, comparison, compared, comparison_op, operation, single_side_operation,
-        left_right_operator, left_operator, double_side_operation, double_side_operation_aux,
+        boolean_exp, comparison, compared, comparison_op, expression, unary_operation,
+        increment_decrease_operator, left_operator, binary_operation, binary_operation_aux,
         center_operator, operated, parameters, parameter_list, parameter_list_aux, constants,
         globals, var_assignments, cons_assignments, identifiers, identifiers_aux,
         assignment_type, array, array_type;
@@ -86,24 +92,29 @@ non terminal one_var_assignment,one_const_assignment;
 non terminal var_assignments_prime,cons_assignments_prime,functions_prime,assigned_value;
 non terminal function_call,function_call_parameters,function_call_parameter_list,function_call_parameter_list_element;
 non terminal value_assignment_prime;
-non terminal for_literal;
+non terminal for_literal,o_c_a_value,value_prime,location,parameters_prime;
 
+precedence left IDENTIFIER;
 precedence left error;
 precedence left BEGIN;
 //precedence right UMINUS, OP_NOT;
+precedence right UMINUS, PREINCR;
 precedence right NOT;
 precedence left PLUSPLUS,MINUSMINUS;
+//precedence right PLUSPLUS,MINUSMINUS;
 precedence left PLUS, MINUS;
-precedence left MULT, DIV_SYM, MOD;
+precedence left MULT, DIV_SYM, MOD,DIV;
 precedence left DOT,LPAREN,RPAREN;
 precedence left LBRACK,RBRACK;
-precedence left IDENTIFIER;
+precedence left SEMICOLON;
+precedence left COMMA;
 precedence left READ,WRITE;
 precedence right ELSE;
 precedence left OR;
 precedence left AND;
 precedence left EQ, NEQ;
 precedence left LT, LTEQ, GT, GTEQ;
+precedence left DIVEQ,MULTEQ,MINUSEQ,PLUSEQ;
 precedence left FOR,IF,CASE,REPEAT,WHILE;
 precedence left STRING_LITERAL,INTEGER_LITERAL,FLOATING_POINT_LITERAL,BOOLEAN_LITERAL,CHARACTER_LITERAL;
 
@@ -112,7 +123,10 @@ precedence left STRING_LITERAL,INTEGER_LITERAL,FLOATING_POINT_LITERAL,BOOLEAN_LI
 program ::= {:RESULT = "";:}
         | program_head:p_head program_aux:p_aux {: RESULT = p_head+""+p_aux;:};
 
-program_head ::= PROGRAM:t_p IDENTIFIER:t_i {: RESULT = t_p+" "+t_i+"\n";:};
+program_head ::= PROGRAM:t_p IDENTIFIER:t_i {: RESULT = t_p+" "+t_i+"\n";:}
+                | error:e IDENTIFIER:t_i {: parser.report_error("Syntax ERROR: PROGRAM expected",e);:}
+                | PROGRAM:t_p error:e {: parser.report_error("Syntax ERROR: IDENTIFIER expected",t_p);:};
+
 
 program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs error_begin:nt_begin block:nt_b error_end:nt_end
                 {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+nt_begin+"\n"+nt_b+"\n"+nt_end;:};
@@ -120,6 +134,17 @@ program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs error_b
 error_begin ::= BEGIN:t_b {:RESULT = t_b;:};
 
 error_end ::= END:t_e {:RESULT = t_e;:};
+
+/* CONSTANTS */
+constants ::= {:RESULT = "";:}
+    | CONST:t_const cons_assignments:nt_const_assign {:RESULT = t_const+"\n"+nt_const_assign;:};
+
+cons_assignments ::= one_const_assignment:o_c_a cons_assignments_prime:c_a_p {:RESULT= o_c_a+""+c_a_p;:};
+
+cons_assignments_prime ::= {:RESULT = "";:}
+        | cons_assignments:c_p {:RESULT = c_p;:};
+
+one_const_assignment ::= IDENTIFIER:t_id EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc {:RESULT = t_id+""+t_eq+""+nt_o_c_a_value+""+t_sc+"\n";:};
 
 /* functions */
 functions ::= function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
@@ -131,8 +156,8 @@ functions_prime ::= {:RESULT = "";:}
 function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
             {:RESULT = f_h+"\n"+t_begin+"\n"+f_b+"\n"+t_end+"\n";:};
 
-function_head ::= FUNCTION:t_func IDENTIFIER:t_id LPAREN:t_lparen parameters:params RPAREN:t_rparen COLON:t_colon type:nt_type
-            {: RESULT = t_func+" "+t_id+""+t_lparen+""+params+""+t_rparen+""+t_colon+""+nt_type; :};
+function_head ::= FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon type:nt_type
+            {: RESULT = t_func+" "+t_id+""+params+""+t_colon+""+nt_type; :};
 
 /*
 Puede ser que sea un bloque de retorno
@@ -151,7 +176,7 @@ BEGIN
     fact := 3
 END
 */
-return ::= IDENTIFIER:t_id ASSIGN:t_a value:nt_v {:RESULT = t_id+""+t_a+""+nt_v;:};
+//return ::= IDENTIFIER:t_id ASSIGN:t_a value:nt_v {:RESULT = t_id+""+t_a+""+nt_v;:};
 
 /* procedure */
 procedure ::= procedure_head:nt_p_h BEGIN:t_begin procedure_body:nt_p_b END:t_end
@@ -159,8 +184,19 @@ procedure ::= procedure_head:nt_p_h BEGIN:t_begin procedure_body:nt_p_b END:t_en
 
 procedure_body ::= globals:nt_g constants:nt_c block:nt_b {:RESULT=nt_g+""+nt_c+""+nt_b;:};
 
-procedure_head ::= PROCEDURE:t_proc IDENTIFIER:t_id LPAREN:t_lp parameters:nt_p RPAREN:t_rp
-                    {:RESULT=t_proc+" "+t_id+""+t_lp+""+nt_p+""+t_rp+"\n";:};
+procedure_head ::= PROCEDURE:t_proc IDENTIFIER:t_id  parameters:nt_p
+                    {:RESULT=t_proc+" "+t_id+""+""+nt_p+""+"\n";:};
+
+parameters ::= LPAREN:t_lp parameters_prime:p_p RPAREN:t_rp {:RESULT=t_lp+""+p_p+""+t_rp+"\n";:};
+
+parameters_prime ::= {:RESULT ="";:}
+        | parameter_list:p_l {:RESULT = p_l;:};
+
+parameter_list ::= type:nt_t IDENTIFIER:t_id parameter_list_aux:nt_p_l_a {:RESULT = nt_t+" "+t_id+""+nt_p_l_a;:};
+
+parameter_list_aux ::= {:RESULT = "";:}
+    | COMMA:t_comma parameter_list:nt_pl {:RESULT = t_comma+""+nt_pl;:};
+
 /* procedure */
 
 block ::= {:RESULT = "";:} | sentence_block:nt_s_b {:RESULT = nt_s_b;:};
@@ -172,17 +208,17 @@ sentence ::= value_assignment:nt_v_a {:RESULT = nt_v_a;:}
     | read_write:nt_r_w {:RESULT = nt_r_w;:}
     | function_call:nt_fn_cl SEMICOLON:t_scn {:RESULT = nt_fn_cl+""+t_scn;:}
     | control:nt_c {:RESULT = nt_c;:}
-    | operation:nt_o {:RESULT = nt_o;:};
+    | expression:nt_o {:RESULT = nt_o;:};
 
 value_assignment ::= value_assignment_prime:nt_v_a_p ASSIGN:t_a assigned_value:nt_v SEMICOLON:t_sc {:RESULT = nt_v_a_p+""+t_a+""+nt_v+""+t_sc;:};
 
 value_assignment_prime ::= IDENTIFIER:t_id {:RESULT=t_id;:}
                         | array_call:nt_a {:RESULT=nt_a;:};
 
-assigned_value::= value:nt_v {:RESULT = nt_v;:}
-    | IDENTIFIER:t_id {:RESULT = t_id;:}
-    | NOT:t_nt IDENTIFIER:t_id {:RESULT = t_nt+""+t_id;:}
-    | operation:nt_op {:RESULT = nt_op;:};
+assigned_value::= expression:nt_op {:RESULT = nt_op;:}
+    //| value:nt_v {:RESULT = nt_v;:}
+    | NOT:t_nt IDENTIFIER:t_id {:RESULT = t_nt+""+t_id;:};
+    //| IDENTIFIER:t_id {:RESULT = t_id;:};
 
 read_write ::= read:nt_r {:RESULT = nt_r;:} | write:nt_w {:RESULT = nt_w;:};
 
@@ -196,14 +232,10 @@ write ::= WRITE:t_w LPAREN:t_lp write_parameters:nt_w_p RPAREN:t_rp SEMICOLON:t_
 
 write_parameters ::= rw_parameter_list:r_p_l {:RESULT = r_p_l;:};
 
-//TODO rw_parameter_list check errors
-
 rw_parameter_list ::= rw_parameter:r_p rw_parameter_list_aux:r_p_l_a {:RESULT = r_p+""+r_p_l_a;:};
 
-rw_parameter ::= IDENTIFIER:t_id {:RESULT = t_id;:}
+rw_parameter ::= expression:nt_op {:RESULT = nt_op;:};
                 | MINUS:t_minus IDENTIFIER:t_id {:RESULT = t_minus+""+t_id;:}
-                | value:nt_v {:RESULT = nt_v;:}
-                | operation:nt_op {:RESULT = nt_op;:};
 
 rw_parameter_list_aux ::= {:RESULT = "";:}
         | COMMA:t_comma rw_parameter_list:r_p_l {:RESULT = t_comma+""+r_p_l;:};
@@ -243,7 +275,7 @@ cases ::= case_option:nt_c_o cases_aux:nt_c_a {:RESULT = nt_c_o+"\n"+nt_c_a;:};
 cases_aux ::= {:RESULT = "";:}
         | cases:nt_c {:RESULT = nt_c;:};
 
-case_option ::= value:nt_v COLON:t_colon block:nt_b SEMICOLON:t_sc
+case_option ::= expression:nt_v COLON:t_colon block:nt_b SEMICOLON:t_sc
             {:RESULT = nt_v+""+t_colon+""+nt_b+""+t_sc;:};
 
 condition ::= comparison:nt_c other_comparison:nt_o_c {:RESULT = nt_c+" "+nt_o_c;:};
@@ -260,10 +292,10 @@ comparison ::= compared:nt_c1 comparison_op:nt_c_o compared:nt_c2
             | LPAREN:t_lp compared:nt_c1 comparison_op:nt_c_o compared:nt_c2 RPAREN:t_rp
             {:RESULT = t_lp+""+nt_c1+""+nt_c_o+""+nt_c2+""+t_rp;:};
 
-compared ::= IDENTIFIER:t_id {:RESULT = t_id;:}
-        | MINUS:t_minus IDENTIFIER:t_id {:RESULT = t_minus+""+t_id;:}
-        | value:nt_v {:RESULT = nt_v;:}
-        | operation:nt_o {:RESULT = nt_o;:};
+compared ::= expression:nt_o {:RESULT = nt_o;:};
+        //| MINUS:t_minus IDENTIFIER:t_id {:RESULT = t_minus+""+t_id;:}
+        //| value:nt_v {:RESULT = nt_v;:}
+        //| IDENTIFIER:t_id {:RESULT = t_id;:};
 
 comparison_op ::= EQ:t_eq {:RESULT = t_eq;:}
         | GTEQ:t_gteq {:RESULT = t_gteq;:}
@@ -275,52 +307,68 @@ comparison_op ::= EQ:t_eq {:RESULT = t_eq;:}
 /* control */
 
 /* operation */
-operation ::= single_side_operation:nt_s_s_o {:RESULT = nt_s_s_o;:}
-        | double_side_operation:nt_d_s_o {:RESULT = nt_d_s_o;:}
-        | LPAREN:t_lp operation:nt_o RPAREN:t_rp {:RESULT = t_lp+""+nt_o+""+t_rp;:};
+//_______________________EXP__________________________________
+expression ::= unary_operation:nt_s_s_o {:RESULT = nt_s_s_o;:}
+        | binary_operation:nt_d_s_o {:RESULT = nt_d_s_o;:}
+        | value_prime:nt_v {:RESULT=nt_v;:}
+        | boolean_value:nt_bv {:RESULT=nt_bv;:}
+        | location:t_id {:RESULT = t_id;:}
+        | MINUS:t_minus expression:nt_op {:RESULT = t_minus+""+nt_op;:}%prec UMINUS
+        | LPAREN:t_lp expression:nt_o RPAREN:t_rp {: RESULT = t_lp+""+nt_o+""+t_rp;:}%prec LPAREN
+        | function_call:nt_fn_cl {: RESULT = nt_fn_cl;:};
 
-single_side_operation ::= operated:nt_o left_right_operator:nt_r_o {:RESULT = nt_o+""+nt_r_o;:}
-    | left_right_operator:nt_l_o operated:nt_o {:RESULT = nt_l_o+""+nt_o;:};
+function_call ::= IDENTIFIER:t_id LPAREN:t_lb function_call_parameters:nt_fn_cl_pm RPAREN:t_rb
+        {:RESULT =  t_id+""+t_lb+""+nt_fn_cl_pm+""+t_rb;:};
 
-left_right_operator ::= PLUSPLUS:t_p_p {:RESULT = t_p_p;:}
+function_call_parameters ::= function_call_parameter_list:nt_fn_cl_pm_lt {:RESULT = nt_fn_cl_pm_lt;:}
+    | {:RESULT = "";:};
+
+
+function_call_parameter_list ::= expression:nt_fn_cl_pm_lt_el {:RESULT =  nt_fn_cl_pm_lt_el;:}
+                            | function_call_parameter_list:nt_fn_cl_pm_lt_el COMMA:t_cm expression:t_e
+                            {:RESULT =  nt_fn_cl_pm_lt_el+""+t_cm+""+t_e;:};
+
+function_call_parameter_list_element ::= expression:nt_vl {: RESULT = nt_vl;:}
+                                    | NIL:t_nl {: RESULT = t_nl;:};
+
+location ::= IDENTIFIER:id {: RESULT = id;:}
+            | expression:e1 LBRACK:t_lb expression:e2 RBRACK:t_rb {: RESULT = e1+""+t_lb+""+e2+""+t_rb; :} ;
+
+unary_operation ::= IDENTIFIER:t_id increment_decrease_operator:nt_r_o {:RESULT = t_id+""+nt_r_o;:}
+    | increment_decrease_operator:nt_l_o IDENTIFIER:t_id {:RESULT = nt_l_o+""+t_id;:};
+
+
+
+increment_decrease_operator ::= PLUSPLUS:t_p_p {:RESULT = t_p_p;:}
         | MINUSMINUS:t_m_m {:RESULT = t_m_m;:};
 
-double_side_operation ::= operated:nt_o1 center_operator:nt_c_o operated:nt_o2 double_side_operation_aux:nt_d_s_o_a
-                        {:RESULT = nt_o1+""+nt_c_o+""+nt_o2+""+nt_d_s_o_a;:};
+binary_operation ::= expression:nt_o1 PLUS:t_p expression:nt_o2
+                       {:RESULT = nt_o1+""+t_p+""+nt_o2;:}
+                     | expression:nt_o1 MINUS:t_m expression:nt_o2
+                       {:RESULT = nt_o1+""+t_m+""+nt_o2;:} %prec MINUS
+                     | expression:nt_o1 MULT:t_m expression:nt_o2
+                       {:RESULT = nt_o1+""+t_m+""+nt_o2;:}
+                     | expression:nt_o1 DIV_SYM:t_d expression:nt_o2
+                       {:RESULT = nt_o1+""+t_d+""+nt_o2;:}
+                     | expression:nt_o1 MOD:t_m expression:nt_o2
+                       {:RESULT = nt_o1+""+t_m+""+nt_o2;:}
+                     | expression:nt_o1 DIV:t_d expression:nt_o2
+                       {:RESULT = nt_o1+""+t_d+""+nt_o2;:}
+                     | expression:nt_o1 PLUSEQ:t_p expression:nt_o2
+                       {:RESULT = nt_o1+""+t_p+""+nt_o2;:}
+                     | expression:nt_o1 MINUSEQ:t_m expression:nt_o2
+                       {:RESULT = nt_o1+""+t_m+""+nt_o2;:}
+                     | expression:nt_o1 MULTEQ:t_m expression:nt_o2
+                       {:RESULT = nt_o1+""+t_m+""+nt_o2;:}
+                     | expression:nt_o1 DIVEQ:t_d expression:nt_o2
+                       {:RESULT = nt_o1+""+t_d+""+nt_o2;:};
 
-double_side_operation_aux ::= {:RESULT = "";:}
-                        | center_operator:nt_c_o operated:nt_o double_side_operation_aux:nt_d_s_o_a
-                          {:RESULT=nt_c_o+""+nt_o+""+nt_d_s_o_a;:};
 
-center_operator ::= PLUS:t_p {:RESULT = t_p;:}
-                    | MINUS:t_m {:RESULT = t_m;:}
-                    | MULT:t_m {:RESULT = t_m;:}
-                    | DIV_SYM:t_d {:RESULT = t_d;:}
-                    | MOD:t_m {:RESULT = t_m;:}
-                    | DIV:t_d {:RESULT = t_d;:}
-                    | PLUSEQ:t_p {:RESULT = t_p;:}
-                    | MINUSEQ:t_m {:RESULT = t_m;:}
-                    | MULTEQ:t_m {:RESULT = t_m;:}
-                    | DIVEQ:t_d {:RESULT = t_d;:};
-
-operated ::= value:nt_v {:RESULT = nt_v;:}
-        | IDENTIFIER:t_id {:RESULT = t_id;:};
 /* operation */
 
-parameters ::= {:RESULT ="";:}
-        | parameter_list:p_l {:RESULT = p_l;:};
 
-parameter_list ::= type:nt_t IDENTIFIER:t_id parameter_list_aux:nt_p_l_a {:RESULT = nt_t+" "+t_id+""+nt_p_l_a;:};
-
-parameter_list_aux ::= {:RESULT = "";:}
-    | COMMA:t_comma parameter_list:nt_pl {:RESULT = t_comma+""+nt_pl;:};
 
 /* functions */
-
-
-
-constants ::= {:RESULT = "";:}
-    | CONST:t_const cons_assignments:nt_const_assign {:RESULT = t_const+"\n"+nt_const_assign;:};
 
 globals ::= {:RESULT = "";:}
     | VAR:t_var var_assignments:v_a {:RESULT = t_var+"\n"+v_a;:};
@@ -334,12 +382,7 @@ var_assignments_prime ::= {:RESULT = "";:}
 one_var_assignment ::= identifiers:ids COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
         {:RESULT = ids+""+t_colon+""+a_t+""+t_sc+"\n";:};
 
-cons_assignments ::= one_const_assignment:o_c_a cons_assignments_prime:c_a_p {:RESULT= o_c_a+""+c_a_p;:};
 
-cons_assignments_prime ::= {:RESULT = "";:}
-        | cons_assignments:c_p {:RESULT = c_p;:};
-
-one_const_assignment ::= IDENTIFIER:t_id EQ:t_eq value:nt_val SEMICOLON:t_sc {:RESULT = t_id+""+t_eq+""+nt_val+""+t_sc+"\n";:};
 
 identifiers ::= IDENTIFIER:t_id identifiers_aux:id_aux {:RESULT = t_id+""+id_aux;:};
 
@@ -348,15 +391,11 @@ identifiers_aux ::= {:RESULT = "";:}
 
 assignment_type ::= type:t {:RESULT = t;:} | array:a {:RESULT = a;:};
 
-value ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
+value_prime ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
     | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :}
     | MINUS:t_minus INTEGER_LITERAL:t_int_lit {: RESULT = t_minus+""+t_int_lit; :}
     | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :}
-    | MINUS:t_minus FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_minus+""+t_float_lit; :}
-    | boolean_value:nt_b_v {: RESULT = nt_b_v; :}
-    | CHARACTER_LITERAL:t_char_lit {: RESULT = "\""+t_char_lit+"\""; :}
-    | array_call:nt_ar_cl {: RESULT = nt_ar_cl; :}
-    | MINUS:t_minus array_call:nt_ar_cl {: RESULT = t_minus+""+nt_ar_cl; :}
+    | CHARACTER_LITERAL:t_char_lit {: RESULT = "\""+t_char_lit+"\""; :};
     | function_call:nt_fn_cl {: RESULT = nt_fn_cl;:}
     | MINUS:t_minus function_call:nt_fn_cl {: RESULT = t_minus+""+nt_fn_cl;:};
 
@@ -366,9 +405,9 @@ boolean_value::= BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
 array_call::= IDENTIFIER:t_id LBRACK:t_lb array_subindex:nt_sa RBRACK:t_rb
             {: RESULT = t_id+""+t_lb+""+nt_sa+""+t_rb;:};
 
-array_subindex::= operation:nt_op {: RESULT = nt_op; :}
-        | IDENTIFIER:t_id {: RESULT = t_id; :}
-        | value:nt_vl {: RESULT = nt_vl; :};
+array_subindex::= expression:nt_op {: RESULT = nt_op; :};
+        //| IDENTIFIER:t_id {: RESULT = t_id; :};
+        //| value:nt_vl {: RESULT = nt_vl; :};
 
 array ::= ARRAY:t_a LBRACK:t_lb array_size:nt_a_z RBRACK:t_rb OF:t_of array_type:t_atype
         {:RESULT =  t_a+""+t_lb+""+nt_a_z+""+t_rb+""+t_of+""+t_atype;:};
@@ -383,19 +422,7 @@ array_size_values::= IDENTIFIER:t_id {: RESULT = t_id; :}
         | INTEGER_LITERAL:t_i_l {: RESULT = t_i_l; :}
         | function_call:nt_fn_cl {: RESULT = nt_fn_cl; :};
 
-function_call ::= IDENTIFIER:t_id LPAREN:t_lb function_call_parameters:nt_fn_cl_pm RPAREN:t_rb
-        {:RESULT =  t_id+""+t_lb+""+nt_fn_cl_pm+""+t_rb;:};
 
-function_call_parameters ::= function_call_parameter_list:nt_fn_cl_pm_lt {:RESULT = nt_fn_cl_pm_lt;:}
-    | {:RESULT = "";:};
-
-function_call_parameter_list ::= function_call_parameter_list_element:nt_fn_cl_pm_lt_el COMMA:t_cm function_call_parameter_list:nt_fn_cl_pm_lt
-    {:RESULT =  nt_fn_cl_pm_lt_el+""+t_cm+""+nt_fn_cl_pm_lt;:}
-    | function_call_parameter_list_element:nt_fn_cl_pm_lt_el {:RESULT =  nt_fn_cl_pm_lt_el;:};
-
-function_call_parameter_list_element ::= value:nt_vl {: RESULT = nt_vl;:}
-                                    | IDENTIFIER:t_id {: RESULT = t_id;:}
-                                    | NIL:t_nl {: RESULT = t_nl;:};
 
 type ::= BOOLEAN:p_bool {:RESULT = p_bool;:} | BYTE:pbyte {:RESULT = pbyte;:} | CHAR:pchar {:RESULT = pchar;:} | INT:pint {:RESULT = pint;:} | LONGINT:plongint {:RESULT = plongint;:} | SHORTINT:pshortint {:RESULT = pshortint;:} | STRING_TYPE:pstring {:RESULT = pstring;:};
 array_type ::= CHAR:pchar {:RESULT = pchar;:} | INT:pint {:RESULT = pint;:} | LONGINT:plongint {:RESULT = plongint;:} | SHORTINT:pshortint {:RESULT = pshortint;:};
