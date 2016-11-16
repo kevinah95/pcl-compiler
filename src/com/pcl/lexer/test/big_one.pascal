@@ -26,7 +26,6 @@ BEGIN
     WRITE("a");
     fact := 4;
     Procedimiento(Funcion(123));
-
 END
 (*PROCEDURES*)
 PROCEDURE hello2(INT a)

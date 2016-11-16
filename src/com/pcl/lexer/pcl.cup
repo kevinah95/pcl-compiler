@@ -121,11 +121,12 @@ error_begin ::= BEGIN:t_b {:RESULT = t_b;:};
 error_end ::= END:t_e {:RESULT = t_e;:};
 
 /* functions */
-functions ::= function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
+functions ::= {:RESULT = "";:}
+        | function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
         | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:};
 
 functions_prime ::= {:RESULT = "";:}
-        | functions:nt_fs{:RESULT = nt_fs;:};
+        | functions:nt_fs{:RESULT = nt_fs;:};functions_prime::= functions:nt_fs{:RESULT = nt_fs;:};
 
 function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
             {:RESULT = f_h+"\n"+t_begin+"\n"+f_b+"\n"+t_end+"\n";:};

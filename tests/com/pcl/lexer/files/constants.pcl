@@ -1,0 +1,10 @@
+PROGRAM mojProgram
+CONST
+    PI = 3.1415926;
+    Nombre = "Juan Gutiérrez";
+    CARACTER = "c";
+    BOOLEANOIDE = Funcion(123);
+    REPETICIONES = 3;
+BEGIN
+
+END

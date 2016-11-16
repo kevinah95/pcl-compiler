@@ -1,0 +1,11 @@
+PROGRAM mojProgram
+VAR
+        i,j,k : INT;
+		a : BOOLEAN;
+		b : CHAR;
+		f : ARRAY[0..8] OF INT;
+		p : INT;
+		s : STRING;
+BEGIN
+
+END
