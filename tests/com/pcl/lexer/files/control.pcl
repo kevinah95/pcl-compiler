@@ -1,0 +1,61 @@
+PROGRAM testProgram
+
+PROCEDURE setUser(INT a, STRING s)
+BEGIN
+    WHILE (j < -9) DO
+        BEGIN
+            WRITE(a);
+        END { while }
+
+    REPEAT
+        f[5] := fact(k);
+        k := -1;
+    UNTIL k = 4;
+
+    IF i > 9 THEN
+        WRITE("GATO");
+    ELSE
+        WRITE("PERRO");
+
+    FOR i := -12 TO -10 DO
+        BEGIN
+            B(i-1);
+            n:=a-b+3;
+        END
+
+    CASE k OF
+        "A": j := j-1;; // las sentencias del case llevan siempre ; al final
+        "B": setNombre("B");;
+    ELSE
+        setApellido("Mora")
+
+END { setUser }
+
+BEGIN
+    WHILE (n < 20) DO
+        BEGIN
+            WRITE(fact(n));
+            n:= n++;
+        END { while }
+
+    REPEAT
+        READ(archivo);
+    UNTIL k = -4;
+
+    IF 2 = getHour() THEN
+        a:= 2;
+    ELSE
+        WRITE("Es muy tarde");
+
+    FOR i := 1 TO 25 DO
+        BEGIN
+            WRITE(-fact(k),var,256);
+        END
+
+    CASE k OF
+        1: WRITE(k);;
+        2: READ(K);;
+    ELSE
+        continue()
+
+END { testProgram }

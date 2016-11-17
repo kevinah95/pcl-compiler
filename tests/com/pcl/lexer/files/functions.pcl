@@ -1,11 +1,15 @@
-PROGRAM mojProgram
-(*FUNCTIONS*)
-FUNCTION fact(INT a, STRING s): INT
+PROGRAM testProgram
+
+PROCEDURE setUser(INT a, STRING s)
 BEGIN
-    WRITE("a")
-    fact := 4;
-    Procedimiento(Funcion(123));
-END
+    name:= s;
+END { setUser }
+
+PROCEDURE printHour()
+BEGIN
+    Print(getHour());
+END { printHour }
+
 BEGIN
 
-END
+END { testProgram }

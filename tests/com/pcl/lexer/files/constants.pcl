@@ -1,10 +1,10 @@
-PROGRAM mojProgram
+PROGRAM testProgram
 CONST
     PI = 3.1415926;
     Nombre = "Juan Gutiérrez";
     CARACTER = "c";
     BOOLEANOIDE = Funcion(123);
-    REPETICIONES = 3;
+    REPETICIONES = 3+6*(8-5);
 BEGIN
 
-END
+END { testProgram }

@@ -1,4 +1,5 @@
-PROGRAM mojProgram
+PROGRAM testProgram
+
 BEGIN
 
-END
+END { testProgram }

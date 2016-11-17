@@ -1,11 +1,12 @@
-PROGRAM mojProgram
+PROGRAM testProgram
 VAR
         i,j,k : INT;
 		a : BOOLEAN;
 		b : CHAR;
-		f : ARRAY[0..8] OF INT;
-		p : INT;
-		s : STRING;
+		c : ARRAY[0..8] OF INT;
+		d : INT;
+		e : STRING;
+		f : ARRAY[7] OF CHAR;
 BEGIN
 
-END
+END { testProgram }
