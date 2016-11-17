@@ -92,8 +92,9 @@ non terminal one_var_assignment,one_const_assignment;
 non terminal var_assignments_prime,cons_assignments_prime,functions_prime,assigned_value;
 non terminal function_call,function_call_parameters,function_call_parameter_list,function_call_parameter_list_element;
 non terminal value_assignment_prime;
-non terminal for_literal,o_c_a_value,value_prime,location,parameters_prime;
+non terminal for_literal,o_c_a_value,value_prime,location,parameters_prime,array_call_prime;
 
+precedence left SEMICOLON;
 precedence left IDENTIFIER;
 precedence left error;
 precedence left BEGIN;
@@ -103,6 +104,8 @@ precedence right NOT;
 precedence left PLUSPLUS,MINUSMINUS;
 //precedence right PLUSPLUS,MINUSMINUS;
 precedence left PLUS, MINUS;
+//precedence right ASSIGN;
+
 precedence left MULT, DIV_SYM, MOD,DIV;
 precedence left DOT,LPAREN,RPAREN;
 precedence left LBRACK,RBRACK;
@@ -206,16 +209,17 @@ block ::= {:RESULT = "";:} | sentence_block:nt_s_b {:RESULT = nt_s_b;:};
 sentence_block ::= sentence:nt_s sentence_block:nt_s_b_p {:RESULT = nt_s+"\n"+nt_s_b_p;:}
                 | sentence:nt_s {:RESULT = nt_s;:};
 
-sentence ::= value_assignment:nt_v_a {:RESULT = nt_v_a;:}
+sentence ::= expression:nt_o {:RESULT = nt_o;:}
+    | value_assignment:nt_v_a {:RESULT = nt_v_a;:}
+    | array_call:nt_a {:RESULT = nt_a;:}
     | read_write:nt_r_w {:RESULT = nt_r_w;:}
     | function_call:nt_fn_cl SEMICOLON:t_scn {:RESULT = nt_fn_cl+""+t_scn;:}
-    | control:nt_c {:RESULT = nt_c;:}
-    | expression:nt_o {:RESULT = nt_o;:};
+    | control:nt_c {:RESULT = nt_c;:};
 
 value_assignment ::= value_assignment_prime:nt_v_a_p ASSIGN:t_a assigned_value:nt_v SEMICOLON:t_sc {:RESULT = nt_v_a_p+""+t_a+""+nt_v+""+t_sc;:};
 
 value_assignment_prime ::= IDENTIFIER:t_id {:RESULT=t_id;:}
-                        | array_call:nt_a {:RESULT=nt_a;:};
+                        | array_call_prime:nt_a {:RESULT=nt_a;:};
 
 assigned_value::= expression:nt_op {:RESULT = nt_op;:}
     //| value:nt_v {:RESULT = nt_v;:}
@@ -397,8 +401,10 @@ value_prime ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
 boolean_value::= BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
     | NOT:t_nt BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_nt+""+t_bool_lit; :};
 
-array_call::= IDENTIFIER:t_id LBRACK:t_lb array_subindex:nt_sa RBRACK:t_rb
+array_call_prime::= IDENTIFIER:t_id LBRACK:t_lb array_subindex:nt_sa RBRACK:t_rb
             {: RESULT = t_id+""+t_lb+""+nt_sa+""+t_rb;:};
+array_call::= IDENTIFIER:t_id LBRACK:t_lb array_subindex:nt_sa RBRACK:t_rb SEMICOLON:t_sc
+            {: RESULT = t_id+""+t_lb+""+nt_sa+""+t_rb+""+t_sc;:};
 
 array_subindex::= expression:nt_op {: RESULT = nt_op; :};
 

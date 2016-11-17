@@ -43,6 +43,7 @@ BEGIN
     k := 3;
     REPEAT
         f[5] := fact(k);
+        f[5] := fact[k];
         WRITE(-fact(k),var,256);
         WRITE(-2);
         READ(-45);
@@ -75,7 +76,8 @@ BEGIN
         END
     WRITE("k");
     B(i-1);
-    A();
+    A(a[i]);
+    a[4];
     n:=a-b+3;
     n:=(a-b+(3-2));
     FOR i:=0 TO 9 DO
