@@ -209,7 +209,7 @@ block ::= {:RESULT = "";:} | sentence_block:nt_s_b {:RESULT = nt_s_b;:};
 sentence_block ::= sentence:nt_s sentence_block:nt_s_b_p {:RESULT = nt_s+"\n"+nt_s_b_p;:}
                 | sentence:nt_s {:RESULT = nt_s;:};
 
-sentence ::= expression:nt_o {:RESULT = nt_o;:}
+sentence ::= expression:nt_o SEMICOLON:sc {:RESULT = nt_o+""+sc;:}
     | value_assignment:nt_v_a {:RESULT = nt_v_a;:}
     | array_call:nt_a {:RESULT = nt_a;:}
     | read_write:nt_r_w {:RESULT = nt_r_w;:}

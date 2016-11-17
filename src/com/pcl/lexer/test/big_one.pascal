@@ -55,7 +55,7 @@ BEGIN
 
     FOR i := -12 TO -10 DO
         BEGIN
-        IF (i < -6) THEN
+        IF (i <> -6) THEN
                 WRITE(a);
                 a := NOT a;
                 b := NOT TRUE;
@@ -78,7 +78,9 @@ BEGIN
     B(i-1);
     A(a[i]);
     a[4];
-    n:=a-b+3;
+    n:=a-b+3*a++;
+    a++;
+    ++b;
     n:=(a-b+(3-2));
     FOR i:=0 TO 9 DO
     BEGIN
