@@ -43,7 +43,7 @@ BEGIN
     k := 3;
     REPEAT
         f[5] := fact(k);
-        WRITE(-fact(k));
+        WRITE(-fact(k),var,256);
         WRITE(-2);
         READ(-45);
         k := -1;

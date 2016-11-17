@@ -129,7 +129,9 @@ program_head ::= PROGRAM:t_p IDENTIFIER:t_i {: RESULT = t_p+" "+t_i+"\n";:}
 
 
 program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs error_begin:nt_begin block:nt_b error_end:nt_end
-                {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+nt_begin+"\n"+nt_b+"\n"+nt_end;:};
+                {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+nt_begin+"\n"+nt_b+"\n"+nt_end;:}
+                | constants:nt_const globals:nt_globals error_begin:nt_begin block:nt_b error_end:nt_end
+                {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_begin+"\n"+nt_b+"\n"+nt_end;:};
 
 error_begin ::= BEGIN:t_b {:RESULT = t_b;:};
 
