@@ -16,7 +16,7 @@ VAR
 		p : INT;
 		s : STRING;
 (*FUNCTIONS*)
-FUNCTION fact(INT a, STRING s): INT
+FUNCTION fact( INT  a, STRING s): INT
 BEGIN
     WRITE("a");
     fact := 4;

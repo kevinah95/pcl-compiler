@@ -149,11 +149,13 @@ cons_assignments ::= one_const_assignment:o_c_a cons_assignments_prime:c_a_p {:R
 cons_assignments_prime ::= {:RESULT = "";:}
         | cons_assignments:c_p {:RESULT = c_p;:};
 
-one_const_assignment ::= IDENTIFIER:t_id EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc {:RESULT = t_id+""+t_eq+""+nt_o_c_a_value+""+t_sc+"\n";:};
+one_const_assignment ::= IDENTIFIER:t_id EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc {:RESULT = t_id+""+t_eq+""+nt_o_c_a_value+""+t_sc+"\n";:}
+                        |error:e EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :};
 
 /* functions */
 functions ::= function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
-        | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:};
+        | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:}
+        ;
 
 functions_prime ::= {:RESULT = "";:}
         | functions:nt_fs{:RESULT = nt_fs;:};
@@ -162,7 +164,8 @@ function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
             {:RESULT = f_h+"\n"+t_begin+"\n"+f_b+"\n"+t_end+"\n";:};
 
 function_head ::= FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon type:nt_type
-            {: RESULT = t_func+" "+t_id+""+params+""+t_colon+""+nt_type; :};
+            {: RESULT = t_func+" "+t_id+""+params+""+t_colon+""+nt_type; :}
+            | FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon error:e {: System.err.println("Syntax ERROR: RETURN TYPE expected"); :};
 
 /*
 Puede ser que sea un bloque de retorno
@@ -197,7 +200,9 @@ parameters ::= LPAREN:t_lp parameters_prime:p_p RPAREN:t_rp {:RESULT=t_lp+""+p_p
 parameters_prime ::= {:RESULT ="";:}
         | parameter_list:p_l {:RESULT = p_l;:};
 
-parameter_list ::= type:nt_t IDENTIFIER:t_id parameter_list_aux:nt_p_l_a {:RESULT = nt_t+" "+t_id+""+nt_p_l_a;:};
+parameter_list ::= type:nt_t IDENTIFIER:t_id parameter_list_aux:nt_p_l_a {:RESULT = nt_t+" "+t_id+""+nt_p_l_a;:}
+                   //| type:nt_t error:e parameter_list_aux:nt_p_l_a {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :}
+                   | error:e IDENTIFIER:t_id parameter_list_aux:nt_p_l_a {: System.err.println("Syntax ERROR: TYPE expected"); :};
 
 parameter_list_aux ::= {:RESULT = "";:}
     | COMMA:t_comma parameter_list:nt_pl {:RESULT = t_comma+""+nt_pl;:};
@@ -259,12 +264,18 @@ repeat ::= REPEAT:t_repeat block:nt_b UNTIL:t_until condition:nt_c SEMICOLON:t_s
            {:RESULT = t_repeat+"\n"+nt_b+"\n"+t_until+" "+nt_c+""+t_sc;:};
 
 if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 else:nt_else
-           {:RESULT = t_if+" "+nt_con+" "+t_then+"\n"+nt_b1+"\n"+nt_else;:};
+           {:RESULT = t_if+" "+nt_con+" "+t_then+"\n"+nt_b1+"\n"+nt_else;:}
+           | IF:t_if error:e THEN:t_then block:nt_bl else:nt_else {: parser.report_error("Syntax ERROR: CONDITION expected",e); :};
+
 else::= ELSE:t_else  block:nt_b2 {:RESULT= t_else+"\n"+nt_b2;:}
     | {:RESULT= "";:};
 
 for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:nt_for_lit1 TO:t_to for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
-        {:RESULT = t_for+" "+t_id+" "+t_a+" "+nt_for_lit1+" "+t_to+" "+nt_for_lit2+" "+t_do+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:};
+        {:RESULT = t_for+" "+t_id+" "+t_a+" "+nt_for_lit1+" "+t_to+" "+nt_for_lit2+" "+t_do+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:}
+        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:int_for_lit1 TO:t_to for_literal:nt_for_lit2 error:e BEGIN:t_begin block:nt_b END:t_end {: System.err.println("Syntax ERROR: DO expected"); :}
+        | FOR:t_for IDENTIFIER:t_id error:e for_literal:int_for_lit1 TO:t_to for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end {: System.err.println("Syntax ERROR: ASSIGNATION expected"); :}
+        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:int_for_lit1 error:e for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end {: System.err.println("Syntax ERROR: TO expected"); :};
+
 
 for_literal::= MINUS:t_minus INTEGER_LITERAL:t_int_lit {:RESULT = t_minus+""+t_int_lit;:}
             | INTEGER_LITERAL:t_int_lit {:RESULT = t_int_lit;:};
@@ -382,8 +393,10 @@ var_assignments_prime ::= {:RESULT = "";:}
         | var_assignments:v_a {:RESULT = v_a;:};
 
 one_var_assignment ::= identifiers:ids COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
-        {:RESULT = ids+""+t_colon+""+a_t+""+t_sc+"\n";:};
-
+        {:RESULT = ids+""+t_colon+""+a_t+""+t_sc+"\n";:}
+        |error:e COLON:t_colon assignment_type:a_t SEMICOLON:t_sc {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :}
+        |identifiers:ids COLON:t_colon error:e SEMICOLON:t_sc {: parser.report_error("Syntax ERROR: TYPE expected",e); :};
+//REVISAR ERRORES
 
 
 identifiers ::= IDENTIFIER:t_id identifiers_aux:id_aux {:RESULT = t_id+""+id_aux;:};
@@ -409,7 +422,8 @@ array_call::= IDENTIFIER:t_id LBRACK:t_lb array_subindex:nt_sa RBRACK:t_rb SEMIC
 array_subindex::= expression:nt_op {: RESULT = nt_op; :};
 
 array ::= ARRAY:t_a LBRACK:t_lb array_size:nt_a_z RBRACK:t_rb OF:t_of array_type:t_atype
-        {:RESULT =  t_a+""+t_lb+""+nt_a_z+""+t_rb+""+t_of+""+t_atype;:};
+        {:RESULT =  t_a+""+t_lb+""+nt_a_z+""+t_rb+""+t_of+""+t_atype;:}
+        | ARRAY:t_a LBRACK:t_lb array_size:nt_a_z RBRACK:t_rb OF:t_of error:e {: parser.report_error("Syntax ERROR: TYPE expected",e); :};
 
 array_size::= array_size_values:t_fst_i DOT:t_fst_d DOT:t_snd_d array_size_values:t_snd_i {:RESULT =  t_fst_i+""+t_fst_d+""+t_snd_d+""+t_snd_i;:}
         | MINUS:t_minus array_size_values:t_fst_i DOT:t_fst_d DOT:t_snd_d array_size_values:t_snd_i {:RESULT =  t_minus+""+t_fst_i+""+t_fst_d+""+t_snd_d+""+t_snd_i;:}
