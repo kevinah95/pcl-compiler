@@ -331,13 +331,14 @@ function_call_parameter_list ::= expression:nt_fn_cl_pm_lt_el {:RESULT =  nt_fn_
                             {:RESULT =  nt_fn_cl_pm_lt_el+""+t_cm+""+t_e;:};
 
 function_call_parameter_list_element ::= expression:nt_vl {: RESULT = nt_vl;:}
+                                    | condition:nt_vl {: RESULT = nt_vl;:}
                                     | NIL:t_nl {: RESULT = t_nl;:};
 
 location ::= IDENTIFIER:id {: RESULT = id;:}
             | expression:e1 LBRACK:t_lb expression:e2 RBRACK:t_rb {: RESULT = e1+""+t_lb+""+e2+""+t_rb; :} ;
 
-unary_operation ::= IDENTIFIER:t_id increment_decrease_operator:nt_r_o {:RESULT = t_id+""+nt_r_o;:}
-    | increment_decrease_operator:nt_l_o IDENTIFIER:t_id {:RESULT = nt_l_o+""+t_id;:};
+unary_operation ::= expression:t_id increment_decrease_operator:nt_r_o {:RESULT = t_id+""+nt_r_o;:}
+    | increment_decrease_operator:nt_l_o expression:t_id {:RESULT = nt_l_o+""+t_id;:};
 
 
 
