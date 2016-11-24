@@ -1,7 +1,7 @@
-mojProgram
+PROGRAM mojProgram
 CONST
     PI = 3+5*2+4/2;
-    REPETICIONES = -f[3];
+    REPETICIONES = -f[3]++;
     REPETICIONES = -3;
     REPETICIONES = -f(3);
     REPETICIONES = n++;
