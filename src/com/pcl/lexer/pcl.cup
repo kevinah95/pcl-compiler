@@ -82,7 +82,7 @@ non terminal type, identtype, arraytype, vardecl, vars, var,
         globals, var_assignments, cons_assignments, identifiers, identifiers_prime,
         assignment_type, array, array_type;
 non terminal value,boolean_value,array_size_values;
-non terminal array_call,array_subindex,array_size;
+non terminal array_subindex,array_size;
 non terminal java.lang.Number integer;
 
 non terminal one_var_assignment,one_const_assignment;
@@ -150,8 +150,10 @@ constants ::= {:RESULT = "";:}
 
 cons_assignments ::= one_const_assignment:o_c_a cons_assignments_prime:c_a_p {:RESULT= o_c_a+""+c_a_p;:};
 
-one_const_assignment ::= identifiers:t_ids EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc {:RESULT = t_ids+""+t_eq+""+nt_o_c_a_value+""+t_sc+"\n";:}
-                        |error:e EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :};
+one_const_assignment ::= identifiers:t_ids EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc
+                       {: RESULT = t_ids+""+t_eq+""+nt_o_c_a_value+""+t_sc+"\n"; :}
+                       | error:e EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc
+                       {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :};
 
 cons_assignments_prime ::= {:RESULT = "";:}
         | cons_assignments:c_p {:RESULT = c_p;:};
@@ -161,7 +163,6 @@ cons_assignments_prime ::= {:RESULT = "";:}
   '---------'*/
 globals ::= {:RESULT = "";:}
     | VAR:t_var var_assignments:v_a {:RESULT = t_var+"\n"+v_a;:};
-
 
 var_assignments ::= one_var_assignment:o_v_a var_assignments_prime:v_a_p {:RESULT= o_v_a+""+v_a_p;:};
 
@@ -196,7 +197,8 @@ function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
 
 function_head ::= FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon type:nt_type
             {: RESULT = t_func+" "+t_id+""+params+""+t_colon+""+nt_type+"\n"; :}
-            | FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon error:e {: System.err.println("Syntax ERROR: RETURN TYPE expected"); :};
+            | FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon error:e
+            {: System.err.println("Syntax ERROR: RETURN TYPE expected"); :};
 
 function_body ::= globals:nt_g constants:nt_c BEGIN:t_b block:nt_b value_assignment:nt_r END:t_e
                 {:RESULT = nt_g+""+nt_c+""+t_b+"\n"+nt_b+""+nt_r+"\n"+t_e;:}
@@ -238,11 +240,15 @@ sentence_block ::= sentence:nt_s sentence_block:nt_s_b_p {:RESULT = nt_s+"\n"+nt
 
 sentence ::= expression:nt_o SEMICOLON:sc {:RESULT = nt_o+""+sc;:}
     | value_assignment:nt_v_a {:RESULT = nt_v_a;:}
-    | array_call:nt_a {:RESULT = nt_a;:}
+    | array_call_prime:nt_a SEMICOLON:t_sc {:RESULT = nt_a+""+t_sc;:}
     | read_write:nt_r_w {:RESULT = nt_r_w;:}
     | control:nt_c {:RESULT = nt_c;:};
 
-value_assignment ::= value_assignment_prime:nt_v_a_p ASSIGN:t_a assigned_value:nt_v SEMICOLON:t_sc {:RESULT = nt_v_a_p+""+t_a+""+nt_v+""+t_sc;:};
+/*.------------------.
+  | VALUE ASSIGNMENT |
+  '------------------'*/
+value_assignment ::= value_assignment_prime:nt_v_a_p ASSIGN:t_a assigned_value:nt_v SEMICOLON:t_sc
+                     {:RESULT = nt_v_a_p+""+t_a+""+nt_v+""+t_sc;:};
 
 value_assignment_prime ::= IDENTIFIER:t_id {:RESULT=t_id;:}
                         | array_call_prime:nt_a {:RESULT=nt_a;:};
@@ -284,16 +290,20 @@ repeat ::= REPEAT:t_repeat block:nt_b UNTIL:t_until condition:nt_c SEMICOLON:t_s
 
 if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 else:nt_else
            {:RESULT = t_if+" "+nt_con+" "+t_then+"\n"+nt_b1+"\n"+nt_else;:}
-           | IF:t_if error:e THEN:t_then block:nt_bl else:nt_else {: parser.report_error("Syntax ERROR: CONDITION expected",e); :};
+           | IF:t_if error:e THEN:t_then block:nt_bl else:nt_else
+           {: parser.report_error("Syntax ERROR: CONDITION expected",e); :};
 
 else::= {:RESULT= "";:}
       | ELSE:t_else  block:nt_b2 {:RESULT= t_else+"\n"+nt_b2;:};
 
 for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:nt_for_lit1 TO:t_to for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
         {:RESULT = t_for+" "+t_id+" "+t_a+" "+nt_for_lit1+" "+t_to+" "+nt_for_lit2+" "+t_do+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:}
-        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:int_for_lit1 TO:t_to for_literal:nt_for_lit2 error:e BEGIN:t_begin block:nt_b END:t_end {: System.err.println("Syntax ERROR: DO expected"); :}
-        | FOR:t_for IDENTIFIER:t_id error:e for_literal:int_for_lit1 TO:t_to for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end {: System.err.println("Syntax ERROR: ASSIGNATION expected"); :}
-        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:int_for_lit1 error:e for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end {: System.err.println("Syntax ERROR: TO expected"); :};
+        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:int_for_lit1 TO:t_to for_literal:nt_for_lit2 error:e BEGIN:t_begin block:nt_b END:t_end
+        {: System.err.println("Syntax ERROR: DO expected"); :}
+        | FOR:t_for IDENTIFIER:t_id error:e for_literal:int_for_lit1 TO:t_to for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
+        {: System.err.println("Syntax ERROR: ASSIGNATION expected"); :}
+        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:int_for_lit1 error:e for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
+        {: System.err.println("Syntax ERROR: TO expected"); :};
 
 
 for_literal::= MINUS:t_minus INTEGER_LITERAL:t_int_lit {:RESULT = t_minus+""+t_int_lit;:}
@@ -343,26 +353,19 @@ expression ::= unary_operation:nt_s_s_o {:RESULT = nt_s_s_o;:}
         | func_call:nt_fn_cl {: RESULT = nt_fn_cl;:};
 
 
-func_call ::= IDENTIFIER:t_id LPAREN:t_lb func_call_params:nt_fn_cl_pm RPAREN:t_rb
-        {:RESULT =  t_id+"("+nt_fn_cl_pm+")";:};
 
-func_call_params ::= {:RESULT = "";:}
-        | func_call_param:nt_fn_cl_pm_lt {:RESULT = nt_fn_cl_pm_lt;:};
-
-func_call_param ::= expression:nt_exp func_call_param_prime:nt_f_c_p_l_p {:RESULT =  nt_exp+""+nt_f_c_p_l_p;:};
-
-func_call_param_prime ::= {:RESULT = "";:}
-                        | COMMA:t_comma func_call_param:nt_f_c_p_l {:RESULT =  t_comma+""+nt_f_c_p_l;:};
-
-location ::= IDENTIFIER:id {: RESULT = id;:}
-            | expression:e1 LBRACK:t_lb expression:e2 RBRACK:t_rb {: RESULT = e1+"["+e2+"]"; :} ;
-
+/*.-----------------.
+  | UNARY OPERATION |
+  '-----------------'*/
 unary_operation ::= expression:t_id increment_decrease_operator:nt_r_o {:RESULT = t_id+""+nt_r_o;:}
     | increment_decrease_operator:nt_l_o expression:t_id {:RESULT = nt_l_o+""+t_id;:};
 
 increment_decrease_operator ::= PLUSPLUS:t_p_p {:RESULT = t_p_p;:}
         | MINUSMINUS:t_m_m {:RESULT = t_m_m;:};
 
+/*.------------------.
+  | BINARY OPERATION |
+  '------------------'*/
 binary_operation ::= expression:nt_o1 PLUS:t_p expression:nt_o2
                        {:RESULT = nt_o1+""+t_p+""+nt_o2;:}
                      | expression:nt_o1 MINUS:t_m expression:nt_o2
@@ -384,8 +387,9 @@ binary_operation ::= expression:nt_o1 PLUS:t_p expression:nt_o2
                      | expression:nt_o1 DIVEQ:t_d expression:nt_o2
                        {:RESULT = nt_o1+""+t_d+""+nt_o2;:};
 
-assignment_type ::= type:t {:RESULT = t;:} | array:a {:RESULT = a;:};
-
+/*.----------.
+  | LITERALS |
+  '----------'*/
 literals ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
     | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :}
     | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :}
@@ -393,12 +397,36 @@ literals ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
     | BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
     | NOT:t_nt BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_nt+""+t_bool_lit; :};
 
+/*.----------.
+  | LOCATION |
+  '----------'*/
+location ::= IDENTIFIER:id {: RESULT = id;:}
+            | expression:e1 LBRACK:t_lb expression:e2 RBRACK:t_rb {: RESULT = e1+"["+e2+"]"; :} ;
 
+/*.---------------.
+  | FUNCTION CALL |
+  '---------------'*/
+func_call ::= IDENTIFIER:t_id LPAREN:t_lb func_call_params:nt_fn_cl_pm RPAREN:t_rb
+        {:RESULT =  t_id+"("+nt_fn_cl_pm+")";:};
+
+func_call_params ::= {:RESULT = "";:}
+        | func_call_param:nt_fn_cl_pm_lt {:RESULT = nt_fn_cl_pm_lt;:};
+
+func_call_param ::= expression:nt_exp func_call_param_prime:nt_f_c_p_l_p {:RESULT =  nt_exp+""+nt_f_c_p_l_p;:};
+
+func_call_param_prime ::= {:RESULT = "";:}
+                        | COMMA:t_comma func_call_param:nt_f_c_p_l {:RESULT =  t_comma+""+nt_f_c_p_l;:};
+
+/*.------------.
+  | ARRAY CALL |
+  '------------'*/
 array_call_prime::= IDENTIFIER:t_id LBRACK:t_lb expression:nt_exp RBRACK:t_rb
             {: RESULT = t_id+"["+nt_exp+"]";:};
 
-array_call::= IDENTIFIER:t_id LBRACK:t_lb expression:nt_exp RBRACK:t_rb SEMICOLON:t_sc
-            {: RESULT = t_id+"["+nt_exp+"]"+""+t_sc;:};
+/*.-------.
+  | TYPES |
+  '-------'*/
+assignment_type ::= type:t {:RESULT = t;:} | array:a {:RESULT = a;:};
 
 array ::= ARRAY:t_a LBRACK:t_lb array_size:nt_a_z RBRACK:t_rb OF:t_of array_type:t_atype
         {:RESULT =  t_a+"["+nt_a_z+"]"+""+t_of+""+t_atype;:}

@@ -81,14 +81,14 @@ BEGIN
     B(i-1);
     A(a[i]);
     func_call();
-    a[4];
+    ++a[4]--;
     n:=a-b+3*a++;
     a++;
     ++b;
     n:=(a-b+(3-2));
     FOR i:=0 TO 9 DO
     BEGIN
-    WRITE(f[i]*1000*1000+i);
+    WRITE(++f[i]*1000*1000+i);
     x := (3+5)*2+(6-3);
     END
 END
