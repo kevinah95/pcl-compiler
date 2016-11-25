@@ -54,7 +54,7 @@ VAR
    i: INT;
 
 CONST
-	A := 123; // error: es solo el =
+	A = 123; // error: es solo el =
 
    funcion1:= 0;
 END

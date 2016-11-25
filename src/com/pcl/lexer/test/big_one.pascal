@@ -1,7 +1,7 @@
 PROGRAM mojProgram
 CONST
     PI = 3+5*2+4/2;
-    REPETICIONES = -f[3]++;
+    A,B,C = -f[3]++;
     REPETICIONES = -3;
     REPETICIONES = -f(3);
     REPETICIONES = n++;
@@ -11,23 +11,26 @@ VAR
         i,j,k : INT;
 		a : BOOLEAN;
 		b : CHAR;
-		f : ARRAY[-FunOp()..-b] OF INT;
+		f : ARRAY[FunOp()..b] OF INT;
 		f : ARRAY[8] OF INT;
 		p : INT;
 		s : STRING;
 (*FUNCTIONS*)
 FUNCTION fact( INT  a, STRING s): INT
 BEGIN
-    WRITE("a");
-    fact := 4;
+    BEGIN
+        WRITE("a");
+        fact := 4;
+    END
     //Procedimiento(Funcion(123));
-
 END
 FUNCTION Func2(INT a, STRING s): INT
 BEGIN
-    WRITE("a");
-    fact := 4;
-    Procedimiento(Funcion(123));
+    BEGIN
+        WRITE("a");
+        fact := 4;
+        Procedimiento(Funcion(123));
+    END
 END
 (*PROCEDURES*)
 PROCEDURE hello2(INT a)
@@ -77,6 +80,7 @@ BEGIN
     WRITE("k");
     B(i-1);
     A(a[i]);
+    func_call();
     a[4];
     n:=a-b+3*a++;
     a++;
