@@ -60,8 +60,6 @@ FloatLiteral      = ({FLit1}) {Exponent}? [fF]
 DoubleLiteral     = ({FLit1}) {Exponent}?
 
 FLit1             = [0-9]+ \. [0-9]+
-FLit2             = \. [0-9]+
-FLit3             = [0-9]+
 Exponent          = [eE] [+-]? [0-9]+
 
 /* string and character literals */

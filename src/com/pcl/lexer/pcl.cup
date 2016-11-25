@@ -1,19 +1,22 @@
 import java_cup.runtime.*;
 
 
-/* User code */
+/*.-------------.
+  | PARSER CODE |
+  '-------------'*/
 parser code {:
 	private int line;
 	private int column;
 
 	/*public void syntax_error(Object cur_token){
-		line = cur_token.left+1;
-		column = cur_token.right+1;
+	    java_cup.runtime.Symbol cur_token_temp = (java_cup.runtime.Symbol) cur_token;
+		line = cur_token_temp.left+1;
+		column = cur_token_temp.right+1;
 
 		System.err.println();
-		System.err.print("Error en linea "+(cur_token.left+1)+" columna "+(cur_token.right+1));
-		if(cur_token.value != null)
-			System.err.print(" en lexema: "+cur_token.value);
+		System.err.print("Error en linea "+(cur_token_temp.left+1)+" columna "+(cur_token_temp.right+1));
+		if(cur_token_temp.value != null)
+			System.err.print(" en lexema: "+cur_token_temp.value);
 		System.err.print(": ");
 	}*/
 
@@ -48,32 +51,46 @@ parser code {:
         }
 :}
 
-/* Terminals */
+/*.-----------.
+  | TERMINALS |
+  '-----------'*/
+
+/* identifier */
 terminal IDENTIFIER;
 
 /* keywords */
-//terminal ARRAY, BEGIN, BOOLEAN, BYTE, CASE, CHAR, CONST, DO, DOWNTO, ELSE, END, FALSE, FILE, FOR, FORWARD, FUNCTION, GOTO, IF, IN, INLINE, INT, LABEL, LONGINT, NIL, OF, PACKED, PROCEDURE, PROGRAM, READ, REAL, RECORD, REPEAT, SET, SHORTINT, STRING, THEN, TO, TRUE, TYPE, UNTIL, VAR, WHILE, WITH, WRITE, AND, NOT, OR, XOR, DIV, MOD, COMMA, SEMICOLON, PLUSPLUS, MINUSMINUS, GTEQ, GT, LTEQ, LT, NEQ, EQ, PLUS, MINUS, MULT, DIV_SYM, LPAREN, RPAREN, LBRACK, RBRACK, ASSIGN, DOT, COLON, PLUSEQ, MINUSEQ, MULTEQ, DIVEQ, RSHIFT, LSHIFT, LSHIFTEQ, RSHIFTEQ;
-terminal ARRAY, BEGIN, BOOLEAN, BYTE, CASE, CHAR, CONST, DO, DOWNTO, ELSE, END;
-terminal FALSE, FILE, FOR, FORWARD, FUNCTION, GOTO, IF, IN, INLINE, INT, LABEL;
-terminal LONGINT, NIL, OF, PACKED, PROCEDURE, PROGRAM, READ, REAL, RECORD, REPEAT; //TODO NIL
-terminal SET, SHORTINT, STRING_TYPE, THEN, TO, TRUE, TYPE, UNTIL, VAR, WHILE, WITH, WRITE;
+terminal BEGIN, CONST, DO, DOWNTO, ELSE, END,
+        FALSE, FILE, FORWARD, FUNCTION, GOTO, IN, INLINE, LABEL,
+        NIL, OF, PACKED, PROCEDURE, PROGRAM, READ, RECORD, //TODO NIL
+        SET, THEN, TO, TRUE, TYPE, UNTIL, VAR, WITH, WRITE;
 
-terminal AND, NOT, OR, XOR, DIV, MOD;
+/* control structure */
+terminal CASE, IF, FOR, REPEAT, WHILE;
 
-terminal COMMA, SEMICOLON, PLUSPLUS, MINUSMINUS, GTEQ, GT, LTEQ, LT, NEQ, EQ, PLUS;
-terminal MINUS, MULT, DIV_SYM, LPAREN, RPAREN, LBRACK, RBRACK, ASSIGN, DOT, COLON;
-terminal PLUSEQ, MINUSEQ, MULTEQ, DIVEQ, RSHIFT, LSHIFT, LSHIFTEQ, RSHIFTEQ;
+/* operators */
+terminal AND, NOT, OR, XOR, DIV, MOD,
+        COMMA, SEMICOLON, PLUSPLUS, MINUSMINUS, GTEQ, GT, LTEQ, LT, NEQ, EQ, PLUS,
+        MINUS, MULT, DIV_SYM, LPAREN, RPAREN, LBRACK, RBRACK, ASSIGN, DOT, COLON,
+        PLUSEQ, MINUSEQ, MULTEQ, DIVEQ, RSHIFT, LSHIFT, LSHIFTEQ, RSHIFTEQ;
 
+/* types */
+terminal ARRAY, BOOLEAN, BYTE, CHAR, INT, LONGINT, REAL, SHORTINT, STRING_TYPE;
+
+/* literals */
 terminal java.lang.String STRING_LITERAL;
 terminal java.lang.Number INTEGER_LITERAL;
 terminal java.lang.Number FLOATING_POINT_LITERAL;
 terminal java.lang.Boolean BOOLEAN_LITERAL;
 terminal java.lang.Character CHARACTER_LITERAL; //TODO "#80" is not valid
+
+/* unary operators */
 terminal UMINUS,PREINCR;
 
-/* Non terminals */
+/*.---------------.
+  | NON TERMINALS |
+  '---------------'*/
 non terminal type, identtype, arraytype, vardecl, vars, var,
-        identifier,types, program, program_head, program_aux , error_begin, error_end,
+        identifier,types, program, program_head, program_aux ,
         functions, function, function_head, function_body, return, procedure, procedure_body,
         procedure_head, block, sentence_block, sentence, value_assignment, read_write, read,
         read_parameters, rw_parameter_list, rw_parameter , rw_parameter_list_aux,
@@ -82,7 +99,7 @@ non terminal type, identtype, arraytype, vardecl, vars, var,
         boolean_exp, comparison, compared, comparison_op, expression, unary_operation,
         increment_decrease_operator, left_operator, binary_operation, binary_operation_aux,
         center_operator, operated, parameters, parameter_list, parameter_list_aux, constants,
-        globals, var_assignments, cons_assignments, identifiers, identifiers_aux,
+        globals, var_assignments, cons_assignments, identifiers, identifiers_prime,
         assignment_type, array, array_type;
 non terminal value,boolean_value,array_size_values;
 non terminal array_call,array_subindex,array_size;
@@ -94,6 +111,9 @@ non terminal function_call,function_call_parameters,function_call_parameter_list
 non terminal value_assignment_prime;
 non terminal for_literal,o_c_a_value,value_prime,location,parameters_prime,array_call_prime;
 
+/*.------------.
+  | PRECEDENCE |
+  '------------'*/
 precedence left SEMICOLON;
 precedence left IDENTIFIER;
 precedence left error;
@@ -102,10 +122,8 @@ precedence left BEGIN;
 precedence right UMINUS, PREINCR;
 precedence right NOT;
 precedence left PLUSPLUS,MINUSMINUS;
-//precedence right PLUSPLUS,MINUSMINUS;
 precedence left PLUS, MINUS;
 //precedence right ASSIGN;
-
 precedence left MULT, DIV_SYM, MOD,DIV;
 precedence left DOT,LPAREN,RPAREN;
 precedence left LBRACK,RBRACK;
@@ -122,27 +140,31 @@ precedence left FOR,IF,CASE,REPEAT,WHILE;
 precedence left STRING_LITERAL,INTEGER_LITERAL,FLOATING_POINT_LITERAL,BOOLEAN_LITERAL,CHARACTER_LITERAL;
 
 
-/* GRAMMAR */
+/*.---------.
+  | GRAMMAR |
+  '---------'*/
+/*-- PROGRAM --*/
 program ::= {:RESULT = "";:}
         | program_head:p_head program_aux:p_aux {: RESULT = p_head+""+p_aux;:};
 
-program_head ::= PROGRAM:t_p IDENTIFIER:t_i {: RESULT = t_p+" "+t_i+"\n";:}
-                | error:e IDENTIFIER:t_i {: parser.report_error("Syntax ERROR: PROGRAM expected",e);:}
-                | PROGRAM:t_p error:e {: parser.report_error("Syntax ERROR: IDENTIFIER expected",t_p);:};
+program_head ::= PROGRAM:t_p IDENTIFIER:t_i
+                {: RESULT = t_p+" "+t_i+"\n";:}
+                | error:e IDENTIFIER:t_i
+                {: parser.report_error("Syntax ERROR: PROGRAM expected",e);:}
+                | PROGRAM:t_p error:e
+                {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e);:};
 
 
-program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs error_begin:nt_begin block:nt_b error_end:nt_end
-                {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+nt_begin+"\n"+nt_b+"\n"+nt_end;:}
-                | constants:nt_const globals:nt_globals error_begin:nt_begin block:nt_b error_end:nt_end
-                {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_begin+"\n"+nt_b+"\n"+nt_end;:};
+program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs BEGIN:t_begin block:nt_b END:t_end
+                {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:}
+                | constants:nt_const globals:nt_globals BEGIN:t_begin block:nt_b END:t_end
+                {:RESULT = nt_const+"\n"+nt_globals+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:};
 
-error_begin ::= BEGIN:t_b {:RESULT = t_b;:};
 
-error_end ::= END:t_e {:RESULT = t_e;:};
-
-/* CONSTANTS */
+/*-- CONSTANTS --*/
 constants ::= {:RESULT = "";:}
-    | CONST:t_const cons_assignments:nt_const_assign {:RESULT = t_const+"\n"+nt_const_assign;:};
+            | CONST:t_const cons_assignments:nt_const_assign
+            {:RESULT = t_const+"\n"+nt_const_assign;:};
 
 cons_assignments ::= one_const_assignment:o_c_a cons_assignments_prime:c_a_p {:RESULT= o_c_a+""+c_a_p;:};
 
@@ -152,7 +174,31 @@ cons_assignments_prime ::= {:RESULT = "";:}
 one_const_assignment ::= IDENTIFIER:t_id EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc {:RESULT = t_id+""+t_eq+""+nt_o_c_a_value+""+t_sc+"\n";:}
                         |error:e EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :};
 
-/* functions */
+
+/*-- GLOBALS --*/
+globals ::= {:RESULT = "";:}
+    | VAR:t_var var_assignments:v_a {:RESULT = t_var+"\n"+v_a;:};
+
+
+var_assignments ::= one_var_assignment:o_v_a var_assignments_prime:o_a_p {:RESULT= o_v_a+""+o_a_p;:};
+
+var_assignments_prime ::= {:RESULT = "";:}
+        | var_assignments:v_a {:RESULT = v_a;:};
+
+one_var_assignment ::= identifiers:ids COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
+        {:RESULT = ids+""+t_colon+""+a_t+""+t_sc+"\n";:}
+        |error:e COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
+        {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :}
+        |identifiers:ids COLON:t_colon error:e SEMICOLON:t_sc
+        {: parser.report_error("Syntax ERROR: TYPE expected",e); :};
+//REVISAR ERRORES
+
+identifiers ::= IDENTIFIER:t_id identifiers_prime:id_aux {:RESULT = t_id+""+id_aux;:};
+
+identifiers_prime ::= {:RESULT = "";:}
+    | COMMA:t_comma identifiers:ids {:RESULT = t_comma+""+ids;:};
+
+/*-- FUNCTIONS --*/
 functions ::= function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
         | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:}
         ;
@@ -167,24 +213,10 @@ function_head ::= FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colo
             {: RESULT = t_func+" "+t_id+""+params+""+t_colon+""+nt_type; :}
             | FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon error:e {: System.err.println("Syntax ERROR: RETURN TYPE expected"); :};
 
-/*
-Puede ser que sea un bloque de retorno
-BEGIN
-    fact := 3;
-END
-*/
 function_body ::= globals:nt_g constants:nt_c block:nt_b value_assignment:nt_r
                 {:RESULT = nt_g+""+nt_c+""+nt_b+""+nt_r;:}
                 | globals:nt_g constants:nt_c block:nt_b
                 {:RESULT = nt_g+""+nt_c+""+nt_b;:};
-/*
-No funciona con esto, porque no sabe qué camino tomar si assignment o return:
-BEGIN
-    //WRITE("a")
-    fact := 3
-END
-*/
-//return ::= IDENTIFIER:t_id ASSIGN:t_a value:nt_v {:RESULT = t_id+""+t_a+""+nt_v;:};
 
 /* procedure */
 procedure ::= procedure_head:nt_p_h BEGIN:t_begin procedure_body:nt_p_b END:t_end
@@ -341,9 +373,6 @@ function_call_parameter_list ::= expression:nt_fn_cl_pm_lt_el {:RESULT =  nt_fn_
                             | function_call_parameter_list:nt_fn_cl_pm_lt_el COMMA:t_cm expression:t_e
                             {:RESULT =  nt_fn_cl_pm_lt_el+""+t_cm+""+t_e;:};
 
-function_call_parameter_list_element ::= expression:nt_vl {: RESULT = nt_vl;:}
-                                    | condition:nt_vl {: RESULT = nt_vl;:}
-                                    | NIL:t_nl {: RESULT = t_nl;:};
 
 location ::= IDENTIFIER:id {: RESULT = id;:}
             | expression:e1 LBRACK:t_lb expression:e2 RBRACK:t_rb {: RESULT = e1+""+t_lb+""+e2+""+t_rb; :} ;
@@ -376,34 +405,6 @@ binary_operation ::= expression:nt_o1 PLUS:t_p expression:nt_o2
                        {:RESULT = nt_o1+""+t_m+""+nt_o2;:}
                      | expression:nt_o1 DIVEQ:t_d expression:nt_o2
                        {:RESULT = nt_o1+""+t_d+""+nt_o2;:};
-
-
-/* operation */
-
-
-
-/* functions */
-
-globals ::= {:RESULT = "";:}
-    | VAR:t_var var_assignments:v_a {:RESULT = t_var+"\n"+v_a;:};
-
-
-var_assignments ::= one_var_assignment:o_v_a var_assignments_prime:o_a_p {:RESULT= o_v_a+""+o_a_p;:};
-
-var_assignments_prime ::= {:RESULT = "";:}
-        | var_assignments:v_a {:RESULT = v_a;:};
-
-one_var_assignment ::= identifiers:ids COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
-        {:RESULT = ids+""+t_colon+""+a_t+""+t_sc+"\n";:}
-        |error:e COLON:t_colon assignment_type:a_t SEMICOLON:t_sc {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :}
-        |identifiers:ids COLON:t_colon error:e SEMICOLON:t_sc {: parser.report_error("Syntax ERROR: TYPE expected",e); :};
-//REVISAR ERRORES
-
-
-identifiers ::= IDENTIFIER:t_id identifiers_aux:id_aux {:RESULT = t_id+""+id_aux;:};
-
-identifiers_aux ::= {:RESULT = "";:}
-    | COMMA:t_comma identifiers:ids {:RESULT = t_comma+""+ids;:};
 
 assignment_type ::= type:t {:RESULT = t;:} | array:a {:RESULT = a;:};
 
