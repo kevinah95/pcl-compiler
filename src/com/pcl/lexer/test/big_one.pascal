@@ -6,6 +6,8 @@ CONST
     REPETICIONES = -f(3);
     REPETICIONES = n++;
     REPETICIONES = -3.14;
+    ITISTRUE = FALSE;
+    NULL = NIL;
 
 VAR
         i,j,k : INT;
@@ -51,18 +53,18 @@ BEGIN
         WRITE(-2);
         READ(-45);
         k := -1;
-    UNTIL k = -4;
+    UNTIL NOT (k = -4);
 
     b:="a";
     a:=FALSE;
 
     FOR i := -12 TO -10 DO
         BEGIN
-        IF (i <> -6) THEN
+        IF (i <> NIL) THEN
                 WRITE(a);
                 a := NOT a;
                 b := NOT TRUE;
-                IF (a=-b-3) OR (n=x) THEN k:=95; j:=3; ELSE k:=2; //La condción no puede ir entre parentesis
+                IF NOT (NOT(a=-b-3) OR NOT (n=x)) THEN k:=95; j:=3; ELSE k:=2; //La condción no puede ir entre parentesis
                 WHILE (j < -9) DO
                     BEGIN
                         WRITE(j);
@@ -72,7 +74,7 @@ BEGIN
                         ELSE
                             j:=j+1;
                     END
-        ELSE IF i > 9 THEN
+        ELSE IF NOT (i > 9) THEN
             WRITE(b);
         ELSE
             WRITE(i);
@@ -85,6 +87,7 @@ BEGIN
     n:=a-b+3*a++;
     a++;
     ++b;
+    a_call[--f()];
     n:=(a-b+(3-2));
     FOR i:=0 TO 9 DO
     BEGIN

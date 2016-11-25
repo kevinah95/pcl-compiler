@@ -69,38 +69,35 @@ terminal UMINUS,PREINCR;
 /*.---------------.
   | NON TERMINALS |
   '---------------'*/
-non terminal type, identtype, arraytype, vardecl, vars, var,
-        identifier,types, program, program_head, program_aux ,
-        functions, function, function_head, function_body, return, procedure, procedure_body,
+non terminal type,
+        program, program_head, program_aux ,
+        functions, function, function_head, function_body, procedure, procedure_body,
         procedure_head, block, sentence_block, sentence, value_assignment, read_write, read,
         read_parameters, rw_parameter_list, rw_parameter_list_prime,
-        write, write_parameters, write_parameter, write_parameters_aux, control, while,
+        write, write_parameters, control, while,
         repeat, if, else, for, case, cases, cases_prime, case_option, condition, other_comparison,
         boolean_exp, comparison, comparison_op, expression, unary_operation,
-        increment_decrease_operator, left_operator, binary_operation, binary_operation_aux,
-        center_operator, operated, parameters, parameter, parameter_prime, constants,
+        increment_decrease_operator, binary_operation,
+        parameters, parameter, parameter_prime, constants,
         globals, var_assignments, cons_assignments, identifiers, identifiers_prime,
-        assignment_type, array, array_type;
-non terminal value,boolean_value,array_size_values;
-non terminal array_subindex,array_size;
-non terminal java.lang.Number integer;
-
-non terminal one_var_assignment,one_const_assignment;
-non terminal var_assignments_prime,cons_assignments_prime,functions_prime,assigned_value;
-non terminal func_call,func_call_params,func_call_param,func_call_param_prime,function_call_parameter_list_element;
-non terminal value_assignment_prime;
-non terminal for_literal,o_c_a_value,literals,location,parameters_prime,array_call_prime;
+        assignment_type, array, array_type,
+        array_size_values, array_size,
+        one_var_assignment,one_const_assignment,
+        var_assignments_prime,cons_assignments_prime,functions_prime,assigned_value,
+        func_call,func_call_params,func_call_param,func_call_param_prime,
+        for_lit,literals,location,parameters_prime;
 
 /*.------------.
   | PRECEDENCE |
   '------------'*/
 precedence left SEMICOLON;
 precedence left IDENTIFIER;
+precedence left NIL;
 precedence left error;
 precedence left BEGIN;
 //precedence right UMINUS, OP_NOT;
 precedence right UMINUS, PREINCR;
-precedence right NOT;
+precedence left NOT;
 precedence left PLUSPLUS,MINUSMINUS;
 precedence left PLUS, MINUS;
 //precedence right ASSIGN;
@@ -118,7 +115,6 @@ precedence left LT, LTEQ, GT, GTEQ;
 precedence left DIVEQ,MULTEQ,MINUSEQ,PLUSEQ;
 precedence left FOR,IF,CASE,REPEAT,WHILE;
 precedence left STRING_LITERAL,INTEGER_LITERAL,FLOATING_POINT_LITERAL,BOOLEAN_LITERAL,CHARACTER_LITERAL;
-
 
 /*.---------.
   | GRAMMAR |
@@ -240,22 +236,18 @@ sentence_block ::= sentence:nt_s sentence_block:nt_s_b_p {:RESULT = nt_s+"\n"+nt
 
 sentence ::= expression:nt_o SEMICOLON:sc {:RESULT = nt_o+""+sc;:}
     | value_assignment:nt_v_a {:RESULT = nt_v_a;:}
-    | array_call_prime:nt_a SEMICOLON:t_sc {:RESULT = nt_a+""+t_sc;:}
     | read_write:nt_r_w {:RESULT = nt_r_w;:}
     | control:nt_c {:RESULT = nt_c;:};
 
 /*.------------------.
   | VALUE ASSIGNMENT |
   '------------------'*/
-value_assignment ::= value_assignment_prime:nt_v_a_p ASSIGN:t_a assigned_value:nt_v SEMICOLON:t_sc
-                     {:RESULT = nt_v_a_p+""+t_a+""+nt_v+""+t_sc;:};
+value_assignment ::= expression:nt_exp1 ASSIGN:t_a expression:nt_exp2 SEMICOLON:t_sc
+                     {:RESULT = nt_exp1+""+t_a+""+nt_exp2+""+t_sc;:};
 
-value_assignment_prime ::= IDENTIFIER:t_id {:RESULT=t_id;:}
-                        | array_call_prime:nt_a {:RESULT=nt_a;:};
-
-assigned_value::= expression:nt_op {:RESULT = nt_op;:}
-    | NOT:t_nt IDENTIFIER:t_id {:RESULT = t_nt+""+t_id;:};
-
+/*.------------.
+  | READ/WRITE |
+  '------------'*/
 read_write ::= read:nt_r {:RESULT = nt_r;:} | write:nt_w {:RESULT = nt_w;:};
 
 read ::= READ:t_r LPAREN:t_lp read_parameters:nt_r_p RPAREN:t_rp SEMICOLON:t_sm {:RESULT = t_r+""+"("+nt_r_p+")"+""+t_sm;:};
@@ -296,17 +288,17 @@ if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 else:nt_else
 else::= {:RESULT= "";:}
       | ELSE:t_else  block:nt_b2 {:RESULT= t_else+"\n"+nt_b2;:};
 
-for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:nt_for_lit1 TO:t_to for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
-        {:RESULT = t_for+" "+t_id+" "+t_a+" "+nt_for_lit1+" "+t_to+" "+nt_for_lit2+" "+t_do+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:}
-        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:int_for_lit1 TO:t_to for_literal:nt_for_lit2 error:e BEGIN:t_begin block:nt_b END:t_end
+for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:nt_f_lit1 TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
+        {:RESULT = t_for+" "+t_id+" "+t_a+" "+nt_f_lit1+" "+t_to+" "+nt_f_lit2+" "+t_do+"\n"+t_b+"\n"+nt_b+"\n"+t_e;:}
+        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:int_f_lit1 TO:t_to for_lit:nt_f_lit2 error:e BEGIN:t_b block:nt_b END:t_e
         {: System.err.println("Syntax ERROR: DO expected"); :}
-        | FOR:t_for IDENTIFIER:t_id error:e for_literal:int_for_lit1 TO:t_to for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
+        | FOR:t_for IDENTIFIER:t_id error:e for_lit:int_f_lit1 TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
         {: System.err.println("Syntax ERROR: ASSIGNATION expected"); :}
-        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_literal:int_for_lit1 error:e for_literal:nt_for_lit2 DO:t_do BEGIN:t_begin block:nt_b END:t_end
+        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:int_f_lit1 error:e for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
         {: System.err.println("Syntax ERROR: TO expected"); :};
 
 
-for_literal::= MINUS:t_minus INTEGER_LITERAL:t_int_lit {:RESULT = t_minus+""+t_int_lit;:}
+for_lit::= MINUS:t_minus INTEGER_LITERAL:t_int_lit {:RESULT = t_minus+""+t_int_lit;:}
             | INTEGER_LITERAL:t_int_lit {:RESULT = t_int_lit;:};
 
 case ::= CASE:t_case IDENTIFIER:t_id OF:t_of cases:nt_cases ELSE:t_else block:nt_b
@@ -320,7 +312,11 @@ cases_prime ::= {:RESULT = "";:}
 case_option ::= expression:nt_v COLON:t_colon block:nt_b SEMICOLON:t_sc
             {:RESULT = nt_v+""+t_colon+""+nt_b+""+t_sc;:};
 
-condition ::= comparison:nt_c other_comparison:nt_o_c {:RESULT = nt_c+" "+nt_o_c;:};
+/*.-----------.
+  | CONDITION |
+  '-----------'*/
+condition ::= LPAREN:t_lp comparison:nt_c other_comparison:nt_o_c RPAREN:t_rp {:RESULT = "("+nt_c+" "+nt_o_c+")";:}
+        | NOT:t_not condition:nt_cond {:RESULT = t_not+""+nt_cond;:};
 
 other_comparison ::= {:RESULT = "";:}
         | boolean_exp:nt_b_e condition:nt_c {:RESULT = nt_b_e+" "+nt_c;:};
@@ -329,10 +325,11 @@ boolean_exp ::= AND:t_and {:RESULT = t_and;:}
         | OR:t_or {:RESULT = t_or;:}
         | NOT:t_not {:RESULT = t_not;:};
 
-comparison ::= expression:nt_exp1 comparison_op:nt_c_o expression:nt_exp2
+comparison ::= LPAREN:t_lp expression:nt_exp1 comparison_op:nt_c_o expression:nt_exp2 RPAREN:t_rp
+            {:RESULT = "("+nt_exp1+""+nt_c_o+""+nt_exp2+")";:}
+            | expression:nt_exp1 comparison_op:nt_c_o expression:nt_exp2
             {:RESULT = nt_exp1+""+nt_c_o+""+nt_exp2;:}
-            | LPAREN:t_lp expression:nt_exp1 comparison_op:nt_c_o expression:nt_exp2 RPAREN:t_rp
-            {:RESULT = "("+nt_exp1+""+nt_c_o+""+nt_exp2+")";:};
+            | NOT:t_not comparison:nt_cond {:RESULT = t_not+""+nt_cond;:};
 
 comparison_op ::= EQ:t_eq {:RESULT = t_eq;:}
         | GTEQ:t_gteq {:RESULT = t_gteq;:}
@@ -350,7 +347,9 @@ expression ::= unary_operation:nt_s_s_o {:RESULT = nt_s_s_o;:}
         | location:t_id {:RESULT = t_id;:}
         | MINUS:t_minus expression:nt_op {:RESULT = t_minus+""+nt_op;:}%prec UMINUS
         | LPAREN:t_lp expression:nt_o RPAREN:t_rp {: RESULT = "("+nt_o+")";:}%prec LPAREN
-        | func_call:nt_fn_cl {: RESULT = nt_fn_cl;:};
+        | func_call:nt_fn_cl {: RESULT = nt_fn_cl;:}
+        | NIL:t_nil {: RESULT = t_nil;:}
+        | NOT:t_not expression:nt_exp {:RESULT=t_not+" "+nt_exp;:};
 
 
 
@@ -394,14 +393,14 @@ literals ::= STRING_LITERAL:t_str_lit {: RESULT = "\""+t_str_lit+"\""; :}
     | INTEGER_LITERAL:t_int_lit {: RESULT = t_int_lit; :}
     | FLOATING_POINT_LITERAL:t_float_lit {: RESULT = t_float_lit; :}
     | CHARACTER_LITERAL:t_char_lit {: RESULT = "\""+t_char_lit+"\""; :}
-    | BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :}
-    | NOT:t_nt BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_nt+""+t_bool_lit; :};
+    | BOOLEAN_LITERAL:t_bool_lit {: RESULT = t_bool_lit; :};
 
 /*.----------.
   | LOCATION |
   '----------'*/
 location ::= IDENTIFIER:id {: RESULT = id;:}
-            | expression:e1 LBRACK:t_lb expression:e2 RBRACK:t_rb {: RESULT = e1+"["+e2+"]"; :} ;
+            | expression:e1 LBRACK:t_lb expression:e2 RBRACK:t_rb {: RESULT = e1+"["+e2+"]"; :} 
+            | IDENTIFIER:id LBRACK:t_lb expression:e2 RBRACK:t_rb {: RESULT = id+"["+e2+"]"; :};
 
 /*.---------------.
   | FUNCTION CALL |
@@ -416,12 +415,6 @@ func_call_param ::= expression:nt_exp func_call_param_prime:nt_f_c_p_l_p {:RESUL
 
 func_call_param_prime ::= {:RESULT = "";:}
                         | COMMA:t_comma func_call_param:nt_f_c_p_l {:RESULT =  t_comma+""+nt_f_c_p_l;:};
-
-/*.------------.
-  | ARRAY CALL |
-  '------------'*/
-array_call_prime::= IDENTIFIER:t_id LBRACK:t_lb expression:nt_exp RBRACK:t_rb
-            {: RESULT = t_id+"["+nt_exp+"]";:};
 
 /*.-------.
   | TYPES |
@@ -446,6 +439,7 @@ type ::= BOOLEAN:p_bool {:RESULT = p_bool;:}
         | INT:pint {:RESULT = pint;:}
         | LONGINT:plongint {:RESULT = plongint;:}
         | SHORTINT:pshortint {:RESULT = pshortint;:}
+        | REAL:t_real {:RESULT = t_real;:}
         | STRING_TYPE:pstring {:RESULT = pstring;:};
 
 array_type ::= CHAR:pchar {:RESULT = pchar;:}

@@ -35,7 +35,7 @@
     </target>
 
     <target name="generate-tokens">
-        <cup srcfile="pcl.cup" dump_states="true"  dump_grammar="true" nowarn="true" package="com.pcl.lexer" interface="true" />
+        <cup srcfile="pcl.cup" dump_states="true"  dump_grammar="false" nowarn="false" package="com.pcl.lexer" interface="true" />
     </target>
 
     <target name="compile" depends="scanner,generate-tokens">
