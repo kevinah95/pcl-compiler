@@ -8,27 +8,61 @@ parser code {:
 	private int line;
 	private int column;
 
+
 	public void report_error(String message, Object info) {
-            System.err.print(message);
-            System.err.flush();
-            //System.out.println(info instanceof java_cup.runtime.Symbol);
-            if(info instanceof java_cup.runtime.Symbol) {
-                System.err.println(" "+info);
-                if(((Symbol)info).left != -1) {
-                    System.err.println(" at character " + ((Symbol)info).left + " of input");
-                } else {
-                    System.err.println("");
-                }
-                /*if(((Symbol)info).right != -1) {
-                    System.err.println(" at character " + ((Symbol)info).right + " of input");
-                } else {
-                    System.err.println("");
-                }*/
+        System.err.print(message);
+        System.err.flush();
+        //System.out.println(message);
+        //System.out.println(info instanceof java_cup.runtime.Symbol);
+        if(info instanceof java_cup.runtime.Symbol) {
+            System.err.println(" "+info);
+            Symbol temp = (Symbol)info;
+            //System.err.println(" What info:"+getTokenName(temp.sym));
+            /*System.err.println(" Has left: "+((Symbol)info).left);
+            System.err.println(" Has right: "+((Symbol)info).right);*/
+            if(((Symbol)info).left != -1) {
+                System.err.println(" at character " + ((Symbol)info).left + " of input");
             } else {
                 System.err.println("");
             }
-
+            /*if(((Symbol)info).right != -1) {
+                System.err.println(" at character " + ((Symbol)info).right + " of input");
+            } else {
+                System.err.println("");
+            }*/
+        } else {
+            System.err.println("");
         }
+
+    }
+    /**
+     * Converts an int token code into the name of the
+     * token by reflection on the cup symbol class/interface sym
+     *
+     * This code was contributed by Karl Meissner <meissnersd@yahoo.com>
+     */
+    public String getTokenName(int token) {
+        try {
+            java.lang.reflect.Field [] classFields = sym.class.getFields();
+            for (int i = 0; i < classFields.length; i++) {
+                if (classFields[i].getInt(null) == token) {
+                    return classFields[i].getName();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+
+        return "UNKNOWN TOKEN";
+    }
+    /*protected int error_sync_size () {
+     System.out.println(":error_sync_size was called.");
+        return 3;   // not recommended by the CUP manual
+          // but we need recovery after the next successful shift
+    }*/
+    public void syntax_error( Symbol currToken ) {
+        report_error( "Syntax Error", currToken );
+    }
 :}
 
 /*.-----------.
@@ -128,9 +162,9 @@ program ::= {:RESULT = "";:}
 program_head ::= PROGRAM:t_p IDENTIFIER:t_i
                 {: RESULT = t_p+" "+t_i+"\n";:}
                 | error:e IDENTIFIER:t_i
-                {: parser.report_error("Syntax ERROR: PROGRAM expected",e);:}
+                {: parser.report_error( "PROGRAM expected", new Symbol(sym.PROGRAM, t_ileft, t_iright, t_i ));:}
                 | PROGRAM:t_p error:e
-                {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e);:};
+                {: RESULT=""; parser.report_error("Syntax ERROR: IDENTIFIER expected",e);:};
 
 program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs BEGIN:t_begin block:nt_b END:t_end
                 {:RESULT = nt_const+"\n"+nt_globals+"\n"+nt_funcs+"\n"+t_begin+"\n"+nt_b+"\n"+t_end;:}
@@ -148,8 +182,8 @@ cons_assignments ::= one_const_assignment:o_c_a cons_assignments_prime:c_a_p {:R
 
 one_const_assignment ::= identifiers:t_ids EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc
                        {: RESULT = t_ids+""+t_eq+""+nt_o_c_a_value+""+t_sc+"\n"; :}
-                       | error:e EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc
-                       {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :};
+                       | error:e SEMICOLON:t_sc
+                       {: RESULT=""; parser.report_error("Invalid CONST assignment.",null); :};
 
 cons_assignments_prime ::= {:RESULT = "";:}
         | cons_assignments:c_p {:RESULT = c_p;:};
@@ -167,11 +201,9 @@ var_assignments_prime ::= {:RESULT = "";:}
 
 one_var_assignment ::= identifiers:ids COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
         {:RESULT = ids+""+t_colon+""+a_t+""+t_sc+"\n";:}
-        |error:e COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
-        {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :}
-        |identifiers:ids COLON:t_colon error:e SEMICOLON:t_sc
-        {: parser.report_error("Syntax ERROR: TYPE expected",e); :};
-//REVISAR ERRORES
+        | error:e COLON:t_colon assignment_type:a_t SEMICOLON:t_sc {: RESULT=""; parser.report_error("Invalid VAR assignment.",null); :}
+        | error:e SEMICOLON:t_sc {: RESULT=""; parser.report_error("Invalid VAR assignment.",null); :};
+//REVISAR ERRORES--Revisado
 
 identifiers ::= IDENTIFIER:t_id identifiers_prime:id_aux {:RESULT = t_id+""+id_aux;:};
 
@@ -182,8 +214,7 @@ identifiers_prime ::= {:RESULT = "";:}
   | FUNCTIONS |
   '-----------'*/
 functions ::= function:nt_f functions_prime:nt_f_p {:RESULT= nt_f+""+nt_f_p;:}
-        | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:}
-        ;
+        | procedure:nt_p functions_prime:nt_f_p {:RESULT= nt_p+""+nt_f_p;:};
 
 functions_prime ::= {:RESULT = "";:}
         | functions:nt_fs{:RESULT = nt_fs;:};
@@ -193,8 +224,8 @@ function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
 
 function_head ::= FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon type:nt_type
             {: RESULT = t_func+" "+t_id+""+params+""+t_colon+""+nt_type+"\n"; :}
-            | FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon error:e
-            {: System.err.println("Syntax ERROR: RETURN TYPE expected"); :};
+            | error:e COLON:t_colon type:nt_type
+            {: RESULT=""; parser.report_error("Invalid FUNCTION header.",null); :};
 
 function_body ::= globals:nt_g constants:nt_c BEGIN:t_b block:nt_b value_assignment:nt_r END:t_e
                 {:RESULT = nt_g+""+nt_c+""+t_b+"\n"+nt_b+""+nt_r+"\n"+t_e;:}
@@ -243,7 +274,8 @@ sentence ::= expression:nt_o SEMICOLON:sc {:RESULT = nt_o+""+sc;:}
   | VALUE ASSIGNMENT |
   '------------------'*/
 value_assignment ::= expression:nt_exp1 ASSIGN:t_a expression:nt_exp2 SEMICOLON:t_sc
-                     {:RESULT = nt_exp1+""+t_a+""+nt_exp2+""+t_sc;:};
+                     {:RESULT = nt_exp1+""+t_a+""+nt_exp2+""+t_sc;:}
+                    | error:e SEMICOLON:sc {: RESULT=""; parser.report_error("Invalid Assigment", null ); :};
 
 /*.------------.
   | READ/WRITE |
