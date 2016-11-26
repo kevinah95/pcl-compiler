@@ -119,7 +119,7 @@ non terminal type,
         one_var_assignment,one_const_assignment,
         var_assignments_prime,cons_assignments_prime,functions_prime,assigned_value,
         func_call,func_call_params,func_call_param,func_call_param_prime,
-        for_lit,literals,location,parameters_prime;
+        for_lit,literals,location,parameters_prime,return_value;
 
 /*.------------.
   | PRECEDENCE |
@@ -225,13 +225,19 @@ function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
 function_head ::= FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon type:nt_type
             {: RESULT = t_func+" "+t_id+""+params+""+t_colon+""+nt_type+"\n"; :}
             | error:e COLON:t_colon type:nt_type
+            {: RESULT=""; parser.report_error("Invalid FUNCTION header.",null); :}
+            | FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon error:e
             {: RESULT=""; parser.report_error("Invalid FUNCTION header.",null); :};
 
 function_body ::= globals:nt_g constants:nt_c BEGIN:t_b block:nt_b value_assignment:nt_r END:t_e
                 {:RESULT = nt_g+""+nt_c+""+t_b+"\n"+nt_b+""+nt_r+"\n"+t_e;:}
                 | globals:nt_g constants:nt_c BEGIN:t_b block:nt_b END:t_e
                 {:RESULT = nt_g+""+nt_c+""+t_b+"\n"+nt_b+"\n"+t_e;:}
+                /*| globals:nt_g constants:nt_c BEGIN:t_b block:nt_b return_value:nt_r END:t_e
+                {:RESULT = nt_g+""+nt_c+""+t_b+"\n"+nt_b+""+nt_r+"\n"+t_e;:}*/
                 | {:RESULT = "";:};
+
+return_value ::= IDENTIFIER:t_id ASSIGN:t_a expression:nt_exp {:RESULT=t_id+""+t_a+""+nt_exp;:};
 
 /*.-----------.
   | PROCEDURE |
@@ -243,16 +249,15 @@ procedure_body ::= globals:nt_g constants:nt_c BEGIN:t_b block:nt_b END:t_e {:RE
                 | {:RESULT = "";:};
 
 procedure_head ::= PROCEDURE:t_proc IDENTIFIER:t_id  parameters:nt_p
-                    {:RESULT=t_proc+" "+t_id+""+""+nt_p+""+"\n";:};
+                 {:RESULT=t_proc+" "+t_id+""+""+nt_p+""+"\n";:}
+                 | error:e {:RESULT=""; parser.report_error("Invalid PROCEDURE header.",null); :};
 
 parameters ::= LPAREN:t_lp parameters_prime:p_p RPAREN:t_rp {:RESULT="("+p_p+")";:};
 
 parameters_prime ::= {:RESULT ="";:}
         | parameter:p_l {:RESULT = p_l;:};
 
-parameter ::= type:nt_t IDENTIFIER:t_id parameter_prime:nt_p_l_a {:RESULT = nt_t+" "+t_id+""+nt_p_l_a;:}
-                   //| type:nt_t error:e parameter_list_aux:nt_p_l_a {: parser.report_error("Syntax ERROR: IDENTIFIER expected",e); :}
-                   | error:e IDENTIFIER:t_id parameter_prime:nt_p_l_a {: System.err.println("Syntax ERROR: TYPE expected"); :};
+parameter ::= type:nt_t IDENTIFIER:t_id parameter_prime:nt_p_l_a {:RESULT = nt_t+" "+t_id+""+nt_p_l_a;:};
 
 parameter_prime ::= {:RESULT = "";:}
     | COMMA:t_comma parameter:nt_pl {:RESULT = t_comma+""+nt_pl;:};

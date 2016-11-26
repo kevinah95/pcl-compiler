@@ -20,6 +20,10 @@ VAR
 (*FUNCTIONS*)
 FUNCTION fact( INT  a, STRING s): INT
 BEGIN
+    VAR
+            a : INT;
+    		b : BOOLEAN;
+    		c : CHAR;
     BEGIN
         WRITE("a");
         fact := 4;
@@ -30,8 +34,8 @@ FUNCTION Func2(INT a, STRING s): INT
 BEGIN
     BEGIN
         WRITE("a");
-        fact := 4;
         Procedimiento(Funcion(123));
+        fact := 4;
     END
 END
 (*PROCEDURES*)
