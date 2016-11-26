@@ -20,11 +20,8 @@ VAR
 (*FUNCTIONS*)
 FUNCTION fact( INT  a, STRING s): INT
 BEGIN
-    VAR
-            a : INT;
-    		b : BOOLEAN;
-    		c : CHAR;
     BEGIN
+
         WRITE("a");
         fact := 4;
     END
