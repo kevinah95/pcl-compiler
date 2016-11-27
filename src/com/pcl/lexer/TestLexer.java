@@ -44,17 +44,7 @@ public class TestLexer {
             System.out.println("Lexing [" + dir + "]");
             TokenTable tokenTable = new TokenTable();
             ComplexSymbolFactory csf = new ComplexSymbolFactory();
-            /*// create a buffering scanner wrapper
-            //ScannerBuffer lexer = new ScannerBuffer(new Scanner(new BufferedReader(new FileReader(dir)),csf));
-            // start parsing
-            Scanner scanner = new Scanner(new BufferedReader(new FileReader(dir)),csf);
-            Symbol s;
-            do {
-                s = scanner.custom_debug_next_token();
-                System.out.println(s.value);
-                //tokenTable.agregarFila((PclSymbol) s);
-            } while (s.sym != sym.EOF);
-            //tokenTable.imprimirTable();*/
+
             Scanner scanner = new Scanner(new BufferedReader(new FileReader(dir)),csf);
             ScannerBuffer lexer = new ScannerBuffer(scanner);
             Symbol s;
@@ -62,10 +52,10 @@ public class TestLexer {
                 s = lexer.next_token();
                 if(s instanceof ComplexSymbolFactory.ComplexSymbol) {
                     ComplexSymbolFactory.ComplexSymbol var10 = (ComplexSymbolFactory.ComplexSymbol)s;
-                    System.out.println("var10.TokenName = " + var10.getName());
+                    /*System.out.println("var10.TokenName = " + var10.getName());
                     System.out.println("var10.Row = " + var10.getLeft().getLine());
                     System.out.println("var10.Column = " + var10.getLeft().getColumn());
-                    System.out.println("var10.value = " + var10.value);
+                    System.out.println("var10.value = " + var10.value);*/
                     if(var10.getName().equals("EOF") && var10.value == null){
                         var10.value = "EOF";
                     }

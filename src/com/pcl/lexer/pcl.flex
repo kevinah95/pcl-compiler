@@ -38,6 +38,11 @@ import java.util.*;
         Location right= new Location(yyline+1,yycolumn+yylength(), yychar+yylength());
         return symbolFactory.newSymbol(name, sym, left, right,val);
     }
+    private Symbol symbol(String name, int sym, Object val,int buflength) {
+        Location left = new Location(yyline+1,yycolumn+yylength()-buflength,yychar+yylength()-buflength);
+        Location right= new Location(yyline+1,yycolumn+yylength(), yychar+yylength());
+        return symbolFactory.newSymbol(name, sym, left, right,val);
+    }
 
 
     /*private Symbol symbol(int type) {
@@ -65,6 +70,10 @@ import java.util.*;
 
 
 %}
+
+%eofval{
+     return symbolFactory.newSymbol("EOF", EOF, new Location(yyline+1,yycolumn+1,yychar), new Location(yyline+1,yycolumn+1,yychar+1));
+%eofval}
 
 
 /* main character classes */
@@ -233,7 +242,7 @@ SingleCharacter   = [^\r\n\'\\]
 }
 
 <STRING> {
-   \"                  { yybegin(YYINITIAL); return symbol("STRING_LITERAL", STRING_LITERAL, string.toString()); }
+   \"                  { yybegin(YYINITIAL); return symbol("STRING_LITERAL", STRING_LITERAL, string.toString(), string.length()); }
 
    {StringCharacter}\" { yybegin(YYINITIAL); return symbol("CHARACTER_LITERAL", CHARACTER_LITERAL,yytext().charAt(0)); }
    {StringCharacter}+  { string.append( yytext() ); }
@@ -277,4 +286,3 @@ SingleCharacter   = [^\r\n\'\\]
 /* error fallback */
 [^]                              { printError("Illegal character \""+yytext()+
                                                               "\" at line "+(yyline+1)+", column "+(yycolumn+1)); }
-<<EOF>>                          { return symbol("EOF", EOF); }
