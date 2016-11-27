@@ -8,6 +8,8 @@ package com.pcl.lexer;
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
+import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ScannerBuffer;
 import java_cup.runtime.Symbol;
 
 import java.io.BufferedReader;
@@ -41,15 +43,54 @@ public class TestLexer {
         try {
             System.out.println("Lexing [" + dir + "]");
             TokenTable tokenTable = new TokenTable();
-            Scanner scanner = new Scanner(new FileReader(dir));
+            ComplexSymbolFactory csf = new ComplexSymbolFactory();
+            /*// create a buffering scanner wrapper
+            //ScannerBuffer lexer = new ScannerBuffer(new Scanner(new BufferedReader(new FileReader(dir)),csf));
+            // start parsing
+            Scanner scanner = new Scanner(new BufferedReader(new FileReader(dir)),csf);
             Symbol s;
             do {
                 s = scanner.custom_debug_next_token();
-                tokenTable.agregarFila((PclSymbol) s);
+                System.out.println(s.value);
+                //tokenTable.agregarFila((PclSymbol) s);
+            } while (s.sym != sym.EOF);
+            //tokenTable.imprimirTable();*/
+            Scanner scanner = new Scanner(new BufferedReader(new FileReader(dir)),csf);
+            ScannerBuffer lexer = new ScannerBuffer(scanner);
+            Symbol s;
+            do {
+                s = lexer.next_token();
+                if(s instanceof ComplexSymbolFactory.ComplexSymbol) {
+                    ComplexSymbolFactory.ComplexSymbol var10 = (ComplexSymbolFactory.ComplexSymbol)s;
+                    System.out.println("var10.TokenName = " + var10.getName());
+                    System.out.println("var10.Row = " + var10.getLeft().getLine());
+                    System.out.println("var10.Column = " + var10.getLeft().getColumn());
+                    System.out.println("var10.value = " + var10.value);
+                    if(var10.getName().equals("EOF") && var10.value == null){
+                        var10.value = "EOF";
+                    }
+                    tokenTable.agregarFila((ComplexSymbolFactory.ComplexSymbol) var10);
+                } else if(s instanceof Symbol) {
+                    System.out.println("var9 = " + s.toString());
+                }
+
             } while (s.sym != sym.EOF);
             tokenTable.imprimirTable();
+            /*Iterator var8 = lexer.getBuffered().iterator();
+            while(var8.hasNext()) {
+                Symbol var9 = (Symbol)var8.next();
+                if(var9 instanceof ComplexSymbolFactory.ComplexSymbol) {
+                    ComplexSymbolFactory.ComplexSymbol var10 = (ComplexSymbolFactory.ComplexSymbol)var9;
+                    System.out.println("var10 = " + scanner.getTokenNamePrime(var10.sym));
+                    System.out.println("var10 = " + var10.getLeft().getLine());
+                    System.out.println("var10 = " + var10.getLeft().getColumn());
+                    System.out.println("var10 = " + var10.getLeft());
+                } else if(var9 instanceof Symbol) {
+                    System.out.println("var9 = " + var9.toString());
+                }
+            }*/
         } catch (Exception e) {
-            System.out.println("Invalid URL. Try again!");
+            System.out.println(e);
         }
     }
 
@@ -108,7 +149,7 @@ public class TestLexer {
                     }
                     main.scan();
                     TimeUnit.MILLISECONDS.sleep(500);
-                    main.parser();
+                    //main.parser();
                     TimeUnit.MILLISECONDS.sleep(500);
                     break;
                 }

@@ -1,4 +1,5 @@
 import java_cup.runtime.*;
+import java_cup.runtime.ComplexSymbolFactory;
 
 
 /*.-------------.
@@ -162,7 +163,7 @@ program ::= {:RESULT = "";:}
 program_head ::= PROGRAM:t_p IDENTIFIER:t_i
                 {: RESULT = t_p+" "+t_i+"\n";:}
                 | error:e IDENTIFIER:t_i
-                {: parser.report_error( "PROGRAM expected", new Symbol(sym.PROGRAM, t_ileft, t_iright, t_i ));:}
+                //{: parser.report_error( "PROGRAM expected", new Symbol(sym.PROGRAM, t_ileft, t_iright, t_i ));:}
                 | PROGRAM:t_p error:e
                 {: RESULT=""; parser.report_error("Syntax ERROR: IDENTIFIER expected",e);:};
 
@@ -325,29 +326,51 @@ while ::= WHILE:t_while condition:nt_c DO:t_do BEGIN:t_begin block:nt_b END:t_en
 repeat ::= REPEAT:t_repeat block:nt_b UNTIL:t_until condition:nt_c SEMICOLON:t_sc
          {:RESULT = t_repeat+"\n"+nt_b+"\n"+t_until+" "+nt_c+""+t_sc;:};
 
+/*.-------.
+  | IF    |
+  '-------'*/
 if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 else:nt_else
     {:RESULT = t_if+" "+nt_con+" "+t_then+"\n"+nt_b1+"\n"+nt_else;:}
     | IF:t_if error:e THEN:t_then block:nt_bl else:nt_else
     {:RESULT=""; parser.report_error("Invalid IF.", null ); :};
+    //| IF:t_if condition:nt_con error:e block:nt_bl else:nt_else
+    //{: RESULT=""; parser.report_error("Invalid IF.",null); :};
 
+/*.-------.
+  | ELSE  |
+  '-------'*/
 else::= {:RESULT= "";:}
       | ELSE:t_else  block:nt_b2 {:RESULT= t_else+"\n"+nt_b2;:};
 
+/*.-------.
+  | FOR   |
+  '-------'*/
 for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:nt_f_lit1 TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
         {:RESULT = t_for+" "+t_id+" "+t_a+" "+nt_f_lit1+" "+t_to+" "+nt_f_lit2+" "+t_do+"\n"+t_b+"\n"+nt_b+"\n"+t_e;:}
         | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:int_f_lit1 TO:t_to for_lit:nt_f_lit2 error:e BEGIN:t_b block:nt_b END:t_e
-        {: System.err.println("Syntax ERROR: DO expected"); :}
+        {: RESULT=""; parser.report_error("Invalid FOR",null); :}
         | FOR:t_for IDENTIFIER:t_id error:e for_lit:int_f_lit1 TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
-        {: System.err.println("Syntax ERROR: ASSIGNATION expected"); :}
+        {: RESULT=""; parser.report_error("Invalid FOR",null); :}
         | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:int_f_lit1 error:e for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
-        {: System.err.println("Syntax ERROR: TO expected"); :};
+        {: RESULT=""; parser.report_error("Invalid FOR",null); :}
+        | FOR:t_for error:e ASSIGN:t_a for_lit:int_f_litl TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
+        {: RESULT=""; parser.report_error("Invalid FOR",null); :};
 
 
 for_lit::= MINUS:t_minus INTEGER_LITERAL:t_int_lit {:RESULT = t_minus+""+t_int_lit;:}
             | INTEGER_LITERAL:t_int_lit {:RESULT = t_int_lit;:};
 
+/*.-----------.
+  | CASE      |
+  '-----------'*/
 case ::= CASE:t_case IDENTIFIER:t_id OF:t_of cases:nt_cases ELSE:t_else block:nt_b
-        {:RESULT = t_case+" "+t_id+" "+t_of+"\n"+nt_cases+""+t_else+"\n"+nt_b+"\n";:};
+        {:RESULT = t_case+" "+t_id+" "+t_of+"\n"+nt_cases+""+t_else+"\n"+nt_b+"\n";:}
+        | CASE:t_case error:e OF:t_of cases:nt_cases ELSE:t_else block:nt_b
+        {: RESULT=""; parser.report_error("Invalid CASE.",null); :}
+        | CASE:t_case IDENTIFIER:t_id error:e cases:nt_cases ELSE:t_Else block:nt_b
+        {: RESULT=""; parser.report_error("Invalid CASE.",null); :}
+        | CASE:t_case IDENTIFIER:t_id OF:t_of error:e ELSE:t_Else block:nt_b
+        {: RESULT=""; parser.report_error("Invalid CASE.",null); :};
 
 cases ::= case_option:nt_c_o cases_prime:nt_c_a {:RESULT = nt_c_o+"\n"+nt_c_a;:};
 
@@ -451,7 +474,11 @@ location ::= IDENTIFIER:id {: RESULT = id;:}
   | FUNCTION CALL |
   '---------------'*/
 func_call ::= IDENTIFIER:t_id LPAREN:t_lb func_call_params:nt_fn_cl_pm RPAREN:t_rb
-        {:RESULT =  t_id+"("+nt_fn_cl_pm+")";:};
+        {:RESULT =  t_id+"("+nt_fn_cl_pm+")";:}
+        | IDENTIFIER:t_id error:e func_call_params:nt_fn_cl_pm RPAREN:t_rb
+        {: RESULT=""; parser.report_error("Invalid FUNCTION call.",null); :};
+        //| IDENTIFIER:t_id LPAREN:t_lb func_call_params:nt_fn_cl_pm error:e
+        //{: RESULT=""; parser.report_error("Invalid FUNCTION call.",null); :};
 
 func_call_params ::= {:RESULT = "";:}
         | func_call_param:nt_fn_cl_pm_lt {:RESULT = nt_fn_cl_pm_lt;:};

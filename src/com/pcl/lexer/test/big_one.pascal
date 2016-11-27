@@ -8,7 +8,7 @@ CONST
     REPETICIONES = -3.14;
     ITISTRUE = FALSE;
     NULL = NIL;
-
+    STR = "Kevin";
 VAR
         i,j,k : INT;
 		a : BOOLEAN;
