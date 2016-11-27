@@ -61,7 +61,7 @@ BEGIN
 
     FOR i := -12 TO -10 DO
         BEGIN
-        IF (i <> NIL) THEN
+        IF (i <> NIL)
                 WRITE(a);
                 a := NOT a;
                 b := NOT TRUE;
