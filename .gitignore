@@ -61,3 +61,5 @@ src/com/pcl/lexer/Lexer.java
 src/com/pcl/lexer/Parser.java
 src/com/pcl/lexer/output.html
 src/com/pcl/lexer/simple.xml
+src/com/pcl/lexer/ast.html
+src/com/pcl/lexer/output.xml

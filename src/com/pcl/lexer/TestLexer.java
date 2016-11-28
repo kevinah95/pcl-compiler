@@ -7,11 +7,7 @@ package com.pcl.lexer;
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-
-import java_cup.runtime.ComplexSymbolFactory;
-import java_cup.runtime.ScannerBuffer;
-import java_cup.runtime.Symbol;
-import java_cup.runtime.XMLElement;
+import java_cup.runtime.*;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -91,24 +87,8 @@ public class TestLexer {
     }
 
     private void parser() {
-        /*boolean withDebug = false; //TODO put as argument
         try {
-            Object result;
-            parser p = new parser(new Scanner(new FileReader(dir)));
-            if(withDebug){
-                result = p.debug_parse().value;
-            }else {
-                result = p.parse().value;
-            }
-            TimeUnit.MILLISECONDS.sleep(500);
-            System.out.println(result);
-            //p.debug_stack();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-        try {
-            // initialize the symbol factory
+            /*// initialize the symbol factory
             ComplexSymbolFactory csf = new ComplexSymbolFactory();
             // create a buffering scanner wrapper
             ScannerBuffer lexer = new ScannerBuffer(new Lexer(new BufferedReader(new FileReader(dir)),csf));
@@ -128,10 +108,44 @@ public class TestLexer {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
             transformer.transform(text, new StreamResult(new File("output.html")));
-            System.out.println("Parsing finished!");
+            System.out.println("Parsing finished!");*/
+            // initialize the symbol factory
+            ComplexSymbolFactory csf = new ComplexSymbolFactory();
+            // create a buffering scanner wrapper
+            ScannerBuffer lexer = new ScannerBuffer(new Lexer(new BufferedReader(new FileReader(dir)),csf));
+            // start parsing
+            Parser p = new Parser(lexer,csf);
+            XMLElement e = (XMLElement)p.parse().value;
+
+            for (XMLElement el: SyntaxTreeXPath.query("/",e)){
+                System.out.println(el.getTagname());
+            }
+
+
+            TestVisitor t = new TestVisitor();
+            SyntaxTreeDFS.dfs(e,t);
+
+            // create XML output file
+            XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
+            XMLStreamWriter sw = outFactory.createXMLStreamWriter(new FileOutputStream("simple.xml"), "UTF-8");
+            // dump XML output to the file
+            XMLElement.dump(lexer,sw,e,"expr","stmt");
+
+            // transform the parse tree into an AST and a rendered HTML version
+            Transformer transformer = TransformerFactory.newInstance()
+                    .newTransformer(new StreamSource(new File("tree.xsl")));
+            Source text = new StreamSource(new File("simple.xml"));
+            transformer.setOutputProperty(OutputKeys.VERSION, "1.0");
+            //transformer.setOutputProperty(OutputKeys.ENCODING,"UTF-8");
+            transformer.transform(text, new StreamResult(new File("output.xml")));
+            transformer = TransformerFactory.newInstance()
+                    .newTransformer(new StreamSource(new File("tree-view.xsl")));
+            text = new StreamSource(new File("output.xml"));
+            transformer.transform(text, new StreamResult(new File("ast.html")));
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     private String readOption() {

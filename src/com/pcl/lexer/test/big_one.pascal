@@ -1,4 +1,4 @@
-mojProgram
+PROGRAM mojProgram
 CONST
     PI = 3+5*2+4/2;
     A,B,C = -f[3]++;
