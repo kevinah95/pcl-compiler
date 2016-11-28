@@ -1,4 +1,13 @@
-body       { font-family: sans-serif; font-size: 80%; background-color: #EAEAD9; color: black }
+
+body {
+    font-family: sans-serif;
+    font-size: 80%;
+    background-color: #EAEAD9;
+    color: black;
+    width: auto;
+    overflow-y: scroll;
+    overflow: auto;
+    white-space: nowrap; }
 
 .connector { font-family: monospace; }
 

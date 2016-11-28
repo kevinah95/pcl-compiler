@@ -15,6 +15,7 @@ import java_cup.runtime.XMLElement;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -124,34 +125,9 @@ public class TestLexer {
             Transformer transformer = TransformerFactory.newInstance()
                     .newTransformer(new StreamSource(new File("tree.xsl")));
             Source text = new StreamSource(new File("simple.xml"));
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
             transformer.transform(text, new StreamResult(new File("output.html")));
-            /*Parser p = new Parser(lexer,csf);
-            XMLElement e = (XMLElement)p.parse().value;
-
-            for (XMLElement el: SyntaxTreeXPath.query("/",e)){
-                System.out.println(el.getTagname());
-            }
-
-
-            TestVisitor t = new TestVisitor();
-            SyntaxTreeDFS.dfs(e,t);
-
-            // create XML output file
-            XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
-            XMLStreamWriter sw = outFactory.createXMLStreamWriter(new FileOutputStream("simple.xml"), "UTF-8");
-            // dump XML output to the file
-            XMLElement.dump(lexer,sw,e,"expr","stmt");
-
-            // transform the parse tree into an AST and a rendered HTML version
-            Transformer transformer = TransformerFactory.newInstance()
-                    .newTransformer(new StreamSource(new File("tree.xsl")));
-            Source text = new StreamSource(new File("simple.xml"));
-            transformer.transform(text, new StreamResult(new File("output.xml")));
-            transformer = TransformerFactory.newInstance()
-                    .newTransformer(new StreamSource(new File("tree-view.xsl")));
-            text = new StreamSource(new File("output.xml"));
-            transformer.transform(text, new StreamResult(new File("ast.html")));*/
-
             System.out.println("Parsing finished!");
         } catch (Exception e) {
             e.printStackTrace();

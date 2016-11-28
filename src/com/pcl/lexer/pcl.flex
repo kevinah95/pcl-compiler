@@ -44,15 +44,6 @@ import java.util.*;
         return symbolFactory.newSymbol(name, sym, left, right,val);
     }
 
-
-    /*private Symbol symbol(int type) {
-    return new PclSymbol(type, yyline+1, yycolumn+1);
-    }
-
-    private Symbol symbol(int type, Object value) {
-    return new PclSymbol(type, yyline+1, yycolumn+1, value);
-    }*/
-
     private void printError(String type){
     System.out.println("Error: line:" + (yyline+1) + " col:" + (yycolumn+1) + " type:" + type);
     }

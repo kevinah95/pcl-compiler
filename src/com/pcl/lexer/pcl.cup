@@ -176,10 +176,10 @@ program ::= {::}
 
 program_head ::= PROGRAM:t_p IDENTIFIER:t_i
                 {: :}
-                | error:e IDENTIFIER:t_i
+                | error:syntax_error IDENTIFIER:t_i
                 //{: parser.report_error( "PROGRAM expected", new Symbol(sym.PROGRAM, t_ileft, t_iright, t_i ));:}
-                | PROGRAM:t_p error:e
-                {:  parser.report_error("Syntax ERROR: IDENTIFIER expected",e);:};
+                | PROGRAM:t_p error:syntax_error
+                {:  parser.report_error("Syntax ERROR: IDENTIFIER expected",null);:};
 
 program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs BEGIN:t_begin block:nt_b END:t_end
                 {::}
@@ -197,7 +197,7 @@ cons_assignments ::= one_const_assignment:o_c_a cons_assignments_prime:c_a_p {::
 
 one_const_assignment ::= identifiers:t_ids EQ:t_eq expression:nt_o_c_a_value SEMICOLON:t_sc
                        {:  :}
-                       | error:e SEMICOLON:t_sc
+                       | error:syntax_error SEMICOLON:t_sc
                        {:  parser.report_error("Invalid CONST assignment.",null); :};
 
 cons_assignments_prime ::= {::}
@@ -216,9 +216,9 @@ var_assignments_prime ::= {::}
 
 one_var_assignment ::= identifiers:ids COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
         {::}
-        | error:e COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
+        | error:syntax_error COLON:t_colon assignment_type:a_t SEMICOLON:t_sc
         {:  parser.report_error("Invalid VAR assignment.",null); :}
-        | error:e SEMICOLON:t_sc
+        | error:syntax_error SEMICOLON:t_sc
         {:  parser.report_error("Invalid VAR assignment.",null); :};
 
 identifiers ::= IDENTIFIER:t_id identifiers_prime:id_aux {::};
@@ -240,9 +240,9 @@ function ::= function_head:f_h BEGIN:t_begin function_body:f_b END:t_end
 
 function_head ::= FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon type:nt_type
             {:  :}
-            | error:e COLON:t_colon type:nt_type
+            | error:syntax_error COLON:t_colon type:nt_type
             {:  parser.report_error("Invalid FUNCTION header.",null); :}
-            | FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon error:e
+            | FUNCTION:t_func IDENTIFIER:t_id parameters:params COLON:t_colon error:syntax_error
             {:  parser.report_error("Invalid FUNCTION header.",null); :};
 
 function_body ::= globals:nt_g constants:nt_c BEGIN:t_b block:nt_b value_assignment:nt_r END:t_e
@@ -266,7 +266,7 @@ procedure_body ::= {::}
 
 procedure_head ::= PROCEDURE:t_proc IDENTIFIER:t_id  parameters:nt_p
                  {::}
-                 | error:e {: parser.report_error("Invalid PROCEDURE header.",null); :};
+                 | error:syntax_error {: parser.report_error("Invalid PROCEDURE header.",null); :};
 
 parameters ::= LPAREN:t_lp parameters_prime:p_p RPAREN:t_rp {::};
 
@@ -296,7 +296,7 @@ sentence ::= expression:nt_o SEMICOLON:sc {::}
   '------------------'*/
 value_assignment ::= expression:nt_exp1 ASSIGN:t_a expression:nt_exp2 SEMICOLON:t_sc
                      {::}
-                    | error:e SEMICOLON:sc {:  parser.report_error("Invalid Assigment", null ); :};
+                    | error:syntax_error SEMICOLON:sc {:  parser.report_error("Invalid Assigment", null ); :};
 
 /*.------------.
   | READ/WRITE |
@@ -305,7 +305,7 @@ read_write ::= read:nt_r {::} | write:nt_w {::};
 
 read ::= READ:t_r LPAREN:t_lp read_parameters:nt_r_p RPAREN:t_rp SEMICOLON:t_sm
         {::}
-        | READ:t_r error:e SEMICOLON:t_sm
+        | READ:t_r error:syntax_error SEMICOLON:t_sm
         {: parser.report_error("Invalid READ call.", null ); :};
 
 read_parameters ::= {::}
@@ -313,7 +313,7 @@ read_parameters ::= {::}
 
 write ::= WRITE:t_w LPAREN:t_lp write_parameters:nt_w_p RPAREN:t_rp SEMICOLON:t_sm
         {::}
-        | WRITE:t_r error:e SEMICOLON:t_sm
+        | WRITE:t_r error:syntax_error SEMICOLON:t_sm
         {: parser.report_error("Invalid WRITE call.", null ); :};
 
 write_parameters ::= rw_parameter_list:r_p_l {::};
@@ -334,7 +334,7 @@ control ::= while:nt_while {::}
 
 while ::= WHILE:t_while condition:nt_c DO:t_do BEGIN:t_begin block:nt_b END:t_end
         {::}
-        | WHILE:t_while error:e BEGIN:t_begin block:nt_b END:t_end
+        | WHILE:t_while error:syntax_error BEGIN:t_begin block:nt_b END:t_end
         {: parser.report_error("Invalid WHILE.", null ); :};
 
 repeat ::= REPEAT:t_repeat block:nt_b UNTIL:t_until condition:nt_c SEMICOLON:t_sc
@@ -345,9 +345,9 @@ repeat ::= REPEAT:t_repeat block:nt_b UNTIL:t_until condition:nt_c SEMICOLON:t_s
   '-------'*/
 if ::= IF:t_if condition:nt_con THEN:t_then block:nt_b1 else:nt_else
     {::}
-    | IF:t_if error:e THEN:t_then block:nt_bl else:nt_else
+    | IF:t_if error:syntax_error THEN:t_then block:nt_bl else:nt_else
     {: parser.report_error("Invalid IF.", null ); :};
-    //| IF:t_if condition:nt_con error:e block:nt_bl else:nt_else
+    //| IF:t_if condition:nt_con error:syntax_error block:nt_bl else:nt_else
     //{:  parser.report_error("Invalid IF.",null); :};
 
 /*.-------.
@@ -361,13 +361,13 @@ else::= {::}
   '-------'*/
 for ::= FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:nt_f_lit1 TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
         {::}
-        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:int_f_lit1 TO:t_to for_lit:nt_f_lit2 error:e BEGIN:t_b block:nt_b END:t_e
+        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:int_f_lit1 TO:t_to for_lit:nt_f_lit2 error:syntax_error BEGIN:t_b block:nt_b END:t_e
         {:  parser.report_error("Invalid FOR",null); :}
-        | FOR:t_for IDENTIFIER:t_id error:e for_lit:int_f_lit1 TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
+        | FOR:t_for IDENTIFIER:t_id error:syntax_error for_lit:int_f_lit1 TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
         {:  parser.report_error("Invalid FOR",null); :}
-        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:int_f_lit1 error:e for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
+        | FOR:t_for IDENTIFIER:t_id ASSIGN:t_a for_lit:int_f_lit1 error:syntax_error for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
         {:  parser.report_error("Invalid FOR",null); :}
-        | FOR:t_for error:e ASSIGN:t_a for_lit:int_f_litl TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
+        | FOR:t_for error:syntax_error ASSIGN:t_a for_lit:int_f_litl TO:t_to for_lit:nt_f_lit2 DO:t_do BEGIN:t_b block:nt_b END:t_e
         {:  parser.report_error("Invalid FOR",null); :};
 
 
@@ -379,11 +379,11 @@ for_lit::= MINUS:t_minus INTEGER_LITERAL:t_int_lit {::}
   '-----------'*/
 case ::= CASE:t_case IDENTIFIER:t_id OF:t_of cases:nt_cases ELSE:t_else block:nt_b
         {::}
-        | CASE:t_case error:e OF:t_of cases:nt_cases ELSE:t_else block:nt_b
+        | CASE:t_case error:syntax_error OF:t_of cases:nt_cases ELSE:t_else block:nt_b
         {:  parser.report_error("Invalid CASE.",null); :}
-        | CASE:t_case IDENTIFIER:t_id error:e cases:nt_cases ELSE:t_Else block:nt_b
+        | CASE:t_case IDENTIFIER:t_id error:syntax_error cases:nt_cases ELSE:t_Else block:nt_b
         {:  parser.report_error("Invalid CASE.",null); :}
-        | CASE:t_case IDENTIFIER:t_id OF:t_of error:e ELSE:t_Else block:nt_b
+        | CASE:t_case IDENTIFIER:t_id OF:t_of error:syntax_error ELSE:t_Else block:nt_b
         {:  parser.report_error("Invalid CASE.",null); :};
 
 cases ::= case_option:nt_c_o cases_prime:nt_c_a {::};
@@ -489,9 +489,9 @@ location ::= IDENTIFIER:id {: :}
   '---------------'*/
 func_call ::= IDENTIFIER:t_id LPAREN:t_lb func_call_params:nt_fn_cl_pm RPAREN:t_rb
         {::}
-        | IDENTIFIER:t_id error:e func_call_params:nt_fn_cl_pm RPAREN:t_rb
+        | IDENTIFIER:t_id error:syntax_error func_call_params:nt_fn_cl_pm RPAREN:t_rb
         {:  parser.report_error("Invalid FUNCTION call.",null); :};
-        //| IDENTIFIER:t_id LPAREN:t_lb func_call_params:nt_fn_cl_pm error:e
+        //| IDENTIFIER:t_id LPAREN:t_lb func_call_params:nt_fn_cl_pm error:syntax_error
         //{:  parser.report_error("Invalid FUNCTION call.",null); :};
 
 func_call_params ::= {::}
