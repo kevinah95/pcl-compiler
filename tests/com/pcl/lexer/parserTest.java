@@ -14,16 +14,16 @@ import java.io.FileReader;
  */
 public class parserTest {
 
-    parser sut;
+    Parser sut;
 
     String dir = "./files/program_structure.pcl";
     @Before
     public void setUp() throws Exception {
-        sut = new parser(new Scanner(new FileReader(this.getClass().getResource("/com/pcl/lexer/files/program_structure.pcl").getFile())));
+        sut = new Parser(new Lexer(new FileReader(this.getClass().getResource("/com/pcl/lexer/files/program_structure.pcl").getFile())));
     }
 
-    private Scanner changeScannerWithThisFile(String fileName) throws FileNotFoundException {
-        return new Scanner(new FileReader(this.getClass().getResource("/com/pcl/lexer/files/"+fileName).getFile()));
+    private Lexer changeScannerWithThisFile(String fileName) throws FileNotFoundException {
+        return new Lexer(new FileReader(this.getClass().getResource("/com/pcl/lexer/files/"+fileName).getFile()));
     }
 
     @After

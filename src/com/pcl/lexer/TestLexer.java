@@ -11,11 +11,16 @@ package com.pcl.lexer;
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ScannerBuffer;
 import java_cup.runtime.Symbol;
+import java_cup.runtime.XMLElement;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -45,7 +50,7 @@ public class TestLexer {
             TokenTable tokenTable = new TokenTable();
             ComplexSymbolFactory csf = new ComplexSymbolFactory();
 
-            Scanner scanner = new Scanner(new BufferedReader(new FileReader(dir)),csf);
+            Lexer scanner = new Lexer(new BufferedReader(new FileReader(dir)),csf);
             ScannerBuffer lexer = new ScannerBuffer(scanner);
             Symbol s;
             do {
@@ -85,7 +90,7 @@ public class TestLexer {
     }
 
     private void parser() {
-        boolean withDebug = false; //TODO put as argument
+        /*boolean withDebug = false; //TODO put as argument
         try {
             Object result;
             parser p = new parser(new Scanner(new FileReader(dir)));
@@ -98,6 +103,56 @@ public class TestLexer {
             System.out.println(result);
             //p.debug_stack();
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+        try {
+            // initialize the symbol factory
+            ComplexSymbolFactory csf = new ComplexSymbolFactory();
+            // create a buffering scanner wrapper
+            ScannerBuffer lexer = new ScannerBuffer(new Lexer(new BufferedReader(new FileReader(dir)),csf));
+            // start parsing
+            Parser p = new Parser(lexer,csf);
+            System.out.println("Parser runs: ");
+            XMLElement e = (XMLElement)p.parse().value;
+            // create XML output file
+            XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
+            XMLStreamWriter sw = outFactory.createXMLStreamWriter(new FileOutputStream("simple.xml"), "UTF-8");
+            // dump XML output to the file
+            XMLElement.dump(lexer,sw,e); //,"expr","stmt");
+            // transform the parse tree into an AST and a rendered HTML version
+            Transformer transformer = TransformerFactory.newInstance()
+                    .newTransformer(new StreamSource(new File("tree.xsl")));
+            Source text = new StreamSource(new File("simple.xml"));
+            transformer.transform(text, new StreamResult(new File("output.html")));
+            /*Parser p = new Parser(lexer,csf);
+            XMLElement e = (XMLElement)p.parse().value;
+
+            for (XMLElement el: SyntaxTreeXPath.query("/",e)){
+                System.out.println(el.getTagname());
+            }
+
+
+            TestVisitor t = new TestVisitor();
+            SyntaxTreeDFS.dfs(e,t);
+
+            // create XML output file
+            XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
+            XMLStreamWriter sw = outFactory.createXMLStreamWriter(new FileOutputStream("simple.xml"), "UTF-8");
+            // dump XML output to the file
+            XMLElement.dump(lexer,sw,e,"expr","stmt");
+
+            // transform the parse tree into an AST and a rendered HTML version
+            Transformer transformer = TransformerFactory.newInstance()
+                    .newTransformer(new StreamSource(new File("tree.xsl")));
+            Source text = new StreamSource(new File("simple.xml"));
+            transformer.transform(text, new StreamResult(new File("output.xml")));
+            transformer = TransformerFactory.newInstance()
+                    .newTransformer(new StreamSource(new File("tree-view.xsl")));
+            text = new StreamSource(new File("output.xml"));
+            transformer.transform(text, new StreamResult(new File("ast.html")));*/
+
+            System.out.println("Parsing finished!");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -137,9 +192,9 @@ public class TestLexer {
                         main.displaySecondMenu();
                         main.dir = main.readOption();
                     }
-                    main.scan();
+                    //main.scan();
                     TimeUnit.MILLISECONDS.sleep(500);
-                    //main.parser();
+                    main.parser();
                     TimeUnit.MILLISECONDS.sleep(500);
                     break;
                 }

@@ -52,11 +52,12 @@ fabric.properties
 # .idea/misc.xml
 # *.ipr
 
-#Testing
-/cup/
-/example/
-
+# Parser files
 src/com/pcl/lexer/sym.java
 src/com/pcl/lexer/parser.java
 src/com/pcl/lexer/Scanner.java
 lib/TestLexer.jar
+src/com/pcl/lexer/Lexer.java
+src/com/pcl/lexer/Parser.java
+src/com/pcl/lexer/output.html
+src/com/pcl/lexer/simple.xml

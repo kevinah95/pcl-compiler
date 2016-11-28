@@ -35,7 +35,7 @@
     </target>
 
     <target name="generate-tokens">
-        <cup srcfile="pcl.cup" dump_states="true" locations="true" dump_grammar="false" nowarn="false" package="com.pcl.lexer" interface="true" />
+        <cup srcfile="pcl.cup" parser="Parser" xmlactions="true" locations="true" dump_states="true" dump_grammar="false" nowarn="false" package="com.pcl.lexer" interface="true" />
     </target>
 
     <target name="compile" depends="scanner,generate-tokens">
@@ -62,9 +62,11 @@
         <delete dir="${classes.dir}"/>
     </target>
     <target name="genclean">
-        <delete file="Scanner.java"/>
+        <delete file="Lexer.java"/>
         <delete file="sym.java"/>
-        <delete file="parser.java"/>
+        <delete file="Parser.java"/>
+        <delete file="output.html"/>
+        <delete file="simple.xml"/>
     </target>
     <target name="realclean" depends="clean,genclean"/>
     <target name="build" depends="realclean,compile"/>

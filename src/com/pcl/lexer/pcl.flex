@@ -8,7 +8,7 @@ import java.util.*;
 %%
 
 %public
-%class Scanner
+%class Lexer
 %implements sym
 
 %unicode
@@ -24,7 +24,7 @@ import java.util.*;
     StringBuilder string = new StringBuilder();
 
     ComplexSymbolFactory symbolFactory;
-    public Scanner(java.io.Reader in, ComplexSymbolFactory sf){
+    public Lexer(java.io.Reader in, ComplexSymbolFactory sf){
         this(in);
         symbolFactory = sf;
     }
