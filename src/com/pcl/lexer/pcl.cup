@@ -174,12 +174,12 @@ precedence left STRING_LITERAL,INTEGER_LITERAL,FLOATING_POINT_LITERAL,BOOLEAN_LI
 program ::= {::}
         | program_head:p_head program_aux:p_aux {: :};
 
-program_head ::= PROGRAM:t_p IDENTIFIER:t_i
+program_head ::= PROGRAM IDENTIFIER:t_i
                 {: :}
                 | error:syntax_error IDENTIFIER:t_i
                 //{: parser.report_error( "PROGRAM expected", new Symbol(sym.PROGRAM, t_ileft, t_iright, t_i ));:}
-                | PROGRAM:t_p error:syntax_error
-                {:  parser.report_error("Syntax ERROR: IDENTIFIER expected",null);:};
+                | PROGRAM error:syntax_error
+                {:parser.report_error("Syntax ERROR: IDENTIFIER expected",null);:};
 
 program_aux ::= constants:nt_const globals:nt_globals functions:nt_funcs BEGIN:t_begin block:nt_b END:t_end
                 {::}
